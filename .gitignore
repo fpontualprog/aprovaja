@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+resultado_coleta_pci_v3/
