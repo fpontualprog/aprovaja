@@ -23,7 +23,7 @@ Após uma execução bem-sucedida, os dados ficam em `data/`:
 O workflow só faz commit em `data/` após coleta e validação bem-sucedidas. A base original em `resultado_coleta_pci_v3/` é gerada em cada execução e não é versionada.
 
 ## Configuração
-1. Confirme que os arquivos estão na branch padrão.
+1. Confira os arquivos da branch `feat/pci-concursos-coletor`.
 2. Abra **Actions** e execute manualmente uma primeira vez.
 3. Inspecione logs e os JSON publicados.
 4. Somente depois prepare a rotina de leitura do Supabase. Nenhuma sincronização com banco está incluída nesta etapa.
