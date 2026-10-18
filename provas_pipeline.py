@@ -8,6 +8,7 @@ from urllib.parse import urljoin, urlparse, urldefrag
 import requests
 from bs4 import BeautifulSoup
 import fitz
+from validar_pdf_prova import validar_pdf_prova
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONFIG = ROOT / "config" / "fontes_provas.json"
@@ -173,6 +174,17 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
                 final_url = item["url"]
             if not payload.startswith(b"%PDF"):
                 raise ValueError("Resposta não parece ser um PDF")
+            nome_arquivo = Path(urlparse(final_url).path).name or ""
+            validacao = validar_pdf_prova(payload, nome_arquivo)
+            if not validacao["aprovado"]:
+                manifest.append({
+                    "fonte": item.get("source"), "url_origem": final_url,
+                    "nome_arquivo_original": nome_arquivo,
+                    "status": "REJEITADO_NAO_E_PROVA",
+                    "motivo_validacao": validacao["motivo"],
+                    "evidencias": validacao.get("evidencias", [])
+                })
+                continue
             digest = sha256_bytes(payload)
             pdf_path = out / "originais" / f"{digest}.pdf"
             if not pdf_path.exists():
@@ -204,6 +216,7 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
         "paginas_web_visitadas": len(seen_pages),
         "pdfs_descobertos": len(discovered),
         "pdfs_processados": processed,
+        "pdfs_rejeitados_por_qualidade": sum(1 for x in manifest if x.get("status") == "REJEITADO_NAO_E_PROVA"),
         "erros_paginas": page_errors,
         "erros_pdfs": download_errors,
         "manifesto": manifest,
