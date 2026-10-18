@@ -1,7 +1,7 @@
 {
-  "max_pages_per_source": 80,
-  "max_depth": 2,
-  "timeout_seconds": 25,
+  "max_pages_per_source": 25,
+  "max_depth": 3,
+  "timeout_seconds": 12,
   "user_agent": "APROVAJA-ProvasBot/1.0 (+https://github.com/fpontualprog/aprovaja)",
   "sources": [
     {
