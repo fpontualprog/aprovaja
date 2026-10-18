@@ -38,16 +38,21 @@ jobs:
         run: python -m pip install -r requirements-provas.txt
 
       - name: Validar sintaxe
-        run: python -m py_compile provas_pipeline.py
+        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py
 
       - name: Coletar PDFs e gerar JSON multimodal
         run: |
           python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '10' }}"
 
+      - name: Gerar lote de questões candidatas para revisão
+        if: always()
+        run: python segmentar_questoes_candidatas.py
+
       - name: Publicar artefatos para revisão
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: aprovaja-provas-${{ github.run_number }}
           path: provas_data/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
