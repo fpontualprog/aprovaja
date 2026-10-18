@@ -5,7 +5,7 @@ Este pipeline é separado do coletor de concursos PCI. Não chama a Edge Functio
 ## Fluxo atual
 
 1. Lê as fontes e domínios permitidos em `config/fontes_provas.json`.
-2. Descobre links de PDF nas páginas configuradas.
+2. Descobre links de PDF nos domínios oficiais configurados das bancas.\n3. Valida cada PDF antes de processá-lo: o nome precisa identificar explicitamente prova/caderno de questões ou as páginas iniciais precisam conter sinais consistentes de prova. Editais, diários oficiais, resultados, convocações e documentos administrativos são rejeitados.\n4. Só então baixa/processa e preserva os PDFs aprovados.
 3. Baixa PDFs, calcula SHA-256 e preserva os originais.
 4. Gera JSON multimodal por documento, com texto por página, blocos posicionados, imagens extraídas e render de página.
 5. Executa `segmentar_questoes_candidatas.py`, que aplica heurísticas conservadoras para localizar possíveis questões.
@@ -35,3 +35,4 @@ Após revisar a qualidade do lote, criar uma rotina de importação idempotente 
 ## Segurança e direitos
 
 Antes de ampliar as fontes ou redistribuir provas, verificar os termos de uso e os direitos aplicáveis. O pipeline deve continuar isolado do coletor PCI e dos dados de divulgação de concursos.
+\n\n## Filtro de qualidade de documentos\n\nO módulo `validar_pdf_prova.py` aplica uma barreira antes da extração: rejeita nomes com marcadores administrativos (como edital, diário oficial, resultado e convocação); aceita nomes explicitamente identificados como prova/caderno de questões ou exige evidências no texto das três primeiras páginas. PDFs sem evidência suficiente ficam no relatório como `REJEITADO_NAO_E_PROVA` e não geram candidatos. O critério é deliberadamente conservador: pode deixar passar menos documentos, mas reduz o risco de misturar editais com provas. A validação ainda precisa ser calibrada com amostras reais de cada banca.\n
