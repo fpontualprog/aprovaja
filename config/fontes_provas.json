@@ -1,0 +1,23 @@
+{
+  "max_pages_per_source": 80,
+  "max_depth": 2,
+  "timeout_seconds": 25,
+  "user_agent": "APROVAJA-ProvasBot/1.0 (+https://github.com/fpontualprog/aprovaja)",
+  "sources": [
+    {
+      "name": "CEBRASPE",
+      "domains": ["cebraspe.org.br", "www.cebraspe.org.br"],
+      "start_urls": ["https://www.cebraspe.org.br/concursos"]
+    },
+    {
+      "name": "FGV Conhecimento",
+      "domains": ["conhecimento.fgv.br", "fgv.br", "www.fgv.br"],
+      "start_urls": ["https://conhecimento.fgv.br/concursos"]
+    },
+    {
+      "name": "FCC",
+      "domains": ["fcc.org.br", "www.fcc.org.br"],
+      "start_urls": ["https://www.fcc.org.br/concursos"]
+    }
+  ]
+}
