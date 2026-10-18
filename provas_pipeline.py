@@ -121,12 +121,14 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
     discovered, page_errors, download_errors = [], [], []
     seen_pages, seen_pdf_urls = set(), set()
     max_downloads = max(0, max_downloads)
+    # Descoberta e processamento são limites separados: PDFs ruins não devem encerrar a busca.
+    max_pages_per_source = max_pages_override or int(cfg.get("max_pages_per_source", 25))
     for source in cfg.get("sources", []):
         domains = source.get("domains", [])
         queue = [(u, 0) for u in source.get("start_urls", [])]
         pages_count = 0
-        max_pages = max_pages_override or int(cfg.get("max_pages_per_source", 80))
-        while queue and pages_count < max_pages and len(discovered) < max_downloads:
+        max_pages = max_pages_per_source
+        while queue and pages_count < max_pages:
             url, depth = queue.pop(0)
             url = canonical(url)
             if url in seen_pages or not host_allowed(url, domains):
@@ -226,7 +228,7 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
     }
     report_path = out / "logs" / "relatorio_execucao.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({k: report[k] for k in ("paginas_web_visitadas", "pdfs_descobertos", "pdfs_processados")}, ensure_ascii=False))
+    print(json.dumps({k: report[k] for k in ("paginas_web_visitadas", "pdfs_descobertos", "pdfs_processados", "pdfs_rejeitados_por_qualidade")}, ensure_ascii=False))
     print(f"Relatório: {report_path}")
     return 0 if not page_errors and not download_errors else 1
 
