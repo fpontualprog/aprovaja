@@ -75,8 +75,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${PCI_INGEST_SECRET}" ]]; then
-            echo "::warning::PCI_INGEST_SECRET ainda não configurado; sincronização com Supabase ignorada."
-            exit 0
+            echo "::error::PCI_INGEST_SECRET não configurado. A coleta não pode ser considerada integrada ao Supabase."
+            exit 1
           fi
           jq -n --slurpfile records data/concursos_elegiveis.json '{records: $records[0]}' > /tmp/pci-payload.json
           curl --fail-with-body --silent --show-error \
