@@ -68,6 +68,23 @@ jobs:
           cp resultado_coleta_pci_v3/relatorio_teste.json data/relatorio_coleta.json
           cp resultado_coleta_pci_v3/relatorio_validacao_qualidade.json data/relatorio_validacao_qualidade.json
 
+      - name: Sincronizar concursos elegíveis com o APROVAJÁ
+        shell: bash
+        env:
+          PCI_INGEST_SECRET: ${{ secrets.PCI_INGEST_SECRET }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${PCI_INGEST_SECRET}" ]]; then
+            echo "::warning::PCI_INGEST_SECRET ainda não configurado; sincronização com Supabase ignorada."
+            exit 0
+          fi
+          jq -n --slurpfile records data/concursos_elegiveis.json '{records: $records[0]}' > /tmp/pci-payload.json
+          curl --fail-with-body --silent --show-error \
+            -X POST "https://nukddukqilhsdklocout.supabase.co/functions/v1/receber-coleta-pci" \
+            -H "content-type: application/json" \
+            -H "x-ingest-secret: ${PCI_INGEST_SECRET}" \
+            --data-binary @/tmp/pci-payload.json
+
       - name: Registrar atualização diária
         run: |
           git config user.name "github-actions[bot]"
