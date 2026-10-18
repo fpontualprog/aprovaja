@@ -48,11 +48,33 @@ jobs:
         if: always()
         run: python segmentar_questoes_candidatas.py
 
-      - name: Publicar artefatos para revisão
+      - name: Publicar arquivos leves para revisão
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aprovaja-provas-${{ github.run_number }}
-          path: provas_data/
+          name: aprovaja-revisao-${{ github.run_number }}
+          path: |
+            provas_data/revisao/questoes_candidatas.csv
+            provas_data/revisao/questoes_candidatas.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publicar PDFs originais separadamente
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aprovaja-pdfs-${{ github.run_number }}
+          path: provas_data/originais/*.pdf
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publicar JSON e mídias separadamente
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aprovaja-json-midias-${{ github.run_number }}
+          path: |
+            provas_data/json/**
+            provas_data/midias/**
           if-no-files-found: warn
           retention-days: 30
