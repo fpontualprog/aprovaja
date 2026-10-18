@@ -1,0 +1,53 @@
+name: Pipeline independente de provas PDF
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_downloads:
+        description: "Máximo de PDFs processados nesta execução"
+        required: true
+        default: "10"
+        type: string
+  schedule:
+    # Execução semanal às 08:20 de Recife (11:20 UTC)
+    - cron: "20 11 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-provas-pdf-json
+  cancel-in-progress: false
+
+jobs:
+  coletar-e-converter:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-provas.txt
+
+      - name: Instalar dependências
+        run: python -m pip install -r requirements-provas.txt
+
+      - name: Validar sintaxe
+        run: python -m py_compile provas_pipeline.py
+
+      - name: Coletar PDFs e gerar JSON multimodal
+        run: |
+          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '10' }}"
+
+      - name: Publicar artefatos para revisão
+        uses: actions/upload-artifact@v4
+        with:
+          name: aprovaja-provas-${{ github.run_number }}
+          path: provas_data/
+          if-no-files-found: error
+          retention-days: 30
