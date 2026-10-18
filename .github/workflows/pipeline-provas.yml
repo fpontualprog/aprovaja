@@ -38,7 +38,7 @@ jobs:
         run: python -m pip install -r requirements-provas.txt
 
       - name: Validar sintaxe
-        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py
+        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py
 
       - name: Coletar PDFs e gerar JSON multimodal
         run: |
