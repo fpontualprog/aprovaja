@@ -35,7 +35,7 @@ def main():
             if not r.get(campo): problemas.append({"tipo":"campo_obrigatorio_vazio","registro":ident,"campo":campo,"detalhe":"Campo essencial vazio"})
         if r.get("uf") not in UFS_ESPERADAS: problemas.append({"tipo":"uf_inesperada","registro":ident,"campo":"uf","detalhe":str(r.get("uf"))})
         url=r.get("fonte_url") or ""
-        if not re.match(r"^https://www?\.pciconcursos\.com\.br/",url,re.I): problemas.append({"tipo":"url_fora_do_dominio_esperado","registro":ident,"campo":"fonte_url","detalhe":url})
+        if not re.match(r"^https://(?:www\.)?pciconcursos\.com\.br/",url,re.I): problemas.append({"tipo":"url_fora_do_dominio_esperado","registro":ident,"campo":"fonte_url","detalhe":url})
         prazo=r.get("inscricao_ate")
         if prazo and not _data(prazo): problemas.append({"tipo":"data_invalida","registro":ident,"campo":"inscricao_ate","detalhe":str(prazo)})
         for campo in ("vagas","nivel","salario","inscricao_ate"):
