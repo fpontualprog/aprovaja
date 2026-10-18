@@ -1,0 +1,51 @@
+{
+  "data_validacao": "2026-10-18",
+  "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
+  "total_json": 55,
+  "por_uf": {
+    "AL": 4,
+    "BA": 12,
+    "CE": 10,
+    "PB": 7,
+    "PE": 11,
+    "RN": 10,
+    "SE": 1
+  },
+  "estados_esperados": [
+    "AL",
+    "BA",
+    "CE",
+    "PB",
+    "PE",
+    "RN",
+    "SE"
+  ],
+  "estados_sem_registros": [],
+  "duplicatas_de_url": 0,
+  "campos_ausentes_por_tipo": {
+    "salario": 2
+  },
+  "csv": {
+    "existe": true,
+    "linhas": 55,
+    "colunas_esperadas_ausentes": []
+  },
+  "csv_json_consistentes_em_contagem_e_colunas": true,
+  "total_apontamentos": 2,
+  "total_erros_bloqueantes": 0,
+  "apontamentos": [
+    {
+      "tipo": "dado_ausente",
+      "registro": "linha 16 | PB | Prefeitura de Pedra Lavrada",
+      "campo": "salario",
+      "detalhe": "Não inferir nem preencher por estimativa"
+    },
+    {
+      "tipo": "dado_ausente",
+      "registro": "linha 47 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
+      "campo": "salario",
+      "detalhe": "Não inferir nem preencher por estimativa"
+    }
+  ],
+  "limitacao": "Validação estrutural não confirma páginas, conteúdo de edital ou inscrições abertas."
+}

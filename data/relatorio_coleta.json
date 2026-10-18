@@ -1,0 +1,28 @@
+{
+  "url_fonte": "https://www.pciconcursos.com.br/concursos/",
+  "data_teste": "2026-10-18",
+  "status": "coleta_completa",
+  "total_extraido_antes_deduplicacao": 55,
+  "total_unico": 55,
+  "duplicatas_removidas": 0,
+  "por_uf": {
+    "PE": 11,
+    "PB": 7,
+    "AL": 4,
+    "RN": 10,
+    "SE": 1,
+    "CE": 10,
+    "BA": 12
+  },
+  "prazos": {
+    "vencidos": 3,
+    "futuros_ou_hoje_a_confirmar": 52,
+    "sem_data": 0
+  },
+  "registros_com_campos_ausentes": 2,
+  "erros": [],
+  "arquivos_principais_atualizados": true,
+  "gravou_no_supabase": false,
+  "alterou_aprovaja": false,
+  "aviso": "Prazo futuro não confirma inscrição aberta; conferir edital e página de inscrição."
+}

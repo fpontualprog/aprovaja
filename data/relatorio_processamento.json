@@ -1,0 +1,19 @@
+{
+  "data_processamento": "2026-10-18",
+  "origem": "concursos_pci_nordeste.json",
+  "total_origem": 55,
+  "elegiveis_com_data_hoje_ou_futura": 52,
+  "historico_prazo_vencido": 3,
+  "excluidos_sem_data_ou_invalida": 0,
+  "urls_duplicadas_ignoradas": 0,
+  "registros_problematicos": [],
+  "regras": {
+    "data_ausente_nao_entra_na_base_elegivel": true,
+    "prazo_vencido_separado_do_elegivel": true,
+    "data_futura_nao_confirma_inscricao_aberta": true,
+    "salario_ausente_permanece_null": true
+  },
+  "aviso": "Base elegível não comprova que as inscrições estejam abertas; verificar fonte oficial.",
+  "supabase_acessado": false,
+  "aprovaja_alterado": false
+}
