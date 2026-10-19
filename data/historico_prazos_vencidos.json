@@ -11,6 +11,11 @@
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-caruaru-pe-retifica-concurso-publico-para-auditores-e-analistas-fiscais",
     "coletado_em": "2026-10-19",
     "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IBAM",
+    "banca_url": "https://www.ibam-concursos.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.ibam-concursos.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
   {
@@ -25,6 +30,11 @@
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-cruz-do-espirito-santo-pb-prorroga-inscricoes-de-concurso-publico",
     "coletado_em": "2026-10-19",
     "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   }
 ]

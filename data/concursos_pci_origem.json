@@ -10,7 +10,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/secretaria-de-defesa-social-pe-retifica-concurso-com-570-vagas-para-bombeiros",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Instituto AOCP",
+    "banca_url": "https://www.institutoaocp.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.institutoaocp.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -23,7 +28,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/pmpe-altera-periodo-de-inscricao-para-concurso-publico-de-soldados-e-oficiais",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Instituto AOCP",
+    "banca_url": "https://www.institutoaocp.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.institutoaocp.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -36,7 +46,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-trindade-pe-divulga-retificacao-em-concurso-com-vagas-para-diversos-niveis",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -49,7 +64,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-caruaru-pe-retifica-concurso-publico-para-auditores-e-analistas-fiscais",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IBAM",
+    "banca_url": "https://www.ibam-concursos.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.ibam-concursos.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -62,7 +82,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-ferreiros-pe-abre-concurso-publico-com-vagas-para-diversas-areas",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PE",
@@ -75,7 +100,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-floresta-pe-publica-edital-retificado-de-concurso-publico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PE",
@@ -88,7 +118,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-goiana-pe-retifica-edital-de-selecao-publica",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -101,7 +136,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-do-recife-pe-abre-concurso-publico-com-vagas-para-musicos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Fundatec",
+    "banca_url": "https://www.fundatec.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.fundatec.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -114,7 +154,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/secretaria-de-defesa-social-e-de-administracao-pe-abrem-concurso-com-1315-vagas-para-a-policia-civil",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Cebraspe",
+    "banca_url": "https://www.cebraspe.org.br/concursos",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.cebraspe.org.br/concursos",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PE",
@@ -127,7 +172,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/universidade-de-pernambuco-abre-concurso-publico-para-o-cargo-de-advogado",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "UPENET/IAUPE",
+    "banca_url": "https://www.upenet.com.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.upenet.com.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PB",
@@ -140,7 +190,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/dpe-pb-abre-concurso-publico-com-salarios-de-ate-5197",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Fundação Carlos Chagas (FCC)",
+    "banca_url": "https://www.concursosfcc.com.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.concursosfcc.com.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PB",
@@ -153,7 +208,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-guarabira-pb-abre-concurso-publico-com-salarios-de-ate-3354",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PB",
@@ -166,7 +226,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-agua-branca-pb-republica-editais-de-concursos-publicos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PB",
@@ -179,7 +244,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-cruz-do-espirito-santo-pb-prorroga-inscricoes-de-concurso-publico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "PB",
@@ -192,7 +262,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-itapororoca-pb-abre-concurso-com-salarios-de-ate-10000",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PB",
@@ -205,7 +280,12 @@
     "campos_ausentes": "salario",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-pedra-lavrada-pb-abre-vagas-para-agentes-de-saude-e-de-endemias",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PB",
@@ -218,7 +298,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-poco-dantas-pb-prorroga-inscricoes-de-concurso-publico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "PB",
@@ -231,7 +316,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-sao-jose-do-sabugi-pb-abre-concurso-para-diversos-cargos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "AL",
@@ -244,7 +334,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/sefaz-al-abre-concurso-publico-com-vagas-para-o-cargo-de-auditor-fiscal",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Cebraspe",
+    "banca_url": "https://www.cebraspe.org.br/concursos",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.cebraspe.org.br/concursos",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "AL",
@@ -257,7 +352,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/adeal-abre-concurso-publico-para-cargos-de-fiscal-estadual-agropecuario",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Cebraspe",
+    "banca_url": "https://www.cebraspe.org.br/concursos",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.cebraspe.org.br/concursos",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "AL",
@@ -270,7 +370,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/cbm-al-reabre-inscricoes-de-concurso-publico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Cebraspe",
+    "banca_url": "https://www.cebraspe.org.br/concursos",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.cebraspe.org.br/concursos",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "AL",
@@ -283,7 +388,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-cha-preta-al-abre-concursos-com-salarios-de-ate-7256",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "RN",
@@ -296,7 +406,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-acari-rn-abre-concurso-publico-para-assessor-juridico-e-auditor-de-controle-interno",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -309,7 +424,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-cerro-cora-rn-abre-concurso-publico-para-o-cargo-de-controlador-interno",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -322,7 +442,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-mossoro-rn-abre-concurso-publico-com-salarios-de-ate-8810",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Comperve/UFRN",
+    "banca_url": "https://comperve.ufrn.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://comperve.ufrn.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -335,7 +460,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-santana-do-serido-rn-abre-concurso-publico-com-quatro-vagas-imediatas",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -348,7 +478,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-sao-joao-do-sabugi-rn-abre-concurso-publico-para-cargos-efetivos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -361,7 +496,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-tibau-do-sul-rn-abre-concurso-publico-com-oito-vagas-imediatas",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "RN",
@@ -374,7 +514,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-acari-rn-abre-concurso-publico-com-salarios-de-ate-3847",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -387,7 +532,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-jucurutu-rn-publica-edital-de-concurso-com-salarios-de-ate-4867",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "RN",
@@ -400,7 +550,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-marcelino-vieira-rn-abre-processo-seletivo-com-salarios-de-ate-13266",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "RN",
@@ -413,7 +568,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-sao-fernando-rn-retifica-edital-de-concurso-publico-com-salarios-de-ate-4101",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "IGEDUC",
+    "banca_url": "https://igeduc.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "SE",
@@ -426,7 +586,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/cro-se-abre-concurso-publico-com-salarios-de-ate-4504",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -439,7 +604,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-ubajara-ce-publica-retificacao-de-concurso-publico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -452,7 +622,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-graca-ce-reabre-inscricoes-para-concurso-publico-com-salarios-de-ate-4300",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -465,7 +640,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-sao-benedito-ce-abre-concurso-publico-para-niveis-fundamental-e-medio",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -478,7 +658,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-acarau-ce-retifica-concurso-com-vagas-para-diversos-niveis-de-escolaridade",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -491,7 +676,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-alto-santo-ce-retifica-concurso-para-cargos-de-nivel-superior",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Consulpam",
+    "banca_url": "https://www.consulpam.com.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.consulpam.com.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "CE",
@@ -504,7 +694,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-aracati-ce-abre-concurso-publico-com-salarios-de-ate-5431",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -517,7 +712,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-aracati-ce-abre-concursos-para-agente-comunitario-de-saude-e-interprete-de-libras",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -530,7 +730,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-itarema-ce-abre-concurso-publico-com-salarios-de-ate-5622",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -543,7 +748,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-piquet-carneiro-ce-prorroga-inscricoes-para-concurso-publico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "CE",
@@ -556,7 +766,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-poranga-ce-reabre-inscricoes-para-concursos-publicos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Consulpam",
+    "banca_url": "https://www.consulpam.com.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.consulpam.com.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "BA",
@@ -569,7 +784,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-salvador-ba-abre-concurso-publico-para-guardas-civis-municipais",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Fundação Getulio Vargas (FGV)",
+    "banca_url": "https://conhecimento.fgv.br/concursos",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://conhecimento.fgv.br/concursos",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "BA",
@@ -582,7 +802,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/ufba-ba-publica-edital-de-concurso-publico-para-tecnicos-administrativos-em-educacao",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Instituto Avalia",
+    "banca_url": "https://www.avalia.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.avalia.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   },
   {
     "uf": "BA",
@@ -595,7 +820,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-ourolandia-ba-publica-edital-de-concurso-publico-para-diversos-cargos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -608,7 +838,12 @@
     "campos_ausentes": "salario",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/marinha-do-brasil-2-distrito-naval-abre-selecao-para-oficiais-temporarios-rm2-na-bahia",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -621,7 +856,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/consan-ba-abre-selecao-para-assistente-administrativo-tecnico-em-enfermagem-e-assessor-tecnico",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -634,7 +874,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-catu-ba-prorroga-inscricoes-do-concurso-publico-para-diversos-cargos",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -647,7 +892,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-firmino-alves-ba-abre-concurso-publico-com-salarios-de-ate-4867",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -660,7 +910,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-firmino-alves-ba-abre-selecao-com-salarios-de-ate-8000",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -673,7 +928,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-palmas-de-monte-alto-ba-abre-concurso-para-agentes-comunitarios-de-saude",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -686,7 +946,12 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-rio-real-ba-retifica-editais-de-concursos-e-de-processo-seletivo",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": null,
+    "banca_url": null,
+    "mensagem_edital": "Edital não localizado automaticamente e banca não identificada com segurança. Consulte o órgão responsável pelo concurso.",
+    "resolver_edital_status": "banca_nao_identificada"
   },
   {
     "uf": "BA",
@@ -699,6 +964,11 @@
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/saeb-ba-abre-concurso-publico-para-especialista-em-politicas-publicas-e-gestao-governamental",
     "coletado_em": "2026-10-19",
-    "fonte": "PCI Concursos"
+    "fonte": "PCI Concursos",
+    "edital_url": null,
+    "banca": "Fundação Cesgranrio",
+    "banca_url": "https://www.cesgranrio.org.br/",
+    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.cesgranrio.org.br/",
+    "resolver_edital_status": "banca_identificada_edital_nao_localizado"
   }
 ]
