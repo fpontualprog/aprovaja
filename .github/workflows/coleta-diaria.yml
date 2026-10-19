@@ -9,6 +9,7 @@ on:
       - 'coletor_pci.py'
       - 'validar_coleta.py'
       - 'processar_concursos.py'
+      - 'resolver_editais.py'
       - 'requirements.txt'
   schedule:
     # 07:15 em Recife (UTC-3), diariamente
@@ -48,6 +49,9 @@ jobs:
 
       - name: Validar estrutura dos dados coletados
         run: python validar_coleta.py
+
+      - name: Localizar edital oficial ou endereço da banca
+        run: python resolver_editais.py
 
       - name: Processar base para o APROVAJÁ
         run: python processar_concursos.py
