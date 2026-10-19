@@ -1,13 +1,13 @@
 {
-  "data_validacao": "2026-10-18",
+  "data_validacao": "2026-10-19",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
-  "total_json": 55,
+  "total_json": 54,
   "por_uf": {
     "AL": 4,
-    "BA": 12,
+    "BA": 11,
     "CE": 10,
-    "PB": 7,
-    "PE": 11,
+    "PB": 8,
+    "PE": 10,
     "RN": 10,
     "SE": 1
   },
@@ -27,7 +27,7 @@
   },
   "csv": {
     "existe": true,
-    "linhas": 55,
+    "linhas": 54,
     "colunas_esperadas_ausentes": []
   },
   "csv_json_consistentes_em_contagem_e_colunas": true,

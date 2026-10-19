@@ -9,7 +9,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-caruaru-pe-retifica-concurso-publico-para-auditores-e-analistas-fiscais",
-    "coletado_em": "2026-10-18",
+    "coletado_em": "2026-10-19",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
@@ -23,21 +23,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-cruz-do-espirito-santo-pb-prorroga-inscricoes-de-concurso-publico",
-    "coletado_em": "2026-10-18",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Prazo vencido; mantido somente no histórico."
-  },
-  {
-    "uf": "PE",
-    "concurso": "Prefeitura de Belo Jardim",
-    "vagas": "151 vagas",
-    "nivel": "Fundamental/Médio/Técnico/Superior",
-    "salario": "R$ 4.813,50",
-    "inscricao_ate": "2026-10-04",
-    "situacao_prazo": "prazo_vencido",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-belo-jardim-pe-abre-concurso-publico-com-vagas-para-diversas-secretarias",
-    "coletado_em": "2026-10-18",
+    "coletado_em": "2026-10-19",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   }
