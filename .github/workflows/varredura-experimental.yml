@@ -1,0 +1,30 @@
+name: Varredura experimental de concursos (somente leitura)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  varrer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v7
+      - name: Configurar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Instalar dependência
+        run: python -m pip install requests
+      - name: Executar varredura experimental
+        run: python varredura_experimental.py
+      - name: Disponibilizar resultados para análise
+        uses: actions/upload-artifact@v4
+        with:
+          name: varredura-experimental-concursos
+          path: varredura_experimental_resultados/
+          if-no-files-found: error
+          retention-days: 14
