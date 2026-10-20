@@ -58,6 +58,7 @@ def parse_feed(xml_text, query):
             "url_descoberta": link,
             "data_publicacao": pub or None,
             "fonte_publicadora": source or None,
+            "url_fonte_publicadora": (item.find("source").attrib.get("url") if item.find("source") is not None else None),
             "consulta_origem": query,
             "descricao": re.sub(r"<[^>]+>", " ", desc)[:500] if desc else None,
             "status_validacao": "nao_verificado",
@@ -102,7 +103,7 @@ def main():
     }
     (OUT / "candidatos_concursos.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     with (OUT / "candidatos_concursos.csv").open("w", newline="", encoding="utf-8-sig") as f:
-        fields = ["titulo", "url_descoberta", "data_publicacao", "fonte_publicadora", "dominio_url_descoberta", "consulta_origem", "status_validacao", "edital_url", "banca_url"]
+        fields = ["titulo", "url_descoberta", "data_publicacao", "fonte_publicadora", "url_fonte_publicadora", "dominio_url_descoberta", "consulta_origem", "status_validacao", "edital_url", "banca_url"]
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
         w.writerows(unique)
