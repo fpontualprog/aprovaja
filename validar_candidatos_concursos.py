@@ -94,8 +94,9 @@ def main():
         best = variants[0]
         official, publisher_url, page_status, page_title, combined_text = {}, None, "nao_testado", "", ""
         # Try a few distinct discovery URLs, first to unwrap Google News and then inspect the publisher page.
-        for candidate in variants[:2]:
-            src = candidate.get("url_descoberta") or ""
+        for candidate in variants[:3]:
+            # Prefer the publisher homepage supplied by the RSS <source url=...>; Google News links are fallback only.
+            src = candidate.get("url_fonte_publicadora") or candidate.get("url_descoberta") or ""
             if not src.startswith("http"):
                 continue
             result, stat, soup, text = fetch_page(session, src)
@@ -140,6 +141,7 @@ def main():
         review.append({
             "titulo": best.get("titulo"),
             "url_descoberta": best.get("url_descoberta"),
+            "url_fonte_publicadora_rss": best.get("url_fonte_publicadora"),
             "url_publicadora_resolvida": publisher_url,
             "fonte_publicadora": best.get("fonte_publicadora"),
             "data_publicacao": best.get("data_publicacao"),
