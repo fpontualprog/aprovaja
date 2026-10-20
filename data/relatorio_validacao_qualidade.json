@@ -1,11 +1,11 @@
 {
-  "data_validacao": "2026-10-19",
+  "data_validacao": "2026-10-20",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
-  "total_json": 54,
+  "total_json": 52,
   "por_uf": {
     "AL": 4,
     "BA": 11,
-    "CE": 10,
+    "CE": 8,
     "PB": 8,
     "PE": 10,
     "RN": 10,
@@ -27,7 +27,7 @@
   },
   "csv": {
     "existe": true,
-    "linhas": 54,
+    "linhas": 52,
     "colunas_esperadas_ausentes": []
   },
   "csv_json_consistentes_em_contagem_e_colunas": true,
@@ -42,7 +42,7 @@
     },
     {
       "tipo": "dado_ausente",
-      "registro": "linha 47 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
+      "registro": "linha 45 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
       "campo": "salario",
       "detalhe": "Não inferir nem preencher por estimativa"
     }
