@@ -16,7 +16,9 @@ OFFICIAL_HINTS = re.compile(r"\.(gov\.br|jus\.br|leg\.br|edu\.br)$", re.I)
 NOTICE_HINTS = re.compile(r"edital|concurso|processo.?seletivo|selecao|diario.?oficial", re.I)
 OPEN_HINTS = re.compile(r"inscri.{0,25}(aberta|até|ate|prorrog)|per[ií]odo de inscri|inscri.{0,20}encerra", re.I)
 CLOSED_HINTS = re.compile(r"inscri.{0,25}(encerrad|terminad|finaliz)|prazo.{0,20}encerrad", re.I)
-OLD_RESULTS = re.compile(r"resultado final|gabarito definitivo|homologa.{0,20}resultado|convoca.{0,20}aprovados", re.I)
+OLD_RESULTS = re.compile(r"resultado final|gabarito definitivo|homologa.{0,20}resultado|convoca.{0,20}aprovados|convoca.{0,30}(?:exames|documentos|posse)", re.I)
+SOCIAL_HOSTS = ("facebook.com", "instagram.com", "youtube.com", "youtu.be", "tiktok.com", "whatsapp.com", "x.com", "twitter.com")
+GENERIC_TITLES = re.compile(r"^(assine|login|entrar|facebook|instagram|youtube|página inicial|pagina inicial|home|início|inicio|gov\.br)$", re.I)
 STOP = set("concurso concursos publico públicos publica pública processo seletivo edital prefeitura governo vagas vaga inscrições inscricoes abertas aberto 2026 2027".split())
 GOOGLE_HOSTS = ("news.google.com", "google.com", "www.google.com")
 
@@ -37,6 +39,17 @@ def domain(url):
 
 def official_domain(url):
     return bool(OFFICIAL_HINTS.search(domain(url)))
+
+def is_social_or_share(url):
+    d = domain(url)
+    path = (urlparse(url).path or "").lower()
+    return any(d == h or d.endswith("." + h) for h in SOCIAL_HOSTS) or any(x in path for x in ("/login", "/accounts/", "/share", "/send?", "/intent/"))
+
+def is_generic_destination(url, title=""):
+    p = urlparse(url)
+    path = (p.path or "").strip("/")
+    t = norm(title)
+    return is_social_or_share(url) or (not path and not p.query) or bool(GENERIC_TITLES.search(t))
 
 def external_article_links(soup, base_url):
     links = []
@@ -93,31 +106,64 @@ def main():
         variants = sorted(group["rows"], key=lambda x: len(x.get("descricao") or ""), reverse=True)
         best = variants[0]
         official, publisher_url, page_status, page_title, combined_text = {}, None, "nao_testado", "", ""
-        # Try a few distinct discovery URLs, first to unwrap Google News and then inspect the publisher page.
+        # Primeiro tenta resolver o link específico da notícia. A URL <source> do RSS
+        # normalmente é apenas a página inicial do publicador e nunca prova que o artigo foi localizado.
+        tried = set()
         for candidate in variants[:3]:
-            # Prefer the publisher homepage supplied by the RSS <source url=...>; Google News links are fallback only.
-            src = candidate.get("url_fonte_publicadora") or candidate.get("url_descoberta") or ""
-            if not src.startswith("http"):
-                continue
-            result, stat, soup, text = fetch_page(session, src)
-            page_status = stat
-            if not result:
-                continue
-            final_url, soup, title, text = result
-            page_title = title or page_title
-            combined_text += " " + text
-            if domain(final_url) and not any(domain(final_url) == x or domain(final_url).endswith("." + x) for x in GOOGLE_HOSTS):
-                publisher_url = final_url
-            links = external_article_links(soup, final_url)
-            # If Google News provides an external publisher link, visit it directly.
-            for link in links[:3]:
-                if publisher_url and domain(link) == domain(publisher_url):
+            urls = [candidate.get("url_descoberta") or "", candidate.get("url_fonte_publicadora") or ""]
+            for src in urls:
+                if not src.startswith("http") or src in tried:
                     continue
-                res2, stat2, soup2, text2 = fetch_page(session, link)
-                if not res2:
+                tried.add(src)
+                result, stat, soup, text = fetch_page(session, src)
+                page_status = stat
+                if not result:
                     continue
-                final2, soup2, title2, text2 = res2
-                if not any(domain(final2) == x or domain(final2).endswith("." + x) for x in GOOGLE_HOSTS):
+                final_url, soup, title, text = result
+                page_title = title or page_title
+                combined_text += " " + text
+                is_google = any(domain(final_url) == x or domain(final_url).endswith("." + x) for x in GOOGLE_HOSTS)
+                # A page is accepted as the article only when it is not a social/share redirect
+                # and has a meaningful path (or page title strongly resembles the discovered title).
+                if not is_google and not is_generic_destination(final_url, title):
+                    discovered_tokens = tokens(candidate.get("titulo", ""))
+                    page_tokens = tokens(title)
+                    title_overlap = len(discovered_tokens & page_tokens) / max(1, len(discovered_tokens))
+                    has_article_path = len((urlparse(final_url).path or "").strip("/")) > 3
+                    if has_article_path or title_overlap >= 0.35:
+                        publisher_url = final_url
+                # Search links on the wrapper/page, prioritizing links whose labels resemble the headline.
+                links = external_article_links(soup, final_url)
+                headline_tokens = tokens(candidate.get("titulo", ""))
+                scored = []
+                for link in links:
+                    if is_social_or_share(link):
+                        continue
+                    link_path = (urlparse(link).path or "").strip("/")
+                    if not link_path:
+                        continue
+                    label = ""
+                    # URL path can identify the story even if the anchor text is absent.
+                    link_tokens = tokens(unquote(link_path.replace("/", " ").replace("-", " ").replace("_", " ")))
+                    score = len(headline_tokens & link_tokens) / max(1, len(headline_tokens))
+                    if NOTICE_HINTS.search(link):
+                        score += 0.08
+                    scored.append((score, link))
+                scored.sort(reverse=True)
+                for score, link in scored[:5]:
+                    if score < 0.12:
+                        continue
+                    res2, stat2, soup2, text2 = fetch_page(session, link)
+                    if not res2:
+                        continue
+                    final2, soup2, title2, text2 = res2
+                    if is_generic_destination(final2, title2):
+                        continue
+                    page_tokens = tokens(title2)
+                    overlap = len(headline_tokens & page_tokens) / max(1, len(headline_tokens))
+                    # Do not call a homepage or unrelated page the resolved article.
+                    if overlap < 0.18 and len((urlparse(final2).path or "").strip("/")) < 4:
+                        continue
                     publisher_url = final2
                     page_title = title2 or page_title
                     combined_text += " " + text2
@@ -126,17 +172,20 @@ def main():
                         href = urljoin(final2, a["href"])
                         if official_domain(href) and NOTICE_HINTS.search(label + " " + href):
                             official[href] = {"texto_link": label[:160], "url": href, "dominio_oficial": domain(href)}
-                    # Also consider canonical links to official documents.
                     for tag in soup2.find_all(["link", "meta"]):
                         val = tag.get("href") or tag.get("content") or ""
                         href = urljoin(final2, val)
                         if official_domain(href) and NOTICE_HINTS.search(href):
                             official[href] = {"texto_link": "metadado/canonical", "url": href, "dominio_oficial": domain(href)}
                     break
-            if official or publisher_url:
+                if publisher_url or official:
+                    break
+            if publisher_url or official:
                 break
         combined_text = " ".join([best.get("titulo", ""), best.get("descricao") or "", page_title, combined_text])
         is_old = bool(OLD_RESULTS.search(best.get("titulo", "")))
+        # The word "abertas" in a headline is only a lead, never proof of current registration.
+        is_open_signal = bool(OPEN_HINTS.search(combined_text)) and not bool(CLOSED_HINTS.search(combined_text)) and not is_old
         status = "provavel_resultado_antigo" if is_old else ("fonte_oficial_candidata_revisao_humana" if official else ("pagina_publicadora_localizada_revisao_humana" if publisher_url else "nao_conseguiu_resolver_noticia"))
         review.append({
             "titulo": best.get("titulo"),
@@ -151,12 +200,12 @@ def main():
             "status_http_fonte": page_status,
             "titulo_pagina_acessada": page_title,
             "links_oficiais_candidatos": json.dumps(list(official.values())[:20], ensure_ascii=False),
-            "sinal_inscricao_aberta_no_texto": bool(OPEN_HINTS.search(combined_text)),
+            "sinal_inscricao_aberta_no_texto": is_open_signal,
             "sinal_inscricao_encerrada_no_texto": bool(CLOSED_HINTS.search(combined_text)),
             "edital_url_confirmado": None,
             "banca_url_confirmada": None,
             "inscricoes_abertas_confirmadas": False,
-            "acao_recomendada": "Conferir manualmente o edital e a página de inscrição no órgão oficial antes de publicar",
+            "acao_recomendada": "Revisar a notícia específica; confirmar edital, banca e prazo em fonte oficial. Sinal textual não confirma inscrição aberta.",
         })
         if idx % 50 == 0:
             print(f"Revisados {idx}/{len(groups)} grupos...")
