@@ -14,24 +14,24 @@ TIMEOUT = 18
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; APROVAJA-OfficialLinkResolver/1.1)"}
 BANKS = [
  ("Cebraspe", r"CEBRASPE|CESPE/CEBRASPE|CESPE", "https://www.cebraspe.org.br/concursos"),
- ("Fundação Getulio Vargas (FGV)", r"FUNDA[CÇ][AÃ]O GETULIO VARGAS|\\bFGV\\b", "https://conhecimento.fgv.br/concursos"),
- ("Fundação Carlos Chagas (FCC)", r"FUNDA[CÇ][AÃ]O CARLOS CHAGAS|\\bFCC\\b", "https://www.concursosfcc.com.br/"),
- ("Instituto AOCP", r"INSTITUTO AOCP|\\BAOCP\\b", "https://www.institutoaocp.org.br/"),
- ("IBFC", r"\\bIBFC\\b|INSTITUTO BRASILEIRO DE FORMA[CÇ][AÃ]O E CAPACITA[CÇ][AÃ]O", "https://www.ibfc.org.br/"),
- ("IDECAN", r"\\bIDECAN\\b", "https://www.idecan.org.br/"),
- ("IBAM", r"\\bIBAM\\b|INSTITUTO BRASILEIRO DE ADMINISTRA[CÇ][AÃ]O MUNICIPAL", "https://www.ibam-concursos.org.br/"),
+ ("Fundação Getulio Vargas (FGV)", r"FUNDA[CÇ][AÃ]O GETULIO VARGAS|\bFGV\b", "https://conhecimento.fgv.br/concursos"),
+ ("Fundação Carlos Chagas (FCC)", r"FUNDA[CÇ][AÃ]O CARLOS CHAGAS|\bFCC\b", "https://www.concursosfcc.com.br/"),
+ ("Instituto AOCP", r"INSTITUTO AOCP|\BAOCP\b", "https://www.institutoaocp.org.br/"),
+ ("IBFC", r"\bIBFC\b|INSTITUTO BRASILEIRO DE FORMA[CÇ][AÃ]O E CAPACITA[CÇ][AÃ]O", "https://www.ibfc.org.br/"),
+ ("IDECAN", r"\bIDECAN\b", "https://www.idecan.org.br/"),
+ ("IBAM", r"\bIBAM\b|INSTITUTO BRASILEIRO DE ADMINISTRA[CÇ][AÃ]O MUNICIPAL", "https://www.ibam-concursos.org.br/"),
  ("Comperve/UFRN", r"COMPERVE|COMISS[AÃ]O PERMANENTE DE VESTIBULAR", "https://comperve.ufrn.br/"),
- ("FUNCERN", r"\\bFUNCERN\\b", "https://funcern.br/"),
- ("ADM&TEC", r"ADM\\s*&\\s*TEC|ADMTEC", "https://www.admtec.org.br/"),
- ("IGEDUC", r"\\bIGEDUC\\b", "https://igeduc.org.br/"),
+ ("FUNCERN", r"\bFUNCERN\b", "https://funcern.br/"),
+ ("ADM&TEC", r"ADM\s*&\s*TEC|ADMTEC", "https://www.admtec.org.br/"),
+ ("IGEDUC", r"\bIGEDUC\b", "https://igeduc.org.br/"),
  ("Consulpam", r"CONSULPAM", "https://www.consulpam.com.br/"),
- ("Instituto Avalia", r"INSTITUTO AVALIA|\\bAVALIA\\b", "https://www.avalia.org.br/"),
+ ("Instituto Avalia", r"INSTITUTO AVALIA|\bAVALIA\b", "https://www.avalia.org.br/"),
  ("Quadrix", r"QUADRIX", "https://www.quadrix.org.br/"),
  ("Fundação Vunesp", r"VUNESP", "https://www.vunesp.com.br/"),
  ("Fundação Cesgranrio", r"CESGRANRIO", "https://www.cesgranrio.org.br/"),
  ("Instituto Selecon", r"SELECON", "https://selecon.org.br/"),
- ("IADES", r"\\bIADES\\b", "https://www.iades.com.br/"),
- ("IDCAP", r"\\bIDCAP\\b", "https://www.idcap.org.br/"),
+ ("IADES", r"\bIADES\b", "https://www.iades.com.br/"),
+ ("IDCAP", r"\bIDCAP\b", "https://www.idcap.org.br/"),
  ("Fundatec", r"FUNDATEC", "https://www.fundatec.org.br/"),
  ("Legalle Concursos", r"LEGALLE", "https://www.legalleconcursos.com.br/"),
  ("Fundação FAFIPA", r"FAFIPA", "https://www.fundacaofafipa.org.br/"),
@@ -123,14 +123,14 @@ def resolve(record, session):
                 # Accept explicit edital/PDF cues in the link or its URL. Also
                 # inspect nearby text for generic links such as "Acesse aqui".
                 nearby = " ".join(a.parent.stripped_strings) if a.parent else ""
-                cue = re.search(r"edital|download.{0,30}pdf|arquivo.{0,30}pdf|\\.pdf(?:$|[?#])|retifica[cç][aã]o do edital", label + " " + href, re.I)
+                cue = re.search(r"edital|download.{0,30}pdf|arquivo.{0,30}pdf|\.pdf(?:$|[?#])|retifica[cç][aã]o do edital", label + " " + href, re.I)
                 contextual_cue = re.search(r"edital|processo seletivo|concurso p[uú]blico", nearby, re.I)
                 generic_label = re.fullmatch(r"(acesse aqui|clique aqui|aqui|site oficial|saiba mais|documentos|download)", label.strip(), re.I)
                 if cue or (generic_label and contextual_cue and (host.endswith(OFFICIAL_SUFFIXES) or (bank_host and (host == bank_host or host.endswith("." + bank_host))))):
                     candidates.append(href)
         if candidates:
             # Prefer PDF paths and explicit edital labels, preserving page order otherwise.
-            candidates.sort(key=lambda u: (0 if re.search(r"edital|\\.pdf(?:$|[?#])", u, re.I) else 1, len(u)))
+            candidates.sort(key=lambda u: (0 if re.search(r"edital|\.pdf(?:$|[?#])", u, re.I) else 1, len(u)))
             record["edital_url"] = candidates[0]
 
     if record.get("edital_url"):
