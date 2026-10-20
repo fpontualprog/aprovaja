@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 BASE = Path("varredura_experimental_resultados")
 INPUT = BASE / "candidatos_concursos.json"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; APROVAJA-Review/0.3)"}
-TIMEOUT = 8
+TIMEOUT = 5
 OFFICIAL_HINTS = re.compile(r"\.(gov\.br|jus\.br|leg\.br|edu\.br)$", re.I)
 NOTICE_HINTS = re.compile(r"edital|concurso|processo.?seletivo|selecao|diario.?oficial", re.I)
 OPEN_HINTS = re.compile(r"inscri.{0,25}(aberta|até|ate|prorrog)|per[ií]odo de inscri|inscri.{0,20}encerra", re.I)
@@ -209,7 +209,7 @@ def main():
         })
         if idx % 50 == 0:
             print(f"Revisados {idx}/{len(groups)} grupos...")
-        time.sleep(0.08)
+        time.sleep(0.02)
 
     review.sort(key=lambda x: (x["status_validacao"] not in ("fonte_oficial_candidata_revisao_humana", "pagina_publicadora_localizada_revisao_humana"), x["titulo"] or ""))
     report = {
