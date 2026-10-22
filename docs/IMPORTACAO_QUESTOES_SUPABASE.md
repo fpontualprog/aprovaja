@@ -11,7 +11,7 @@
 
 ## Extração assistida por IA
 
-O script `enriquecer_questoes_ia.py` usa o modelo multimodal `gpt-4.1-mini` para estruturar questões a partir do texto extraído e, quando há OCR pendente ou imagens no PDF, também usa a imagem da página. Ele produz campos estruturados para enunciado, alternativas, disciplina, assunto, texto de apoio, confiança e motivos de revisão.
+O script `enriquecer_questoes_ia.py` usa o modelo multimodal `deepseek-flash` para estruturar questões a partir do texto extraído e, quando há OCR pendente ou imagens no PDF, também usa a imagem da página. Ele produz campos estruturados para enunciado, alternativas, disciplina, assunto, texto de apoio, confiança e motivos de revisão.
 
 A IA não deve inventar gabaritos. O script `vincular_gabaritos_ia.py` procura páginas que se identificam como gabarito/respostas, extrai apenas respostas explicitamente publicadas e vincula pelo número da questão **dentro do mesmo PDF**. Respostas ausentes, conflitantes, de baixa confiança ou incompatíveis com o tipo da questão ficam vazias e exigem revisão. Gabaritos em PDFs separados ainda não são cruzados automaticamente. Se a chamada à IA falhar, o lote heurístico é preservado como alternativa.
 
@@ -22,7 +22,7 @@ A automação de publicação fica desativada até que os segredos sejam configu
 1. No Supabase, abra **Project Settings → Edge Functions → Secrets** e crie `APROVAJA_IMPORT_SECRET` com um valor aleatório forte. Não coloque esse valor no código nem em logs.
 2. No GitHub, abra **Settings → Secrets and variables → Actions → New repository secret** e crie:
    - `APROVAJA_SUPABASE_URL`: URL do projeto Supabase Aprovajá_v2.
-   - `APROVAJA_IMPORT_SECRET`: exatamente o mesmo valor configurado no Supabase.\n   - `OPENAI_API_KEY`: chave da API da OpenAI para ativar o enriquecimento por IA. Se ausente, o pipeline mantém a extração heurística.
+   - `APROVAJA_IMPORT_SECRET`: exatamente o mesmo valor configurado no Supabase.\n   - `DEEPSEEK_API_PUBLICA`: chave da API da DeepSeek para ativar o enriquecimento por IA. Se ausente, o pipeline mantém a extração heurística.
 3. Execute **Actions → Pipeline independente de provas PDF → Run workflow** com um lote pequeno.
 4. Confira o resumo da execução e as tabelas de importação no Supabase antes de ampliar a coleta.
 
