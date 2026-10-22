@@ -48,18 +48,18 @@ jobs:
         if: always()
         run: python segmentar_questoes_candidatas.py
 
-      - name: Enriquecer questões com IA multimodal (se configurada)
+      - name: Enriquecer questões com DeepSeek (se configurada)
         if: always()
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          APROVAJA_IA_MODEL: gpt-4.1-mini
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
+          APROVAJA_IA_MODEL: deepseek-flash
         run: python enriquecer_questoes_ia.py
 
-      - name: Extrair e vincular gabaritos oficiais (sem inferir respostas)
+      - name: Extrair e vincular gabaritos oficiais com DeepSeek (sem inferir respostas)
         if: always()
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          APROVAJA_IA_MODEL: gpt-4.1-mini
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
+          APROVAJA_IA_MODEL: deepseek-flash
         run: python vincular_gabaritos_ia.py
 
       - name: Enviar candidatos ao Supabase (se configurado)
