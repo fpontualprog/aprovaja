@@ -100,7 +100,9 @@ def main() -> int:
                 blocks = page.get("blocos", [])
                 has_images = any(b.get("tipo") == "imagem" for b in blocks)
                 needs_visual = bool(page.get("requer_ocr")) or has_images
-                image_path = ROOT / str(page.get("imagem_pagina")) if needs_visual and page.get("imagem_pagina") else None
+                # imagem_pagina é relativa a provas_data (mesmo padrão de extract_pdf em provas_pipeline.py).
+                image_rel = str(page.get("imagem_pagina") or "")
+                image_path = (ROOT / "provas_data" / image_rel) if needs_visual and image_rel else None
                 questions = extract_page(session, api_key, doc, page, image_path)
                 for idx, q in enumerate(questions, start=1):
                     if not isinstance(q, dict):
@@ -112,9 +114,15 @@ def main() -> int:
                     qtype = q.get("tipo") if q.get("tipo") in ("objetiva", "certo_errado", "discursiva") else "objetiva"
                     confidence = q.get("confianca") if q.get("confianca") in ("alta", "media", "baixa") else "baixa"
                     reasons = q.get("motivos_revisao") if isinstance(q.get("motivos_revisao"), list) else []
-                    if qtype == "objetiva" and list(alternatives.keys()) not in (list("ABCDE"), list("ABCD"), list("ABC"), []):
-                        confidence = "baixa"
-                        reasons.append("alternativas_ambiguas_ou_desordenadas")
+                    if qtype == "objetiva":
+                        # Valida o conjunto de rótulos independentemente da ordem retornada pelo modelo.
+                        labels = [str(k).strip().upper() for k in alternatives.keys()]
+                        valid_labels = labels and len(labels) in (3, 4, 5) and set(labels) == set("ABCDE"[:len(labels)]) and len(set(labels)) == len(labels)
+                        if valid_labels:
+                            alternatives = {label: str(alternatives[key]).strip() for label, key in sorted(((str(k).strip().upper(), k) for k in alternatives.keys()), key=lambda pair: pair[0])}
+                        else:
+                            confidence = "baixa"
+                            reasons.append("alternativas_ambiguas_ou_desordenadas")
                     if not alternatives and qtype == "objetiva":
                         confidence = "baixa"
                         reasons.append("alternativas_ausentes")
