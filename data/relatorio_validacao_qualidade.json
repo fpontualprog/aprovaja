@@ -1,12 +1,12 @@
 {
-  "data_validacao": "2026-10-21",
+  "data_validacao": "2026-10-22",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
-  "total_json": 50,
+  "total_json": 52,
   "por_uf": {
     "AL": 3,
     "BA": 11,
     "CE": 7,
-    "PB": 8,
+    "PB": 10,
     "PE": 10,
     "RN": 10,
     "SE": 1
@@ -27,7 +27,7 @@
   },
   "csv": {
     "existe": true,
-    "linhas": 50,
+    "linhas": 52,
     "colunas_esperadas_ausentes": []
   },
   "csv_json_consistentes_em_contagem_e_colunas": true,
@@ -36,13 +36,13 @@
   "apontamentos": [
     {
       "tipo": "dado_ausente",
-      "registro": "linha 16 | PB | Prefeitura de Pedra Lavrada",
+      "registro": "linha 17 | PB | Prefeitura de Pedra Lavrada",
       "campo": "salario",
       "detalhe": "Não inferir nem preencher por estimativa"
     },
     {
       "tipo": "dado_ausente",
-      "registro": "linha 44 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
+      "registro": "linha 46 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
       "campo": "salario",
       "detalhe": "Não inferir nem preencher por estimativa"
     }
