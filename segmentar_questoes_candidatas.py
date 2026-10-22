@@ -18,7 +18,8 @@ START_PATTERNS = [
     re.compile(r"(?m)^\s*(\d{1,3})\s*[.)]\s+(?=\S)"),
     re.compile(r"(?im)^\s*(?:ITEM\s+)?(\d{1,4})\s*[-–]\s+(?=\S)"),
 ]
-ALT_PATTERN = re.compile(r"(?im)^\s*(?:\(?[A-E]\)|[A-E][.)])\s+")
+ALT_PATTERN = re.compile(r"(?im)^\s*(?:\(([A-E])\)|([A-E])[.)])\s+")
+
 
 def normalized(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
@@ -40,6 +41,26 @@ def find_starts(text: str) -> list[tuple[int, int, str]]:
             unique.append(item)
             last_start = item[0]
     return unique
+
+def parse_alternatives(body: str) -> tuple[str, dict[str, str], bool]:
+    """Separa alternativas apenas quando os marcadores são explícitos e estruturados."""
+    matches = list(ALT_PATTERN.finditer(body))
+    if len(matches) < 4 or len(matches) > 5:
+        return body.strip(), {}, False
+    letters = [(m.group(1) or m.group(2) or "").upper() for m in matches]
+    if len(set(letters)) != len(letters) or letters != list("ABCDE"[:len(letters)]):
+        return body.strip(), {}, False
+    options: dict[str, str] = {}
+    for i, match in enumerate(matches):
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(body)
+        option_text = normalized(body[match.end():end])
+        if len(option_text) < 2:
+            return body.strip(), {}, False
+        options[letters[i]] = option_text
+    stem = body[:matches[0].start()].strip()
+    if len(normalized(stem)) < 25:
+        return body.strip(), {}, False
+    return stem, options, True
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -67,9 +88,10 @@ def main() -> int:
                 body = text[content_start:end].strip()
                 if len(normalized(body)) < 35:
                     continue
-                alternatives = ALT_PATTERN.findall(body)
-                question_text = body
-                candidates.append({
+                question_text, alternatives, alternatives_valid = parse_alternatives(body)
+                page_requires_ocr = bool(page.get("requer_ocr", False))
+                segmentation_high = alternatives_valid and len(normalized(question_text)) >= 35 and not page_requires_ocr
+                candidate_payload = {
                     "id_candidato": digest(doc.get("sha256", path.stem) + "|" + str(page.get("pagina")) + "|" + number + "|" + body),
                     "status": "PENDENTE_REVISAO",
                     "fonte": doc.get("fonte"),
@@ -81,17 +103,21 @@ def main() -> int:
                     "pagina_fim": page.get("pagina"),
                     "numero_detectado": number,
                     "enunciado_candidato": question_text,
+                    "alternativas": alternatives,
                     "quantidade_marcadores_alternativas": len(alternatives),
                     "gabarito": None,
                     "disciplina": None,
                     "assunto": None,
                     "orgao": None,
                     "cargo": None,
-                    "tipo_estimado": "certo_errado" if len(alternatives) == 0 else "objetiva",
-                    "confianca_segmentacao": "baixa" if len(alternatives) == 0 else ("media" if len(alternatives) in (4, 5) else "baixa"),
-                    "requer_revisao_humana": True,
-                    "observacao": "Candidato heurístico por página; confirmar limites, alternativas, imagens, disciplina e gabarito no PDF original."
-                })
+                    "tipo_estimado": "objetiva" if alternatives_valid else "certo_errado" if len(ALT_PATTERN.findall(body)) == 0 else "objetiva",
+                    "confianca_segmentacao": "alta" if segmentation_high else "baixa",
+                    "requer_revisao_humana": not segmentation_high,
+                    "pagina_requer_ocr": page_requires_ocr,
+                    "imagem_pagina_revisao": page.get("imagem_pagina"),
+                    "observacao": "Alternativas estruturadas automaticamente quando os marcadores A-E são explícitos. Gabarito, disciplina e vínculo exato de figuras ainda precisam ser confirmados."
+                }
+                candidates.append(candidate_payload)
     json_path = args.out / "questoes_candidatas.json"
     json_path.write_text(json.dumps({
         "schema_version": "aprovaja.questoes_candidatas.v1",
@@ -104,7 +130,7 @@ def main() -> int:
     csv_path = args.out / "questoes_candidatas.csv"
     fields = ["id_candidato", "status", "fonte", "url_fonte", "documento_sha256", "arquivo_pdf",
               "arquivo_json", "pagina_inicio", "pagina_fim", "numero_detectado",
-              "enunciado_candidato", "quantidade_marcadores_alternativas", "gabarito",
+              "enunciado_candidato", "alternativas", "quantidade_marcadores_alternativas", "gabarito",
               "disciplina", "assunto", "orgao", "cargo", "tipo_estimado",
               "confianca_segmentacao", "requer_revisao_humana", "observacao"]
     with csv_path.open("w", newline="", encoding="utf-8-sig") as f:
