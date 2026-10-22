@@ -7,19 +7,19 @@ import unicodedata
 import requests
 import fitz
 
-REJEITAR = re.compile(r"\\b(edital|diario oficial|resultado|convocacao|homologacao|retificacao|comunicado|aviso|extrato|contrato|ata de registro|gabarito preliminar|gabarito definitivo|lista de inscritos)\\b", re.I)
+REJEITAR = re.compile(r"\b(edital|diario oficial|resultado|convocacao|homologacao|retificacao|comunicado|aviso|extrato|contrato|ata de registro|gabarito preliminar|gabarito definitivo|lista de inscritos)\b", re.I)
 INDICIOS_DISCURSIVA = re.compile(
-    r"\\b(discursiva|discursivas|redacao|estudo\\s+de\\s+caso|peca\\s+pratica|peca\\s+tecnica|"
-    r"resposta\\s+definitiva|texto\\s+dissertativo|folha\\s+de\\s+texto\\s+definitivo)\\b", re.I
+    r"\b(discursiva|discursivas|redacao|estudo\s+de\s+caso|peca\s+pratica|peca\s+tecnica|"
+    r"resposta\s+definitiva|texto\s+dissertativo|folha\s+de\s+texto\s+definitivo)\b", re.I
 )
 INDICIOS_OBJETIVA = [
-    re.compile(r"\\bprova\\s+objetiva\\b", re.I),
-    re.compile(r"\\bquestoes\\s+objetivas\\b", re.I),
-    re.compile(r"\\bquestao\\s+de\\s+multipla\\s+escolha\\b", re.I),
-    re.compile(r"\\balternativas\\s+[a-e]\\b", re.I),
-    re.compile(r"\\b(A\\s*[).:-].{0,100}B\\s*[).:-].{0,100}C\\s*[).:-])", re.I),
-    re.compile(r"\\bcerto\\s+ou\\s+errado\\b", re.I),
-    re.compile(r"\\b(itens|afirmativas)\\s+de\\s+(certo|errado)\\b", re.I),
+    re.compile(r"\bprova\s+objetiva\b", re.I),
+    re.compile(r"\bquestoes\s+objetivas\b", re.I),
+    re.compile(r"\bquestao\s+de\s+multipla\s+escolha\b", re.I),
+    re.compile(r"\balternativas\s+[a-e]\b", re.I),
+    re.compile(r"\b(A\s*[).:-].{0,100}B\s*[).:-].{0,100}C\s*[).:-])", re.I),
+    re.compile(r"\bcerto\s+ou\s+errado\b", re.I),
+    re.compile(r"\b(itens|afirmativas)\s+de\s+(certo|errado)\b", re.I),
 ]
 
 def normalizar(texto: str) -> str:
@@ -40,8 +40,8 @@ def triagem_deepseek(nome: str, texto: str) -> dict | None:
         "mesmo que estejam no mesmo PDF. Gabaritos devem ser catalogados separadamente e não "
         "tratados como prova. Não confunda um edital que menciona prova objetiva com uma prova. "
         "Responda JSON com categoria, confianca (0 a 1), evidencias (lista curta) e justificativa. "
-        "Se houver mistura ou dúvida, use inconclusivo.\\n"
-        f"Nome do arquivo: {nome}\\nTexto inicial do PDF:\\n{texto[:14000]}"
+        "Se houver mistura ou dúvida, use inconclusivo.\n"
+        f"Nome do arquivo: {nome}\nTexto inicial do PDF:\n{texto[:14000]}"
     )
     try:
         response = requests.post(
@@ -81,7 +81,7 @@ def validar_pdf_prova(payload: bytes, nome_arquivo: str = "", paginas_iniciais: 
         with fitz.open(stream=payload, filetype="pdf") as doc:
             if not len(doc):
                 return {"aprovado": False, "motivo": "pdf_sem_paginas", "evidencias": []}
-            texto = "\\n".join(doc[i].get_text("text") for i in range(min(len(doc), paginas_iniciais)))
+            texto = "\n".join(doc[i].get_text("text") for i in range(min(len(doc), paginas_iniciais)))
             texto_norm = normalizar(texto)
             # Regra absoluta: qualquer sinal explícito de prova discursiva no nome ou no início
             # do documento rejeita o PDF, independentemente da classificação da IA.
