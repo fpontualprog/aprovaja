@@ -110,7 +110,9 @@ def main() -> int:
                 text = str(page.get("texto") or "")
                 blocks = page.get("blocos", [])
                 has_images = any(b.get("tipo") == "imagem" for b in blocks)
-                # Sempre enviar a página renderizada: gráficos e tabelas podem ser vetoriais,\n                # sem aparecer como blocos de imagem incorporados no PDF.\n                needs_visual = True
+                # Sempre enviar a página renderizada: gráficos e tabelas podem ser vetoriais,
+                # sem aparecer como blocos de imagem incorporados no PDF.
+                needs_visual = True
                 # imagem_pagina é relativa a provas_data (mesmo padrão de extract_pdf em provas_pipeline.py).
                 image_rel = str(page.get("imagem_pagina") or "")
                 image_path = (ROOT / "provas_data" / image_rel) if needs_visual and image_rel else None
