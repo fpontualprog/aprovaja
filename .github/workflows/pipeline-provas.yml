@@ -38,7 +38,7 @@ jobs:
         run: python -m pip install -r requirements-provas.txt
 
       - name: Validar sintaxe
-        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py publicar_questoes_supabase.py enriquecer_questoes_ia.py
+        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py publicar_questoes_supabase.py enriquecer_questoes_ia.py vincular_gabaritos_ia.py
 
       - name: Coletar PDFs e gerar JSON multimodal
         run: |
@@ -54,6 +54,13 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           APROVAJA_IA_MODEL: gpt-4.1-mini
         run: python enriquecer_questoes_ia.py
+
+      - name: Extrair e vincular gabaritos oficiais (sem inferir respostas)
+        if: always()
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          APROVAJA_IA_MODEL: gpt-4.1-mini
+        run: python vincular_gabaritos_ia.py
 
       - name: Enviar candidatos ao Supabase (se configurado)
         if: always()
