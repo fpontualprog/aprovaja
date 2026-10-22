@@ -6,11 +6,11 @@ on:
       max_downloads:
         description: "Máximo de PDFs processados nesta execução"
         required: true
-        default: "2"
+        default: "5"
         type: string
   schedule:
-    # Execução semanal às 08:20 de Recife (11:20 UTC)
-    - cron: "20 11 * * 1"
+    # Execução diária às 08:20 de Recife (11:20 UTC)
+    - cron: "20 11 * * *"
 
 permissions:
   contents: read
@@ -22,7 +22,7 @@ concurrency:
 jobs:
   coletar-e-converter:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
@@ -49,28 +49,28 @@ jobs:
             echo "::error::DEEPSEEK_API_PUBLICA está vazia ou indisponível para este workflow. Configure em Settings > Secrets and variables > Actions."
             exit 1
           fi
-          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '2' }}" --max-pages 10
+          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '5' }}" --max-pages 100
 
       - name: Gerar lote de questões candidatas para revisão
-        if: always()
+        if: success()
         run: python segmentar_questoes_candidatas.py
 
       - name: Enriquecer questões com DeepSeek (se configurada)
-        if: always()
+        if: success()
         env:
           DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python enriquecer_questoes_ia.py
 
       - name: Extrair e vincular gabaritos oficiais com DeepSeek (sem inferir respostas)
-        if: always()
+        if: success()
         env:
           DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python vincular_gabaritos_ia.py
 
       - name: Enviar candidatos ao Supabase (se configurado)
-        if: always()
+        if: success()
         env:
           APROVAJA_SUPABASE_URL: ${{ secrets.APROVAJA_SUPABASE_URL }}
           APROVAJA_IMPORT_SECRET: ${{ secrets.APROVAJA_IMPORT_SECRET }}
