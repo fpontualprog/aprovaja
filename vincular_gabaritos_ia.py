@@ -8,8 +8,8 @@ import requests
 ROOT = Path(__file__).resolve().parent
 JSON_DIR = ROOT / "provas_data" / "json"
 OUT_JSON = ROOT / "provas_data" / "revisao" / "questoes_candidatas.json"
-API_URL = "https://api.openai.com/v1/chat/completions"
-MODEL = os.environ.get("APROVAJA_IA_MODEL", "gpt-4.1-mini")
+API_URL = "https://api.deepseek.com/chat/completions"
+MODEL = os.environ.get("APROVAJA_IA_MODEL", "deepseek-flash")
 KEY_PAGE = re.compile(r"(?i)\b(gabarito|respostas? (?:das? )?quest(?:õ|o)es|padr(?:ã|a)o de resposta|resultado dos recursos|quest(?:õ|o)es anuladas)\b")
 
 PROMPT = """Você extrai gabaritos oficiais impressos em provas de concursos.
@@ -41,7 +41,7 @@ def extract(session, key, doc, page):
     if image_url:
         content.append({"type":"image_url","image_url":{"url":image_url,"detail":"high"}})
     response = session.post(API_URL, headers={"Authorization":"Bearer "+key}, json={
-        "model":MODEL,"temperature":0,"response_format":{"type":"json_object"},
+        "model":MODEL,"temperature":0,"thinking":{"type":"disabled"},"response_format":{"type":"json_object"},
         "messages":[{"role":"system","content":PROMPT},{"role":"user","content":content}],
         "max_tokens":3000
     }, timeout=120)
@@ -64,14 +64,14 @@ def normalize_answer(value):
     return {"C": "CERTO", "E": "ERRADO"}.get(v, v)
 
 def main():
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = os.environ.get("DEEPSEEK_API_PUBLICA", "").strip()
     if not OUT_JSON.exists():
         print("Arquivo de candidatos não encontrado; etapa de gabarito ignorada.")
         return 0
     data = json.loads(OUT_JSON.read_text(encoding="utf-8"))
     candidates = data.get("candidatos", [])
     if not api_key:
-        print("OPENAI_API_KEY ausente; gabaritos não foram inferidos e candidatos seguem sem gabarito.")
+        print("DEEPSEEK_API_PUBLICA ausente; gabaritos não foram inferidos e candidatos seguem sem gabarito.")
         return 0
     docs = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in sorted(JSON_DIR.glob("*.json"))}
     # Gabaritos são vinculados apenas ao PDF de origem, nunca por número isolado entre provas.
@@ -138,7 +138,7 @@ def main():
             candidate["gabarito_confianca"] = answer["confianca"]
             extracted += 1
     data["gabarito_extraction"] = {
-        "metodo":"IA multimodal, apenas respostas explicitamente publicadas",
+        "metodo":"DeepSeek, apenas respostas explicitamente publicadas",
         "modelo":MODEL,"gabaritos_vinculados":extracted,
         "erros":errors,
         "politica":"Correspondência apenas dentro do mesmo PDF e por número; conflitos ficam sem gabarito."
