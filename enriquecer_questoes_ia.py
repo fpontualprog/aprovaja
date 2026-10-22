@@ -127,6 +127,26 @@ def main() -> int:
                     if not alternatives and qtype == "objetiva":
                         confidence = "baixa"
                         reasons.append("alternativas_ausentes")
+                    # Associa a questão à página visual original e aos blocos de imagem da página.
+                    # A associação por página é conservadora: não presume que cada figura da página
+                    # pertença exclusivamente a uma questão quando há várias questões na mesma página.
+                    page_image = page.get("imagem_pagina")
+                    image_blocks = [
+                        {
+                            "arquivo": b.get("arquivo"),
+                            "pagina": page.get("pagina"),
+                            "ordem_bloco": b.get("ordem"),
+                            "bbox": b.get("bbox"),
+                            "largura": b.get("largura"),
+                            "altura": b.get("altura"),
+                            "sha256": b.get("sha256")
+                        }
+                        for b in blocks if isinstance(b, dict) and b.get("tipo") == "imagem"
+                    ]
+                    visual_keywords = re.compile(r"\\b(figura|gráfico|grafico|tabela|quadro|mapa|imagem|observe|analise a figura|analise o gráfico|analise o grafico|conforme a imagem)\\b", re.I)
+                    visual_hint = bool(q.get("requer_imagem") is True or visual_keywords.search(stem) or visual_keywords.search(str(q.get("texto_apoio") or "")))
+                    if visual_hint:
+                        reasons.append("conferir_vinculo_visual_com_pagina_original")
                     if q.get("requer_imagem") is True:
                         reasons.append("conferir_vinculo_de_imagem")
                     candidate = {
@@ -152,7 +172,17 @@ def main() -> int:
                         "confianca_ia": confidence,
                         "requer_revisao_humana": confidence != "alta" or qtype == "discursiva",
                         "pagina_requer_ocr": bool(page.get("requer_ocr")),
-                        "imagem_pagina_revisao": page.get("imagem_pagina"),
+                        "imagem_pagina_revisao": page_image,
+                        "imagens_associadas": image_blocks,
+                        "elementos_visuais": {
+                            "pagina_origem": page.get("pagina"),
+                            "imagem_pagina_completa": page_image,
+                            "blocos_imagem_extraidos": image_blocks,
+                            "requer_conferencia_visual": visual_hint or bool(image_blocks) or bool(page.get("requer_ocr")),
+                            "requer_ocr": bool(page.get("requer_ocr")),
+                            "associacao_precisa_por_regiao": False
+                        },
+                        "status_validacao_visual": "PENDENTE_CONFERENCIA",
                         "motivos_revisao": list(dict.fromkeys(str(x) for x in reasons)),
                         "metodo_extracao": "deepseek_multimodal",
                         "modelo_ia": MODEL,
