@@ -155,6 +155,21 @@ def main() -> int:
             errors.append({"arquivo_json": path.name, "erro": str(exc)[:500]})
             print(f"Falha IA em {path.name}: {exc}", file=sys.stderr)
 
+    # Se algum documento falhar na IA, mantém seus candidatos heurísticos no lote final.
+    if errors:
+        heuristic_path = OUT / "questoes_candidatas.json"
+        try:
+            heuristic_data = json.loads(heuristic_path.read_text(encoding="utf-8"))
+            ai_doc_hashes = {str(item.get("documento_sha256") or "") for item in all_candidates}
+            for item in heuristic_data.get("candidatos", []):
+                if str(item.get("documento_sha256") or "") not in ai_doc_hashes:
+                    item["metodo_extracao"] = "heuristico_fallback_ia_falhou"
+                    item["requer_revisao_humana"] = True
+                    item["confianca_segmentacao"] = "baixa"
+                    all_candidates.append(item)
+        except Exception as exc:
+            print(f"Não foi possível mesclar o lote heurístico de fallback: {exc}", file=sys.stderr)
+
     # Se a IA produziu candidatos, substitui o lote heurístico pelo lote estruturado;
     # se falhou completamente, mantém o lote anterior intacto.
     if all_candidates:
