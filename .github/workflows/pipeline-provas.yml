@@ -6,7 +6,7 @@ on:
       max_downloads:
         description: "Máximo de PDFs processados nesta execução"
         required: true
-        default: "8"
+        default: "2"
         type: string
   schedule:
     # Execução semanal às 08:20 de Recife (11:20 UTC)
@@ -42,7 +42,7 @@ jobs:
 
       - name: Coletar PDFs e gerar JSON multimodal
         run: |
-          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '8' }}" --max-pages 25
+          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '2' }}" --max-pages 25
 
       - name: Gerar lote de questões candidatas para revisão
         if: always()
