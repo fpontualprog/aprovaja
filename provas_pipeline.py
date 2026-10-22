@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pipeline independente de provas: busca em fontes autorizadas, arquiva PDFs e gera JSON multimodal."""
 from __future__ import annotations
-import argparse, hashlib, json, re, sys, time
+import argparse, hashlib, json, os, re, sys, time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urldefrag
@@ -33,6 +33,75 @@ def get(session, url, timeout):
     response = session.get(url, timeout=timeout, allow_redirects=True)
     response.raise_for_status()
     return response
+
+def heuristica_link_score(texto: str, url: str) -> int:
+    """Prioriza links com sinais de prova objetiva/gabarito; não substitui validação do PDF."""
+    value = f"{texto} {url}".lower()
+    score = 0
+    for term in ("prova", "caderno", "questoes", "questões", "objetiva", "tipo 1", "tipo 2",
+                 "gabarito", "concurso", "avaliação", "avaliacao", "candidato"):
+        if term in value:
+            score += 2
+    for term in ("discursiva", "redacao", "redação", "resultado", "convocacao", "convocação",
+                 "edital", "inscricao", "inscrição", "noticia", "notícia"):
+        if term in value:
+            score -= 3
+    return score
+
+
+def priorizar_links_deepseek(page_url: str, links: list[dict], timeout: int) -> tuple[list[dict], dict]:
+    """Ordena links descobertos pela relevância provável; só recebe URLs já limitadas ao domínio oficial."""
+    key = os.getenv("DEEPSEEK_API_PUBLICA", "").strip()
+    if not key or not links:
+        return sorted(links, key=lambda x: heuristica_link_score(x["texto"], x["url"]), reverse=True), {
+            "metodo": "heuristica_sem_ia", "links_avaliados": len(links)
+        }
+    # Limita payload/custo por página e mantém os demais links no fim da fila.
+    batch = links[:80]
+    prompt_links = [{"id": i, "texto": x["texto"][:180], "url": x["url"][:500]} for i, x in enumerate(batch)]
+    prompt = (
+        "Você auxilia a descoberta de provas de concursos públicos em sites oficiais de bancas. "
+        "Ordene os links por relevância para encontrar PROVAS OBJETIVAS de múltipla escolha ou certo/errado "
+        "e seus GABARITOS OFICIAIS. Não priorize provas discursivas, redações, editais, resultados, notícias, "
+        "convocações ou páginas administrativas. Não descarte nem altere URLs. "
+        "Responda JSON estrito: {\\\"ids_prioritarios\\\":[inteiros em ordem de prioridade],"
+        "\\\"observacao\\\":\\\"curta\\\"}. Use somente IDs existentes. "
+        f"Página de origem: {page_url}\\nLinks: {json.dumps(prompt_links, ensure_ascii=False)}"
+    )
+    try:
+        response = requests.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={
+                "model": os.getenv("APROVAJA_IA_MODEL", "deepseek-flash"),
+                "messages": [
+                    {"role": "system", "content": "Classifique e priorize links. Não invente IDs nem URLs."},
+                    {"role": "user", "content": prompt}
+                ],
+                "response_format": {"type": "json_object"},
+                "thinking": {"type": "disabled"},
+                "temperature": 0
+            },
+            timeout=max(20, timeout)
+        )
+        response.raise_for_status()
+        result = json.loads(response.json()["choices"][0]["message"]["content"])
+        ids = result.get("ids_prioritarios", [])
+        ranked = []
+        used = set()
+        for idx in ids:
+            if isinstance(idx, int) and 0 <= idx < len(batch) and idx not in used:
+                ranked.append(batch[idx])
+                used.add(idx)
+        ranked.extend(x for i, x in enumerate(batch) if i not in used)
+        ranked.extend(links[len(batch):])
+        return ranked, {"metodo": "deepseek", "links_avaliados": len(batch),
+                        "observacao": str(result.get("observacao", ""))[:300]}
+    except Exception as exc:
+        return sorted(links, key=lambda x: heuristica_link_score(x["texto"], x["url"]), reverse=True), {
+            "metodo": "heuristica_fallback", "links_avaliados": len(batch),
+            "erro": type(exc).__name__
+        }
 
 def extract_pdf(pdf_path: Path, record: dict, out: Path) -> dict:
     """Gera JSON por página; mantém ordem/posição dos blocos, imagens originais e render da página."""
@@ -119,6 +188,7 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
     session.headers.update({"User-Agent": cfg.get("user_agent", "APROVAJA-ProvasBot/1.0"), **HEADERS_ACCEPT})
     timeout = int(cfg.get("timeout_seconds", 25))
     discovered, page_errors, download_errors = [], [], []
+    triage_stats = {"paginas_com_ia": 0, "paginas_sem_ia": 0, "erros_ia": 0, "detalhes": []}
     seen_pages, seen_pdf_urls = set(), set()
     max_downloads = max(0, max_downloads)
     # Descoberta e processamento são limites separados: PDFs ruins não devem encerrar a busca.
@@ -147,16 +217,31 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
                 if "html" not in ctype and not resp.text.lstrip().lower().startswith(("<!doctype html", "<html")):
                     continue
                 soup = BeautifulSoup(resp.text, "html.parser")
+                page_links = []
                 for a in soup.find_all("a", href=True):
                     target = canonical(urljoin(resp.url, a["href"].strip()))
                     if not host_allowed(target, domains):
                         continue
+                    label = " ".join(a.get_text(" ", strip=True).split()) or a.get("title", "")
                     if urlparse(target).path.lower().endswith(".pdf"):
                         if target not in seen_pdf_urls:
                             seen_pdf_urls.add(target)
-                            discovered.append({"source": source["name"], "url": target, "bytes": None, "content_type": "application/pdf"})
+                            discovered.append({"source": source["name"], "url": target, "bytes": None,
+                                               "content_type": "application/pdf", "link_text": label})
                     elif depth < int(cfg.get("max_depth", 2)) and target not in seen_pages:
-                        queue.append((target, depth + 1))
+                        page_links.append({"url": target, "texto": label, "depth": depth + 1})
+                ranked_links, triage = priorizar_links_deepseek(resp.url, page_links, timeout)
+                if triage.get("metodo") == "deepseek":
+                    triage_stats["paginas_com_ia"] += 1
+                else:
+                    triage_stats["paginas_sem_ia"] += 1
+                    if triage.get("metodo") == "heuristica_fallback":
+                        triage_stats["erros_ia"] += 1
+                if len(triage_stats["detalhes"]) < 30:
+                    triage_stats["detalhes"].append({"url": resp.url, **triage})
+                # A IA altera apenas a ordem de exploração; o limite de domínio continua obrigatório.
+                for link in ranked_links:
+                    queue.append((link["url"], link["depth"]))
                 time.sleep(0.15)
             except Exception as exc:
                 page_errors.append({"fonte": source.get("name"), "url": url, "erro": str(exc)})
@@ -219,6 +304,7 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
         "pdfs_descobertos": len(discovered),
         "pdfs_processados": processed,
         "pdfs_rejeitados_por_qualidade": sum(1 for x in manifest if x.get("status") == "REJEITADO_NAO_E_PROVA"),
+        "triagem_links_ia": triage_stats,
         "erros_paginas": page_errors,
         "erros_pdfs": download_errors,
         "manifesto": manifest,
