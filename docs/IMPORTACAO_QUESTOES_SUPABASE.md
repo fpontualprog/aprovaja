@@ -4,7 +4,7 @@
 
 - O pipeline coleta e preserva os PDFs originais e gera JSON/CSV de candidatos.
 - `segmentar_questoes_candidatas.py` separa alternativas A–E quando os marcadores são explícitos.
-- `publicar_questoes_supabase.py` agrupa candidatos por SHA-256 do PDF e envia lotes à Edge Function `importar-questoes-pdf`.
+- `vincular_gabaritos_ia.py` procura e cruza gabaritos explicitamente impressos no mesmo PDF, sem resolver a questão por conta própria.\n- `publicar_questoes_supabase.py` agrupa candidatos por SHA-256 do PDF e envia lotes à Edge Function `importar-questoes-pdf`.
 - A Edge Function registra os lotes em `public.banco_questoes_import_lotes` e candidatos em `public.banco_questoes_import_itens`.
 - Só questões com enunciado, disciplina, gabarito válido, alternativas estruturadas quando aplicável e confiança alta podem ser inseridas em `public.banco_questoes`. Os demais ficam em `pendente_revisao`.
 - Reenvios do mesmo PDF/candidato são idempotentes; a rotina não apaga nem atualiza questões existentes.
@@ -13,7 +13,7 @@
 
 O script `enriquecer_questoes_ia.py` usa o modelo multimodal `gpt-4.1-mini` para estruturar questões a partir do texto extraído e, quando há OCR pendente ou imagens no PDF, também usa a imagem da página. Ele produz campos estruturados para enunciado, alternativas, disciplina, assunto, texto de apoio, confiança e motivos de revisão.
 
-A IA não deve inventar gabaritos. Nesta fase, o gabarito permanece vazio até o cruzamento com um documento oficial; portanto, essas questões ficam na fila de revisão mesmo quando a extração do enunciado é confiável. Se a chamada à IA falhar, o lote heurístico é preservado como alternativa.
+A IA não deve inventar gabaritos. O script `vincular_gabaritos_ia.py` procura páginas que se identificam como gabarito/respostas, extrai apenas respostas explicitamente publicadas e vincula pelo número da questão **dentro do mesmo PDF**. Respostas ausentes, conflitantes, de baixa confiança ou incompatíveis com o tipo da questão ficam vazias e exigem revisão. Gabaritos em PDFs separados ainda não são cruzados automaticamente. Se a chamada à IA falhar, o lote heurístico é preservado como alternativa.
 
 ## Configuração segura necessária
 
