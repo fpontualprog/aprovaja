@@ -14,8 +14,8 @@ import requests
 ROOT = Path(__file__).resolve().parent
 JSON_DIR = ROOT / "provas_data" / "json"
 OUT = ROOT / "provas_data" / "revisao"
-API_URL = "https://api.openai.com/v1/chat/completions"
-MODEL = os.environ.get("APROVAJA_IA_MODEL", "gpt-4.1-mini")
+API_URL = "https://api.deepseek.com/chat/completions"
+MODEL = os.environ.get("APROVAJA_IA_MODEL", "deepseek-flash")
 MAX_IMAGE_BYTES = 3_500_000
 
 SYSTEM_PROMPT = """Você é um extrator rigoroso de questões de concursos públicos brasileiros.
@@ -60,6 +60,7 @@ def extract_page(session: requests.Session, api_key: str, doc: dict, page: dict,
     payload = {
         "model": MODEL,
         "temperature": 0,
+        "thinking": {"type": "disabled"},
         "response_format": {"type": "json_object"},
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -78,9 +79,9 @@ def extract_page(session: requests.Session, api_key: str, doc: dict, page: dict,
     return questions if isinstance(questions, list) else []
 
 def main() -> int:
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = os.environ.get("DEEPSEEK_API_PUBLICA", "").strip()
     if not api_key:
-        print("OPENAI_API_KEY ausente: mantendo o lote heurístico para revisão, sem falhar a coleta.")
+        print("DEEPSEEK_API_PUBLICA ausente: mantendo o lote heurístico para revisão, sem falhar a coleta.")
         return 0
     OUT.mkdir(parents=True, exist_ok=True)
     docs = sorted(JSON_DIR.glob("*.json"))
@@ -153,7 +154,7 @@ def main() -> int:
                         "pagina_requer_ocr": bool(page.get("requer_ocr")),
                         "imagem_pagina_revisao": page.get("imagem_pagina"),
                         "motivos_revisao": list(dict.fromkeys(str(x) for x in reasons)),
-                        "metodo_extracao": "openai_multimodal",
+                        "metodo_extracao": "deepseek_multimodal",
                         "modelo_ia": MODEL,
                         "observacao": "Gabarito não inferido; validar com documento oficial antes de importar."
                     }
