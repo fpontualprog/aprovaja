@@ -1,4 +1,4 @@
-name: Pipeline independente de provas PDF
+name: APROVAJÁ — coleta diária e alimentação do banco de questões
 
 on:
   workflow_dispatch:
@@ -9,8 +9,8 @@ on:
         default: "5"
         type: string
   schedule:
-    # Execução diária às 08:20 de Recife (11:20 UTC)
-    - cron: "20 11 * * *"
+    # Execução diária às 13:00 de Recife (16:00 UTC)
+    - cron: "0 16 * * *"
 
 permissions:
   contents: read
