@@ -10,6 +10,7 @@ import sys
 import time
 from pathlib import Path
 import requests
+import fitz
 
 ROOT = Path(__file__).resolve().parent
 JSON_DIR = ROOT / "provas_data" / "json"
@@ -35,12 +36,21 @@ def digest(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 def read_image(path: Path) -> str | None:
+    """Carrega a página renderizada e comprime imagens grandes com PyMuPDF."""
     try:
         payload = path.read_bytes()
+        mime = "image/png"
+        if len(payload) > MAX_IMAGE_BYTES:
+            source = fitz.Pixmap(str(path))
+            scale = min(1.0, 1600 / max(source.width, source.height))
+            matrix = fitz.Matrix(scale, scale)
+            reduced = fitz.Pixmap(source, matrix)
+            payload = reduced.tobytes("jpeg")
+            mime = "image/jpeg"
         if len(payload) > MAX_IMAGE_BYTES:
             return None
-        return "data:image/png;base64," + base64.b64encode(payload).decode("ascii")
-    except OSError:
+        return f"data:{mime};base64," + base64.b64encode(payload).decode("ascii")
+    except Exception:
         return None
 
 def extract_page(session: requests.Session, api_key: str, doc: dict, page: dict, image_path: Path | None) -> list[dict]:
@@ -100,7 +110,7 @@ def main() -> int:
                 text = str(page.get("texto") or "")
                 blocks = page.get("blocos", [])
                 has_images = any(b.get("tipo") == "imagem" for b in blocks)
-                needs_visual = bool(page.get("requer_ocr")) or has_images
+                # Sempre enviar a página renderizada: gráficos e tabelas podem ser vetoriais,\n                # sem aparecer como blocos de imagem incorporados no PDF.\n                needs_visual = True
                 # imagem_pagina é relativa a provas_data (mesmo padrão de extract_pdf em provas_pipeline.py).
                 image_rel = str(page.get("imagem_pagina") or "")
                 image_path = (ROOT / "provas_data" / image_rel) if needs_visual and image_rel else None
