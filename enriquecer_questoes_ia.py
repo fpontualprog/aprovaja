@@ -143,7 +143,7 @@ def main() -> int:
                         }
                         for b in blocks if isinstance(b, dict) and b.get("tipo") == "imagem"
                     ]
-                    visual_keywords = re.compile(r"\\b(figura|gráfico|grafico|tabela|quadro|mapa|imagem|observe|analise a figura|analise o gráfico|analise o grafico|conforme a imagem)\\b", re.I)
+                    visual_keywords = re.compile(r"\b(figura|gráfico|grafico|tabela|quadro|mapa|imagem|observe|analise a figura|analise o gráfico|analise o grafico|conforme a imagem)\b", re.I)
                     visual_hint = bool(q.get("requer_imagem") is True or visual_keywords.search(stem) or visual_keywords.search(str(q.get("texto_apoio") or "")))
                     if visual_hint:
                         reasons.append("conferir_vinculo_visual_com_pagina_original")
