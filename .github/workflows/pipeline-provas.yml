@@ -40,7 +40,10 @@ jobs:
       - name: Validar sintaxe
         run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py publicar_questoes_supabase.py enriquecer_questoes_ia.py vincular_gabaritos_ia.py
 
-      - name: Coletar PDFs e gerar JSON multimodal
+      - name: Coletar PDFs, fazer triagem DeepSeek e gerar JSON multimodal
+        env:
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
+          APROVAJA_IA_MODEL: deepseek-flash
         run: |
           python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '2' }}" --max-pages 25
 
