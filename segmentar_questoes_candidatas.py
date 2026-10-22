@@ -90,7 +90,22 @@ def main() -> int:
                     continue
                 question_text, alternatives, alternatives_valid = parse_alternatives(body)
                 page_requires_ocr = bool(page.get("requer_ocr", False))
-                segmentation_high = alternatives_valid and len(normalized(question_text)) >= 35 and not page_requires_ocr
+                blocks = page.get("blocos", []) if isinstance(page.get("blocos", []), list) else []
+                image_blocks = [
+                    {
+                        "arquivo": b.get("arquivo"),
+                        "pagina": page.get("pagina"),
+                        "ordem_bloco": b.get("ordem"),
+                        "bbox": b.get("bbox"),
+                        "largura": b.get("largura"),
+                        "altura": b.get("altura"),
+                        "sha256": b.get("sha256")
+                    }
+                    for b in blocks if isinstance(b, dict) and b.get("tipo") == "imagem"
+                ]
+                visual_keywords = re.compile(r"\\b(figura|gráfico|grafico|tabela|quadro|mapa|imagem|observe|conforme a figura|conforme o gráfico|conforme o grafico|analise a tabela)\\b", re.I)
+                visual_hint = bool(visual_keywords.search(question_text) or image_blocks or page_requires_ocr)
+                segmentation_high = alternatives_valid and len(normalized(question_text)) >= 35 and not page_requires_ocr and not visual_hint
                 candidate_payload = {
                     "id_candidato": digest(doc.get("sha256", path.stem) + "|" + str(page.get("pagina")) + "|" + number + "|" + body),
                     "status": "PENDENTE_REVISAO",
@@ -115,6 +130,17 @@ def main() -> int:
                     "requer_revisao_humana": not segmentation_high,
                     "pagina_requer_ocr": page_requires_ocr,
                     "imagem_pagina_revisao": page.get("imagem_pagina"),
+                    "imagens_associadas": image_blocks,
+                    "elementos_visuais": {
+                        "pagina_origem": page.get("pagina"),
+                        "imagem_pagina_completa": page.get("imagem_pagina"),
+                        "blocos_imagem_extraidos": image_blocks,
+                        "requer_conferencia_visual": visual_hint,
+                        "requer_ocr": page_requires_ocr,
+                        "associacao_precisa_por_regiao": False
+                    },
+                    "status_validacao_visual": "PENDENTE_CONFERENCIA" if visual_hint else "SEM_SINAL_VISUAL_DETECTADO",
+                    "motivos_revisao": ["conferir_vinculo_visual_com_pagina_original"] if visual_hint else [],
                     "observacao": "Alternativas estruturadas automaticamente quando os marcadores A-E são explícitos. Gabarito, disciplina e vínculo exato de figuras ainda precisam ser confirmados."
                 }
                 candidates.append(candidate_payload)
