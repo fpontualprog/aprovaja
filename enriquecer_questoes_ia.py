@@ -8,6 +8,7 @@ import os
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import requests
 import fitz
@@ -18,6 +19,7 @@ OUT = ROOT / "provas_data" / "revisao"
 API_URL = "https://api.deepseek.com/chat/completions"
 MODEL = os.environ.get("APROVAJA_IA_MODEL", "deepseek-flash")
 MAX_IMAGE_BYTES = 3_500_000
+MAX_WORKERS = max(1, min(4, int(os.environ.get("APROVAJA_IA_WORKERS", "4"))))
 
 SYSTEM_PROMPT = """Você é um extrator rigoroso de questões de concursos públicos brasileiros.
 Extraia apenas questões realmente visíveis no material fornecido. Não invente texto, alternativas,
@@ -106,17 +108,28 @@ def main() -> int:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             doc = data.get("documento", {})
-            for page in data.get("paginas", []):
-                text = str(page.get("texto") or "")
+            pages = data.get("paginas", [])
+
+            # Processa até quatro páginas simultaneamente. Cada tarefa usa sua própria
+            # sessão HTTP para evitar compartilhamento inseguro de requests.Session.
+            def run_page(page):
+                try:
+                    image_rel = str(page.get("imagem_pagina") or "")
+                    image_path = (ROOT / "provas_data" / image_rel) if image_rel else None
+                    with requests.Session() as page_session:
+                        return page, extract_page(page_session, api_key, doc, page, image_path), None
+                except Exception as exc:
+                    return page, [], str(exc)[:500]
+
+            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                page_results = list(executor.map(run_page, pages))
+
+            for page, questions, page_error in page_results:
+                if page_error:
+                    errors.append({"arquivo_json": path.name, "pagina": page.get("pagina"), "erro": page_error})
+                    print(f"Falha IA em {path.name}, página {page.get('pagina')}: {page_error}", file=sys.stderr)
+                    continue
                 blocks = page.get("blocos", [])
-                has_images = any(b.get("tipo") == "imagem" for b in blocks)
-                # Sempre enviar a página renderizada: gráficos e tabelas podem ser vetoriais,
-                # sem aparecer como blocos de imagem incorporados no PDF.
-                needs_visual = True
-                # imagem_pagina é relativa a provas_data (mesmo padrão de extract_pdf em provas_pipeline.py).
-                image_rel = str(page.get("imagem_pagina") or "")
-                image_path = (ROOT / "provas_data" / image_rel) if needs_visual and image_rel else None
-                questions = extract_page(session, api_key, doc, page, image_path)
                 for idx, q in enumerate(questions, start=1):
                     if not isinstance(q, dict):
                         continue
@@ -201,7 +214,6 @@ def main() -> int:
                         "observacao": "Gabarito não inferido; validar com documento oficial antes de importar."
                     }
                     all_candidates.append(candidate)
-                time.sleep(0.15)
         except Exception as exc:
             errors.append({"arquivo_json": path.name, "erro": str(exc)[:500]})
             print(f"Falha IA em {path.name}: {exc}", file=sys.stderr)
@@ -246,7 +258,7 @@ def main() -> int:
             writer.writeheader()
             for row in all_candidates:
                 writer.writerow({k: json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else v for k, v in row.items()})
-        print(json.dumps({"modelo": MODEL, "documentos": len(docs), "candidatos_ia": len(all_candidates), "erros": len(errors)}, ensure_ascii=False))
+        print(json.dumps({"modelo": MODEL, "documentos": len(docs), "candidatos_ia": len(all_candidates), "erros": len(errors), "paginas_simultaneas": MAX_WORKERS}, ensure_ascii=False))
     else:
         print(json.dumps({"modelo": MODEL, "candidatos_ia": 0, "erros": len(errors), "acao": "lote heurístico preservado"}, ensure_ascii=False))
     return 0
