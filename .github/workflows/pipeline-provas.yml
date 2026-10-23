@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/pipeline-provas.yml'
       - 'publicar_questoes_supabase.py'
+      - 'provas_pipeline.py'
   workflow_dispatch:
     inputs:
       max_downloads:
