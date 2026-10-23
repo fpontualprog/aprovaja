@@ -74,20 +74,38 @@ def main():
         print("DEEPSEEK_API_PUBLICA ausente; gabaritos não foram inferidos e candidatos seguem sem gabarito.")
         return 0
     docs = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in sorted(JSON_DIR.glob("*.json"))}
-    # Gabaritos são vinculados apenas ao PDF de origem, nunca por número isolado entre provas.
-    candidates_by_doc = {}
-    for candidate in candidates:
-        sha = str(candidate.get("documento_sha256") or "")
-        candidates_by_doc.setdefault(sha, []).append(candidate)
-    session = requests.Session()
-    extracted = 0
+    # Primeiro extrai mapas de gabarito de TODOS os PDFs baixados; depois faz vínculo cruzado
+    # somente quando metadados de banca/concurso/cargo/ano forem compatíveis.
+    docs_by_sha = {str((v.get("documento") or {}).get("sha256") or k): v for k, v in docs.items()}
+    answer_maps = {}
     errors = []
-    for doc_sha, doc_candidates in candidates_by_doc.items():
-        doc = docs.get(doc_sha)
-        if not doc:
-            errors.append({"documento_sha256":doc_sha,"erro":"JSON original não localizado; gabarito não vinculado"})
-            continue
+    session = requests.Session()
+
+    def norm(value):
+        return re.sub(r"[^a-z0-9]+", " ", str(value or "").lower()).strip()
+
+    def doc_meta(doc):
+        d = doc.get("documento", {})
+        return {key: norm(d.get(key)) for key in ("banca", "concurso", "titulo", "cargo", "ano", "orgao")}
+
+    def compatible(candidate_doc, answer_doc):
+        q = doc_meta(candidate_doc)
+        a = doc_meta(answer_doc)
+        # Ano, se conhecido nos dois, deve coincidir.
+        if q["ano"] and a["ano"] and q["ano"] != a["ano"]:
+            return False
+        # Se banca estiver informada em ambos, não pode divergir.
+        if q["banca"] and a["banca"] and q["banca"] != a["banca"]:
+            return False
+        # Concurso/título/cargo/órgão devem ter ao menos um sinal forte em comum
+        # quando existirem; evita cruzar questões de provas diferentes pelo número.
+        fields = ("concurso", "titulo", "cargo", "orgao")
+        matches = [key for key in fields if q[key] and a[key] and (q[key] in a[key] or a[key] in q[key])]
+        return bool(matches)
+
+    for doc_key, doc in docs.items():
         document = doc.get("documento", {})
+        doc_sha = str(document.get("sha256") or doc_key)
         answer_map = {}
         for page in doc.get("paginas", []):
             if not KEY_PAGE.search(str(page.get("texto") or "")):
@@ -106,42 +124,73 @@ def main():
                 time.sleep(0.15)
             except Exception as exc:
                 errors.append({"documento_sha256":doc_sha,"pagina":page.get("pagina"),"erro":str(exc)[:300]})
-        for candidate in doc_candidates:
-            number = str(candidate.get("numero_detectado") or "").strip()
-            answer = answer_map.get(number)
-            if not answer:
-                candidate["gabarito"] = None
-                candidate["gabarito_status"] = "NAO_LOCALIZADO"
+        if answer_map:
+            answer_maps[doc_sha] = {"map": answer_map, "doc": doc}
+
+    extracted = 0
+    linked_same_doc = 0
+    linked_separate_doc = 0
+    no_key_found = 0
+    for candidate in candidates:
+        source_sha = str(candidate.get("documento_sha256") or "")
+        source_doc = docs_by_sha.get(source_sha)
+        if not source_doc:
+            candidate["gabarito"] = None
+            candidate["gabarito_status"] = "DOCUMENTO_ORIGINAL_NAO_LOCALIZADO"
+            continue
+        number = str(candidate.get("numero_detectado") or "").strip()
+        matches = []
+        # Prioridade 1: gabarito encontrado dentro do mesmo PDF da questão.
+        if source_sha in answer_maps and number in answer_maps[source_sha]["map"]:
+            matches.append((source_sha, answer_maps[source_sha]["map"][number], True))
+        # Prioridade 2: PDF separado, somente com metadados de prova compatíveis.
+        for key, bundle in answer_maps.items():
+            if key == source_sha or not compatible(source_doc, bundle["doc"]):
                 continue
-            if answer.get("conflito") or answer.get("confianca") != "alta" or not answer.get("resposta"):
-                candidate["gabarito"] = None
-                candidate["gabarito_status"] = "CONFLITO_OU_BAIXA_CONFIANCA"
-                candidate.setdefault("motivos_revisao", []).append("gabarito_oficial_exige_conferencia")
-                candidate["requer_revisao_humana"] = True
-                continue
-            ans = answer["resposta"]
-            qtype = candidate.get("tipo") or candidate.get("tipo_estimado")
-            if qtype == "certo_errado":
-                if ans not in {"CERTO","ERRADO","ANULADA"}:
-                    candidate["gabarito"] = None
-                    candidate["gabarito_status"] = "TIPO_INCOMPATIVEL"
-                    candidate["requer_revisao_humana"] = True
-                    continue
-            elif ans in {"CERTO","ERRADO"}:
+            if number in bundle["map"]:
+                matches.append((key, bundle["map"][number], False))
+        # Vários gabaritos com respostas divergentes = revisão, nunca escolher automaticamente.
+        answers = {m[1].get("resposta") for m in matches if m[1].get("resposta") and not m[1].get("conflito")}
+        if not matches:
+            candidate["gabarito"] = None
+            candidate["gabarito_status"] = "GABARITO_OFICIAL_NAO_ENCONTRADO_NOS_PDFS_BAIXADOS"
+            no_key_found += 1
+            continue
+        if len(answers) != 1 or any(m[1].get("conflito") or m[1].get("confianca") != "alta" for m in matches):
+            candidate["gabarito"] = None
+            candidate["gabarito_status"] = "CONFLITO_OU_BAIXA_CONFIANCA"
+            candidate.setdefault("motivos_revisao", []).append("gabarito_oficial_exige_conferencia")
+            candidate["requer_revisao_humana"] = True
+            continue
+        chosen = next(m for m in matches if m[1].get("resposta") in answers)
+        ans = chosen[1]["resposta"]
+        qtype = candidate.get("tipo") or candidate.get("tipo_estimado")
+        if qtype == "certo_errado":
+            if ans not in {"CERTO","ERRADO","ANULADA"}:
                 candidate["gabarito"] = None
                 candidate["gabarito_status"] = "TIPO_INCOMPATIVEL"
                 candidate["requer_revisao_humana"] = True
                 continue
-            candidate["gabarito"] = {"CERTO":"C","ERRADO":"E"}.get(ans, ans)
-            candidate["gabarito_status"] = "EXTRAIDO_DOCUMENTO_ORIGINAL"
-            candidate["pagina_gabarito"] = answer.get("pagina_gabarito")
-            candidate["gabarito_confianca"] = answer["confianca"]
-            extracted += 1
+        elif ans in {"CERTO","ERRADO"}:
+            candidate["gabarito"] = None
+            candidate["gabarito_status"] = "TIPO_INCOMPATIVEL"
+            candidate["requer_revisao_humana"] = True
+            continue
+        candidate["gabarito"] = {"CERTO":"C","ERRADO":"E"}.get(ans, ans)
+        candidate["gabarito_status"] = "EXTRAIDO_DOCUMENTO_ORIGINAL" if chosen[2] else "EXTRAIDO_GABARITO_SEPARADO_COMPATIVEL"
+        candidate["pagina_gabarito"] = chosen[1].get("pagina_gabarito")
+        candidate["gabarito_documento_sha256"] = chosen[0]
+        candidate["gabarito_confianca"] = chosen[1]["confianca"]
+        extracted += 1
+        if chosen[2]:
+            linked_same_doc += 1
+        else:
+            linked_separate_doc += 1
     data["gabarito_extraction"] = {
         "metodo":"DeepSeek, apenas respostas explicitamente publicadas",
-        "modelo":MODEL,"gabaritos_vinculados":extracted,
+        "modelo":MODEL,"gabaritos_vinculados":extracted,"vinculados_mesmo_pdf":linked_same_doc,"vinculados_pdf_separado":linked_separate_doc,"sem_gabarito_nos_pdfs_baixados":no_key_found,
         "erros":errors,
-        "politica":"Correspondência apenas dentro do mesmo PDF e por número; conflitos ficam sem gabarito."
+        "politica":"Busca em todos os PDFs baixados; vínculo cruzado exige compatibilidade de metadados e número; conflitos ficam sem gabarito."
     }
     tmp = OUT_JSON.with_suffix(".gabaritos.tmp.json")
     tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8")
@@ -153,7 +202,7 @@ def main():
         writer.writeheader()
         for row in candidates:
             writer.writerow({k:json.dumps(v,ensure_ascii=False) if isinstance(v,(dict,list)) else v for k,v in row.items()})
-    print(json.dumps({"documentos_com_candidatos":len(candidates_by_doc),"gabaritos_vinculados":extracted,"erros":len(errors)},ensure_ascii=False))
+    print(json.dumps({"documentos_com_candidatos":len(set(str(x.get("documento_sha256") or "") for x in candidates)),"gabaritos_vinculados":extracted,"vinculados_mesmo_pdf":linked_same_doc,"vinculados_pdf_separado":linked_separate_doc,"sem_gabarito_nos_pdfs_baixados":no_key_found,"erros":len(errors)},ensure_ascii=False))
     return 0
 
 if __name__ == "__main__":
