@@ -32,8 +32,7 @@ def read_image(path: Path | None) -> str | None:
 
 def extract(session, key, doc, page):
     text = str(page.get("texto") or "")
-    if not KEY_PAGE.search(text):
-        return []
+    # Páginas sem texto também podem conter gabarito digitalizado; o modelo só extrai respostas explícitas.
     content = [{"type":"text","text":"Documento: " + json.dumps({k:doc.get(k) for k in ("fonte","url_origem","sha256","titulo","banca","concurso","ano")},ensure_ascii=False) + "\nPágina: " + str(page.get("pagina")) + "\nTexto da página:\n" + text}]
     rel = str(page.get("imagem_pagina") or "")
     image_path = ROOT / "provas_data" / rel if rel and (page.get("requer_ocr") or not text.strip()) else None
@@ -108,7 +107,9 @@ def main():
         doc_sha = str(document.get("sha256") or doc_key)
         answer_map = {}
         for page in doc.get("paginas", []):
-            if not KEY_PAGE.search(str(page.get("texto") or "")):
+            page_text = str(page.get("texto") or "")
+            # Inclui páginas sem camada de texto sinalizadas para OCR, sem enviar todas as páginas à IA.
+            if not KEY_PAGE.search(page_text) and not page.get("requer_ocr") and page_text.strip():
                 continue
             try:
                 for item in extract(session, api_key, document, page):
