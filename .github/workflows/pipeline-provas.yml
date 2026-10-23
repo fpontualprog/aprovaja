@@ -74,7 +74,16 @@ jobs:
         env:
           APROVAJA_SUPABASE_URL: ${{ secrets.APROVAJA_SUPABASE_URL }}
           APROVAJA_IMPORT_SECRET: ${{ secrets.APROVAJA_IMPORT_SECRET }}
-        run: python publicar_questoes_supabase.py
+        run: |
+          if [ -z "$APROVAJA_SUPABASE_URL" ]; then
+            echo "::error::APROVAJA_SUPABASE_URL não configurada; o lote NÃO será enviado ao Supabase."
+            exit 1
+          fi
+          if [ -z "$APROVAJA_IMPORT_SECRET" ]; then
+            echo "::error::APROVAJA_IMPORT_SECRET não configurada; o lote NÃO será enviado ao Supabase."
+            exit 1
+          fi
+          python publicar_questoes_supabase.py
 
       - name: Publicar arquivos leves para revisão
         if: always()
