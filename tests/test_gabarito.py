@@ -37,13 +37,13 @@ def main() -> None:
     print(f"PDF salvo em: {DESTINO} ({len(response.content)} bytes)")
 
     with fitz.open(DESTINO) as documento:
-        texto = "\\n".join(
+        texto = "\n".join(
             pagina.get_text("text", sort=True) for pagina in documento
         )
 
-    print("\\n--- PRIMEIROS 1000 CARACTERES DO TEXTO EXTRAÍDO ---\\n")
+    print("\n--- PRIMEIROS 1000 CARACTERES DO TEXTO EXTRAÍDO ---\n")
     print(texto[:1000])
-    print("\\n--- FIM DO TRECHO ---")
+    print("\n--- FIM DO TRECHO ---")
     if not texto.strip():
         print(
             "AVISO: nenhum texto foi extraído; o PDF pode exigir OCR.",
