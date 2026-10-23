@@ -8,7 +8,7 @@ on:
       - 'provas_pipeline.py'
       - 'validar_pdf_prova.py'
       - 'segmentar_questoes_candidatas.py'
-      - 'vincular_gabaritos_ia.py'
+      - 'vincular_gabaritos_ia.py buscar_gabaritos_web.py'
       - 'buscar_gabaritos_web.py'
   workflow_dispatch:
     inputs:
