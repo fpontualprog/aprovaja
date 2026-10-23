@@ -26,7 +26,14 @@ def segmentar_itens(texto: str) -> list[dict[str, str | int]]:
         conteudo = texto[inicio:fim].strip()
         numero = int(match.group(1))
         if len(conteudo) >= 20:
-            itens.append({"numero": numero, "texto": conteudo})
+            itens.append({
+                "numero": numero,
+                "texto": conteudo,
+                "posicao_inicio": inicio,
+                "posicao_fim": fim,
+                "tem_imagem": False,
+                "imagens": [],
+            })
     if not itens:
         raise ValueError("Não foi possível identificar itens numerados no texto extraído do PDF.")
     return itens
