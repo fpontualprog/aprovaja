@@ -2,8 +2,8 @@ name: Coleta diaria
 
 on:
   schedule:
-    - cron: "0 6 * * *" # Roda todo dia às 06:00 UTC
-  workflow_dispatch: # Permite rodar manualmente
+    - cron: "0 6 * * *"
+  workflow_dispatch:
 
 jobs:
   coletar:
