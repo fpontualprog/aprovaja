@@ -6,10 +6,10 @@ import fitz
 
 # Aceita C/E e alternativas A-E, com ou sem hífen/dois-pontos entre os campos.
 _PAIR_RE = re.compile(
-    r"(?<!\\d)(\\d{1,3})\\s*(?:[-.:)]\\s*)?([A-E])(?=\\s|$|[,;.)])",
+    r"(?<!\d)(\d{1,3})\s*(?:[-.:)]\s*)?([A-E])(?=\s|$|[,;.)])",
     re.IGNORECASE,
 )
-_LINE_RE = re.compile(r"^\\s*(\\d{1,3})\\s*(?:[-.:)]\\s*)?([A-E])\\s*$", re.IGNORECASE)
+_LINE_RE = re.compile(r"^\s*(\d{1,3})\s*(?:[-.:)]\s*)?([A-E])\s*$", re.IGNORECASE)
 
 
 def extrair_gabarito_pdf(caminho_pdf: str | Path) -> dict[int, str]:
@@ -21,7 +21,7 @@ def extrair_gabarito_pdf(caminho_pdf: str | Path) -> dict[int, str]:
     """
     respostas: dict[int, str] = {}
     with fitz.open(str(caminho_pdf)) as documento:
-        texto = "\\n".join(pagina.get_text("text", sort=True) for pagina in documento)
+        texto = "\n".join(pagina.get_text("text", sort=True) for pagina in documento)
 
     for linha in texto.splitlines():
         linha = linha.strip()
