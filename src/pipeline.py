@@ -28,13 +28,19 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         nome = _nome_seguro(prova.get("nome") or f"prova_{indice}.pdf")
         if not nome.lower().endswith(".pdf"):
             nome += ".pdf"
+        url_download = prova.get("url_download") or prova.get("url")
+        if not isinstance(url_download, str) or not url_download.startswith("https://"):
+            raise ValueError(f"URL de download ausente ou inválida para o arquivo {nome!r}: {url_download!r}")
+        if nome.lower() in {"_", "_.pdf", "prova.pdf"} and url_download.rstrip("/").endswith("/_.pdf"):
+            raise ValueError(f"A API do Cebraspe retornou um nome de arquivo inválido: {url_download}")
+
         caminho = trabalho / f"{indice:02d}_{nome}"
-        baixar_pdf(prova["url"], str(caminho))
+        baixar_pdf(url_download, str(caminho))
         texto = extrair_texto_pdf(caminho)
         itens = segmentar_itens(texto)
         for item in itens:
             item["arquivo_origem"] = nome
-            item["url_origem"] = prova["url"]
+            item["url_origem"] = url_download
         itens_brutos.extend(itens)
 
     if not itens_brutos:
