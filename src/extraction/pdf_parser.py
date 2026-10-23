@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 from typing import Any
 import fitz
+from src.config import CORTE_X
 
 ITEM_RE = re.compile(r"(?m)^\s*(\d{1,3})[.)]?\s+")
 
