@@ -6,6 +6,8 @@ on:
       - '.github/workflows/pipeline-provas.yml'
       - 'publicar_questoes_supabase.py'
       - 'provas_pipeline.py'
+      - 'validar_pdf_prova.py'
+      - 'segmentar_questoes_candidatas.py'
       - 'vincular_gabaritos_ia.py'
   workflow_dispatch:
     inputs:
