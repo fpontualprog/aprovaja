@@ -9,6 +9,7 @@ on:
       - 'validar_pdf_prova.py'
       - 'segmentar_questoes_candidatas.py'
       - 'vincular_gabaritos_ia.py'
+      - 'buscar_gabaritos_web.py'
   workflow_dispatch:
     inputs:
       max_downloads:
@@ -76,6 +77,13 @@ jobs:
           DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python vincular_gabaritos_ia.py
+
+      - name: Buscar gabaritos ausentes na web oficial com DeepSeek
+        if: success()
+        env:
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
+          APROVAJA_IA_MODEL: deepseek-flash
+        run: python buscar_gabaritos_web.py
 
       - name: Enviar candidatos ao Supabase (se configurado)
         if: success()
