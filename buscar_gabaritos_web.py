@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Busca na web gabaritos oficiais ausentes e vincula respostas explicitamente publicadas."""
 from __future__ import annotations
-import json, os, re, sys, time
+import json, os, re, sys
 from pathlib import Path
 from urllib.parse import quote, urlparse, unquote
 import requests, fitz
@@ -9,8 +9,6 @@ from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "provas_data" / "revisao" / "questoes_candidatas.json"
-API = "https://api.deepseek.com/chat/completions"
-MODEL = os.getenv("APROVAJA_IA_MODEL", "deepseek-flash")
 OFFICIAL = {"fgv":["conhecimento.fgv.br"],"cebraspe":["cebraspe.org.br"],"fcc":["fcc.org.br"]}
 KEYWORDS = re.compile(r"(?i)gabarito|respostas? das? quest|questões anuladas|questoes anuladas")
 
@@ -60,32 +58,35 @@ def search(meta, session):
         except Exception as e: print("Busca web falhou:",str(e)[:160],file=sys.stderr)
     return found[:4]
 
-def extract_pdf(pdf_bytes, meta, url, session, key):
+def extract_pdf(pdf_bytes, meta, url, session, key=None):
+    """Extrai gabaritos por regras locais; não chama API de IA."""
     if not pdf_bytes.startswith(b"%PDF") or len(pdf_bytes)>25000000: return {}
     pdf=fitz.open(stream=pdf_bytes,filetype="pdf")
-    pages=[]
-    for i in range(len(pdf)):
-        t=pdf[i].get_text("text") or ""
-        if KEYWORDS.search(t): pages.append((i+1,t))
     result={}
-    for page_num, text in pages:
-        prompt = ("Extraia apenas respostas impressas explicitamente nesta página de gabarito oficial. "
-                  "Não resolva questões. Retorne JSON {\"itens\":[{\"numero\":\"1\",\"resposta\":\"A|B|C|D|E|CERTO|ERRADO|ANULADA\",\"confianca\":\"alta|media|baixa\"}]}. "
-                  "Asterisco ou indicação explícita de anulação deve virar ANULADA. Se não for página de gabarito, lista vazia. "
-                  "Metadados da prova: "+json.dumps(meta,ensure_ascii=False)+"\nURL oficial: "+url+"\nPágina "+str(page_num)+":\n"+text[:14000])
-        try:
-            r=session.post(API,headers={"Authorization":"Bearer "+key},json={"model":MODEL,"temperature":0,"response_format":{"type":"json_object"},"messages":[{"role":"system","content":"Você extrai gabaritos oficiais sem inferir respostas."},{"role":"user","content":prompt}],"max_tokens":3000},timeout=90)
-            r.raise_for_status()
-            items=json.loads(r.json()["choices"][0]["message"]["content"]).get("itens",[])
-            for item in items:
-                n=str(item.get("numero") or "").strip()
-                ans=str(item.get("resposta") or "").strip().upper()
-                conf=str(item.get("confianca") or "baixa").lower()
-                if n.isdigit() and ans in {"A","B","C","D","E","CERTO","ERRADO","ANULADA"}:
-                    if n in result and result[n]["resposta"]!=ans: result[n]={"resposta":"","confianca":"baixa","conflito":True}
-                    else: result[n]={"resposta":ans,"confianca":conf,"pagina":page_num}
-            time.sleep(.15)
-        except Exception as e: print("DeepSeek falhou:",str(e)[:160],file=sys.stderr)
+    # Formatos comuns em gabaritos: "1 A", "01 - B", "Questão 1: C".
+    line_patterns = [
+        re.compile(r"(?i)^\s*(?:quest[aã]o\s*)?(\d{1,3})\s*[\).:\-–]\s*(ANULADA|CANCELADA|[ABCDE])\s*[.*º°]?\s*$"),
+        re.compile(r"(?i)^\s*(?:quest[aã]o\s*)?(\d{1,3})\s+(ANULADA|CANCELADA|[ABCDE])\s*[.*º°]?\s*$"),
+    ]
+    for page_num in range(len(pdf)):
+        text=pdf[page_num].get_text("text") or ""
+        if not KEYWORDS.search(text) and not re.search(r"(?i)gabarito|respostas", url):
+            continue
+        page_answers={}
+        for line in text.splitlines():
+            line=" ".join(line.strip().split())
+            for pattern in line_patterns:
+                m=pattern.match(line)
+                if not m: continue
+                n, ans=m.group(1),m.group(2).upper()
+                ans="ANULADA" if ans in {"ANULADA","CANCELADA"} else ans
+                if n in page_answers and page_answers[n]["resposta"]!=ans:
+                    page_answers[n]={"resposta":"","confianca":"baixa","conflito":True}
+                else:
+                    page_answers[n]={"resposta":ans,"confianca":"alta","pagina":page_num+1}
+                break
+        if len(page_answers)>len(result):
+            result=page_answers
     return result
 
 def compatible(qmeta, ameta):
@@ -103,8 +104,6 @@ def compatible(qmeta, ameta):
     return bool(distinctive)
 
 def main():
-    key=os.getenv("DEEPSEEK_API_PUBLICA","").strip()
-    if not key: print("DEEPSEEK_API_PUBLICA ausente; fallback web ignorado."); return 0
     if not OUT.exists(): print("JSON de questões não encontrado."); return 0
     data=json.loads(OUT.read_text(encoding="utf-8"))
     candidates=data.get("candidatos",[])
@@ -125,7 +124,7 @@ def main():
             try:
                 r=session.get(hit["url"],headers={"User-Agent":"Mozilla/5.0"},timeout=35)
                 r.raise_for_status()
-                answers=extract_pdf(r.content,meta,hit["url"],session,key)
+                answers=extract_pdf(r.content,meta,hit["url"],session)
                 if answers:
                     answer_meta=dict(meta)
                     answer_meta["url_origem"]=hit["url"]
@@ -156,10 +155,10 @@ def main():
         q["gabarito_fonte_oficial"]=url
         q["pagina_gabarito"]=entry.get("pagina")
         q["gabarito_confianca"]="alta"
-        q["gabarito_metodo"]="DeepSeek + busca web em domínio oficial"
+        q["gabarito_metodo"]="extração local por regras + busca web em domínio oficial"
         linked+=1
         if ans=="ANULADA": annulled+=1
-    data["gabarito_web_fallback"]={"fontes_oficiais_encontradas":len(bundles),"questoes_vinculadas":linked,"anuladas":annulled,"politica":"Busca em mais de um buscador e domínio oficial; usa identificador do PDF quando faltam metadados; conflitos e confiança baixa continuam bloqueados.","gravacao_supabase":False}
+    data["gabarito_web_fallback"]={"fontes_oficiais_encontradas":len(bundles),"questoes_vinculadas":linked,"anuladas":annulled,"politica":"Busca em mais de um buscador e domínio oficial; extração local sem API; usa identificador do PDF quando faltam metadados; conflitos e confiança baixa continuam bloqueados.","gravacao_supabase":False}
     tmp=OUT.with_suffix(".web.tmp.json"); tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8"); tmp.replace(OUT)
     import csv
     fields=sorted({k for row in candidates for k in row})
