@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 from src.discovery.cebraspe import descobrir_prova, baixar_pdf
-from src.extraction.pdf_parser import extrair_texto_pdf, segmentar_itens
+from src.extraction.pdf_parser import extrair_texto_pdf, segmentar_itens, extrair_imagens_questoes
 from src.structuring.deepseek import estruturar_itens
 from src.export.writers import exportar_questoes
 
@@ -38,6 +38,8 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         baixar_pdf(url_download, str(caminho))
         texto = extrair_texto_pdf(caminho)
         itens = segmentar_itens(texto)
+        pasta_imagens_pdf = destino / "imagens" / _nome_seguro(Path(nome).stem)
+        extrair_imagens_questoes(caminho, itens, pasta_imagens_pdf)
         for item in itens:
             item["arquivo_origem"] = nome
             item["url_origem"] = url_download
