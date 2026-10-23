@@ -284,7 +284,8 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
                 "sha256": digest,
                 "tamanho_bytes": len(payload),
                 "coletado_em": datetime.now(timezone.utc).isoformat(),
-                "pdf_armazenado": pdf_path.relative_to(out).as_posix()
+                "pdf_armazenado": pdf_path.relative_to(out).as_posix(),
+                "categoria_documento": validacao.get("categoria_documento", "prova_objetiva")
             }
             json_data = extract_pdf(pdf_path, record, out)
             json_path = out / "json" / f"{digest}.json"
