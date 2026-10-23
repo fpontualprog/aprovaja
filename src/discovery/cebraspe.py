@@ -8,7 +8,7 @@ from src.config import CEBRASPE_API_LISTA, CEBRASPE_API_DETALHE, CEBRASPE_CDN
 
 SESSION = requests.Session()
 SESSION.headers.update({"User-Agent": "APROVAJA-concursos-collector/1.0 (+https://github.com/fpontualprog/aprovaja)"})
-TIMEOUT = 30
+TIMEOUT = 15
 
 def _walk(value: Any):
     if isinstance(value, dict):
@@ -145,30 +145,39 @@ def descobrir_prova(evento: str) -> dict[str, Any]:
         response.raise_for_status()
         payload = response.json()
         candidates = []
+        seen_codes = set()
         for item in _walk(payload):
-            serialized = str(item).lower()
             code = _event_code(item)
-            if evento.lower() in serialized or (code and evento.lower() == code.lower()):
+            serialized = str(item).lower()
+            if code and code.lower() == evento.lower():
+                candidates.append(item)
+                seen_codes.add(code.lower())
+            elif evento.lower() in serialized and not code:
                 candidates.append(item)
 
         for item in candidates:
             pdfs.extend(_pdf_links(item, evento))
-            candidate_code = _event_code(item)
-            if candidate_code:
-                try:
-                    candidate_detail = SESSION.get(
-                        CEBRASPE_API_DETALHE.format(evento_url=candidate_code),
-                        timeout=TIMEOUT,
-                    )
-                    if candidate_detail.ok:
-                        candidate_payload = candidate_detail.json()
-                        pdfs.extend(_pdf_links(candidate_payload, evento))
-                        if not metadata or metadata == {"evento_url": evento}:
-                            metadata = candidate_payload if isinstance(candidate_payload, dict) else {
-                                "evento_url": candidate_code, "dados": candidate_payload
-                            }
-                except (requests.RequestException, ValueError):
-                    continue
+
+        # Só consulta um detalhe adicional se a listagem realmente encontrou
+        # o código exato do evento. Evita chamadas repetidas para IDs de anexos
+        # ou objetos internos que também mencionem o código.
+        exact_codes = [
+            _event_code(item) for item in candidates
+            if _event_code(item) and _event_code(item).lower() == evento.lower()
+        ]
+        if not pdfs and exact_codes:
+            try:
+                candidate_detail = SESSION.get(
+                    CEBRASPE_API_DETALHE.format(evento_url=exact_codes[0]),
+                    timeout=15,
+                )
+                if candidate_detail.ok:
+                    candidate_payload = candidate_detail.json()
+                    pdfs.extend(_pdf_links(candidate_payload, evento))
+                    if isinstance(candidate_payload, dict):
+                        metadata = candidate_payload
+            except (requests.RequestException, ValueError):
+                pass
     except (requests.RequestException, ValueError) as exc:
         list_error = str(exc)
 
