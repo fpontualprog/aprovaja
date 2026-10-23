@@ -11,8 +11,8 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
     client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
     saida = []
     # Lotes pequenos reduzem o risco de truncamento e facilitam diagnóstico.
-    for inicio in range(0, len(itens), 8):
-        lote = itens[inicio:inicio + 8]
+    for inicio in range(0, len(itens), 12):
+        lote = itens[inicio:inicio + 12]
         prompt = {
             "evento": evento,
             "banca": banca,
