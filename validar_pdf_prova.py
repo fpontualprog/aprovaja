@@ -94,7 +94,10 @@ def validar_pdf_prova(payload: bytes, nome_arquivo: str = "", paginas_iniciais: 
             # do documento rejeita o PDF, independentemente da classificação da IA.
             if INDICIOS_DISCURSIVA.search(nome) or INDICIOS_DISCURSIVA.search(texto_norm[:12000]):
                 return {"aprovado": False, "motivo": "indicio_de_prova_discursiva", "evidencias": ["nome_ou_texto_inicial"]}
-            if REJEITAR.search(texto_norm[:2500]):
+            # Gabaritos preliminares/definitivos podem conter termos normalmente rejeitados;
+            # só passam pela rota de gabarito se a classificação IA confirmar a categoria.
+            tem_sinal_gabarito = bool(re.search(r"gabarito", normalizar(nome_arquivo + " " + texto_norm[:5000]), re.I))
+            if REJEITAR.search(texto_norm[:2500]) and not tem_sinal_gabarito:
                 return {"aprovado": False, "motivo": "inicio_indica_documento_administrativo", "evidencias": []}
 
             ai = triagem_deepseek(nome_arquivo, texto_norm)
