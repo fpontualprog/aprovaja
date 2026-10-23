@@ -39,6 +39,92 @@ def segmentar_itens(texto: str) -> list[dict[str, Any]]:
         raise ValueError("Não foi possível identificar itens numerados no texto extraído do PDF.")
     return itens
 
+
+QUESTION_START_RE = re.compile(r"(?m)^\\s*(\\d{1,3})[.)]?\\s+")
+
+
+def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
+    """Localiza questões a partir dos blocos do PDF, respeitando colunas.
+
+    Cada coluna é percorrida de cima para baixo. Se um bloco contiver várias
+    questões, os marcadores numéricos no início das linhas dividem o bloco.
+    A posição global é recuperada no texto da página para manter compatibilidade
+    com a extração heurística de imagens.
+    """
+    itens: list[dict[str, Any]] = []
+    with fitz.open(str(caminho_pdf)) as documento:
+        offset_pagina = 0
+        for pagina in documento:
+            texto_pagina = pagina.get_text("text", sort=True)
+            blocos = [
+                bloco for bloco in pagina.get_text("blocks")
+                if len(bloco) >= 5 and isinstance(bloco[4], str) and bloco[4].strip()
+            ]
+
+            # Ordena por coluna e, dentro dela, de cima para baixo. O CORTE_X
+            # já usado no projeto separa a coluna esquerda da direita.
+            esquerda = sorted(
+                (b for b in blocos if float(b[0]) < CORTE_X),
+                key=lambda b: (float(b[1]), float(b[0])),
+            )
+            direita = sorted(
+                (b for b in blocos if float(b[0]) >= CORTE_X),
+                key=lambda b: (float(b[1]), float(b[0])),
+            )
+            blocos_ordenados = esquerda + direita
+
+            for bloco in blocos_ordenados:
+                texto_bloco = str(bloco[4]).strip()
+                marcadores = list(QUESTION_START_RE.finditer(texto_bloco))
+                if not marcadores:
+                    continue
+
+                # Só divide nos marcadores de início de linha do bloco; números
+                # no meio de frases, datas e textos de apoio não iniciam questões.
+                for i, marcador in enumerate(marcadores):
+                    inicio_bloco = marcador.start()
+                    fim_bloco = marcadores[i + 1].start() if i + 1 < len(marcadores) else len(texto_bloco)
+                    conteudo = texto_bloco[inicio_bloco:fim_bloco].strip()
+                    if len(conteudo) < 20:
+                        continue
+                    numero = int(marcador.group(1))
+                    posicao = texto_pagina.find(conteudo[:60])
+                    if posicao < 0:
+                        posicao = texto_pagina.find(marcador.group(0).strip())
+                    itens.append({
+                        "numero": numero,
+                        "texto": conteudo,
+                        "posicao_inicio": offset_pagina + posicao if posicao >= 0 else offset_pagina,
+                        "posicao_fim": (
+                            offset_pagina + posicao + len(conteudo)
+                            if posicao >= 0 else offset_pagina + len(texto_pagina)
+                        ),
+                        "tem_imagem": False,
+                        "imagens": [],
+                    })
+            offset_pagina += len(texto_pagina) + 1
+
+    if not itens:
+        raise ValueError(
+            f"Não foi possível identificar questões em blocos do PDF {caminho_pdf}."
+        )
+
+    # Evita duplicações ocasionais quando o mesmo bloco aparece em mais de uma
+    # região do PDF, mantendo a ordem física de leitura.
+    unicas: list[dict[str, Any]] = []
+    vistos: set[tuple[int, str]] = set()
+    for item in itens:
+        chave = (item["numero"], item["texto"])
+        if chave not in vistos:
+            vistos.add(chave)
+            unicas.append(item)
+    return unicas
+
+
+def extrair_itens_pdf(caminho_pdf: str | Path) -> list[dict[str, Any]]:
+    """Extrai questões usando blocos e separação de colunas do PDF."""
+    return _encontrar_questoes(caminho_pdf)
+
 def extrair_imagens_questoes(
     caminho_pdf: str | Path,
     questoes: list[dict],
