@@ -15,8 +15,13 @@ def main() -> int:
     base_url = os.environ.get("APROVAJA_SUPABASE_URL", "").rstrip("/")
     secret = os.environ.get("APROVAJA_IMPORT_SECRET", "")
     if not base_url or not secret:
-        print("Integração Supabase não configurada; candidatos permanecem nos artefatos de revisão.")
-        return 0
+        missing = []
+        if not base_url:
+            missing.append("APROVAJA_SUPABASE_URL")
+        if not secret:
+            missing.append("APROVAJA_IMPORT_SECRET")
+        print("ERRO: integração Supabase não configurada: " + ", ".join(missing) + ". O lote não foi enviado.", file=sys.stderr)
+        return 2
     if not INPUT.exists():
         print(f"Arquivo de candidatos não encontrado: {INPUT}", file=sys.stderr)
         return 2
