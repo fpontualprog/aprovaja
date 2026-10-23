@@ -17,6 +17,11 @@ on:
         required: true
         default: "8"
         type: string
+      usar_ia:
+        description: "Usar créditos de IA nesta execução (padrão: não)"
+        required: true
+        default: false
+        type: boolean
   schedule:
     # Execução diária às 13:00 de Recife (16:00 UTC)
     - cron: "0 16 * * *"
@@ -47,7 +52,7 @@ jobs:
         run: python -m pip install -r requirements-provas.txt
 
       - name: Validar sintaxe
-        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py publicar_questoes_supabase.py enriquecer_questoes_ia.py vincular_gabaritos_ia.py
+        run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py publicar_questoes_supabase.py enriquecer_questoes_ia.py vincular_gabaritos_ia.py buscar_gabaritos_web.py
 
       - name: Coletar PDFs, fazer triagem DeepSeek e gerar JSON multimodal
         env:
@@ -64,25 +69,22 @@ jobs:
         if: success()
         run: python segmentar_questoes_candidatas.py
 
-      - name: Enriquecer questões com DeepSeek (se configurada)
-        if: success()
+      - name: Enriquecer questões com IA (opcional, consome créditos)
+        if: success() && inputs.usar_ia == true
         env:
           DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python enriquecer_questoes_ia.py
 
-      - name: Extrair e vincular gabaritos oficiais com DeepSeek (sem inferir respostas)
-        if: success()
+      - name: Extrair gabaritos locais com IA (opcional, consome créditos)
+        if: success() && inputs.usar_ia == true
         env:
           DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python vincular_gabaritos_ia.py
 
-      - name: Buscar gabaritos ausentes na web oficial com DeepSeek
+      - name: Buscar e extrair gabaritos oficiais sem API
         if: success()
-        env:
-          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
-          APROVAJA_IA_MODEL: deepseek-flash
         run: python buscar_gabaritos_web.py
 
       - name: Enviar candidatos ao Supabase (se configurado)
