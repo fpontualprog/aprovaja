@@ -100,6 +100,74 @@ def _pdf_links(value: Any, evento: str | None = None) -> list[dict[str, str]]:
     explicit_objective = [p for p in records if p["prova_objetiva"] == "true"]
     return explicit_objective or records
 
+def listar_pdfs_gabarito(evento_url: str) -> list[dict[str, str]]:
+    """Lista PDFs de gabarito publicados para um evento Cebraspe.
+
+    Retorna registros com url/url_download/nome/descricao, preservando a ordem
+    de descoberta para que o pipeline possa priorizar o primeiro gabarito em conflitos.
+    """
+    evento = evento_url.strip()
+    if not evento:
+        return []
+
+    urls: dict[str, dict[str, str]] = {}
+    endpoints = [
+        CEBRASPE_API_DETALHE.format(evento_url=evento),
+        CEBRASPE_API_LISTA,
+    ]
+    for endpoint in endpoints:
+        try:
+            response = SESSION.get(endpoint, timeout=TIMEOUT)
+            response.raise_for_status()
+            payload = response.json()
+        except (requests.RequestException, ValueError):
+            continue
+
+        for item in _walk(payload):
+            normalized = {_normalizar_chave(str(k)): v for k, v in item.items()}
+            description = " ".join(
+                str(v) for k, v in normalized.items()
+                if any(term in k for term in ("descricao", "nome", "titulo", "tipo", "documento"))
+                and isinstance(v, (str, int))
+            ).strip()
+            if "gabarito" not in description.lower():
+                continue
+
+            candidates: list[str] = []
+            for key, value in normalized.items():
+                if any(term in key for term in (
+                    "url", "link", "arquivo", "caminho", "path", "download", "nomearquivo"
+                )) and isinstance(value, str) and ".pdf" in value.lower():
+                    candidates.append(value.strip())
+            for value in item.values():
+                if isinstance(value, str) and ".pdf" in value.lower() and value.strip() not in candidates:
+                    candidates.append(value.strip())
+
+            for candidate in candidates:
+                if candidate.startswith(("https://", "http://")):
+                    url = candidate
+                elif candidate.startswith("/") or "/" in candidate or "\\\\" in candidate:
+                    url = urljoin("https://cdn.cebraspe.org.br/", candidate.replace("\\\\", "/"))
+                elif re.fullmatch(r"[^/?#]+\\.pdf(?:\\?[^#]*)?", candidate, flags=re.I):
+                    url = CEBRASPE_CDN.format(
+                        evento_url=evento,
+                        nome_arquivo=candidate.split("?", 1)[0],
+                    )
+                else:
+                    continue
+                if not url.startswith("https://") or ".pdf" not in url.lower():
+                    continue
+                filename = url.rsplit("/", 1)[-1].split("?", 1)[0]
+                urls.setdefault(url, {
+                    "url": url,
+                    "url_download": url,
+                    "nome": filename,
+                    "nomeArquivo": filename,
+                    "descricao": description,
+                })
+    return list(urls.values())
+
+
 def descobrir_prova(evento: str) -> dict[str, Any]:
     """Busca primeiro o evento diretamente; usa a listagem como fallback."""
     evento = evento.strip()
