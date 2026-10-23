@@ -48,6 +48,71 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
     if not itens_brutos:
         raise RuntimeError(f"Nenhum item foi extraído dos PDFs do evento {evento}.")
     questoes = estruturar_itens(itens_brutos, evento)
+
+    # Baixa os gabaritos e associa cada arquivo ao caderno da prova pelo nome-base.
+    gabaritos = listar_pdfs_gabarito(evento)
+    gabaritos_baixados: list[tuple[str, dict[int, str]]] = []
+    pasta_gabaritos = trabalho / "gabaritos"
+    pasta_gabaritos.mkdir(parents=True, exist_ok=True)
+
+    def chave_caderno(nome_arquivo: str) -> str:
+        base = Path(nome_arquivo).stem.lower()
+        base = re.sub(r"^(?:gab(?:arito)?)(?:[_ .-]*(?:definitivo|preliminar))?[_ .-]*", "", base)
+        return re.sub(r"[^a-z0-9]", "", base)
+
+    for indice, gabarito in enumerate(gabaritos, start=1):
+        url = gabarito.get("url_download") or gabarito.get("url")
+        if not isinstance(url, str) or not url.startswith("https://"):
+            continue
+        nome_gabarito = _nome_seguro(gabarito.get("nome") or f"gabarito_{indice}.pdf")
+        if not nome_gabarito.lower().endswith(".pdf"):
+            nome_gabarito += ".pdf"
+        caminho_gabarito = pasta_gabaritos / f"{indice:02d}_{nome_gabarito}"
+        try:
+            baixar_pdf(url, str(caminho_gabarito))
+            respostas = extrair_gabarito_pdf(caminho_gabarito)
+        except (OSError, ValueError, RuntimeError) as exc:
+            print(f"[gabarito] Não foi possível processar {nome_gabarito}: {exc}")
+            continue
+        if respostas:
+            gabaritos_baixados.append((nome_gabarito, respostas))
+
+    respostas_por_prova: dict[str, dict[int, str]] = {}
+    nomes_provas = list(dict.fromkeys(
+        str(q.get("arquivo_origem", "")) for q in itens_brutos if q.get("arquivo_origem")
+    ))
+    for nome_prova in nomes_provas:
+        chave_prova = chave_caderno(nome_prova)
+        correspondentes = [
+            (nome, respostas) for nome, respostas in gabaritos_baixados
+            if chave_caderno(nome) == chave_prova
+            or (chave_prova and chave_prova in chave_caderno(nome))
+            or (chave_caderno(nome) and chave_caderno(nome) in chave_prova)
+        ]
+        if correspondentes:
+            combinado: dict[int, str] = {}
+            for _, respostas in correspondentes:
+                for numero, resposta in respostas.items():
+                    combinado.setdefault(numero, resposta)
+            respostas_por_prova[nome_prova] = combinado
+
+    for questao in questoes:
+        nome_origem = str(questao.get("arquivo_origem") or "")
+        respostas = respostas_por_prova.get(nome_origem)
+        if respostas is None:
+            respostas = {}
+            for _, mapa in gabaritos_baixados:
+                for numero, resposta in mapa.items():
+                    respostas.setdefault(numero, resposta)
+        numero = questao.get("numero")
+        if numero is not None:
+            try:
+                resposta = respostas.get(int(numero))
+            except (TypeError, ValueError):
+                resposta = None
+            if resposta is not None and not questao.get("gabarito"):
+                questao["gabarito"] = resposta
+
     for questao in questoes:
         questao.setdefault("concurso", evento)
         questao.setdefault("banca", "CEBRASPE")
