@@ -130,21 +130,25 @@ def extrair_imagens_questoes(
 
             page = page_info["page"]
             seen = set(questao["imagens"])
-            for image_index, image_info in enumerate(page.get_images(full=True), start=1):
+            question_image_index = 0
+            for image_info in page.get_images(full=True):
                 xref = image_info[0]
                 try:
                     rects = page.get_image_rects(xref)
                     if not rects:
                         continue
-                    rect = rects[0]
-                    if rect.y0 < question_y0 - 2 or rect.y0 >= next_y0:
+                    matching_rect = next(
+                        (rect for rect in rects if rect.y0 >= question_y0 - 2 and rect.y0 < next_y0),
+                        None,
+                    )
+                    if matching_rect is None:
                         continue
-                    extracted = doc.extract_image(xref)
                     pix = fitz.Pixmap(doc, xref)
                     if pix.n - pix.alpha > 3:
                         pix = fitz.Pixmap(fitz.csRGB, pix)
                     safe_num = re.sub(r"[^A-Za-z0-9_-]", "_", str(questao.get("numero", q_index + 1)))
-                    output = pasta / f"q{safe_num}_img{image_index}.png"
+                    question_image_index += 1
+                    output = pasta / f"q{safe_num}_img{question_image_index}.png"
                     pix.save(str(output))
                     pix = None
                     path = str(output)
