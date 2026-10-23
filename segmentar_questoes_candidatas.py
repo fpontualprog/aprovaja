@@ -77,6 +77,9 @@ def main() -> int:
             candidates.append({"status": "ERRO_JSON", "arquivo_json": path.name, "erro": str(exc)})
             continue
         doc = data.get("documento", {})
+        # Gabaritos alimentam a etapa de vínculo, mas não são segmentados como questões.
+        if doc.get("categoria_documento") == "gabarito":
+            continue
         pages = data.get("paginas", [])
         # A segmentação por página evita unir questões de páginas distantes; questões que
         # continuam na página seguinte ficam sinalizadas para revisão, não são fundidas.
