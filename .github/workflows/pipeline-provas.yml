@@ -1,6 +1,10 @@
 name: APROVAJÁ — coleta diária e alimentação do banco de questões
 
 on:
+  push:
+    paths:
+      - '.github/workflows/pipeline-provas.yml'
+      - 'publicar_questoes_supabase.py'
   workflow_dispatch:
     inputs:
       max_downloads:
