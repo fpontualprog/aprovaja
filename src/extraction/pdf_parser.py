@@ -2,6 +2,7 @@
 from __future__ import annotations
 import re
 from pathlib import Path
+from typing import Any
 import fitz
 
 ITEM_RE = re.compile(r"(?m)^\s*(\d{1,3})[.)]?\s+")
@@ -16,7 +17,7 @@ def extrair_texto_pdf(caminho: str | Path) -> str:
         raise ValueError(f"Nenhum texto extraível encontrado em {caminho}; o PDF pode ser digitalizado como imagem.")
     return resultado
 
-def segmentar_itens(texto: str) -> list[dict[str, str | int]]:
+def segmentar_itens(texto: str) -> list[dict[str, Any]]:
     """Segmentação heurística para provas C/E; revisar casos com numeração ambígua."""
     matches = list(ITEM_RE.finditer(texto))
     itens = []
