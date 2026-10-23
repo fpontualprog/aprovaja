@@ -67,6 +67,9 @@ def _pdf_links(value: Any, evento: str | None = None) -> list[dict[str, str]]:
         for candidate in candidates:
             if ".pdf" not in candidate.lower():
                 continue
+            candidate_filename = candidate.split("?", 1)[0].rstrip("/").rsplit("/", 1)[-1].replace("\\", "")
+            if candidate_filename.strip().lower() in {"_", "_.pdf"}:
+                continue
             if candidate.startswith(("https://", "http://")):
                 url = candidate
             elif candidate.startswith("/") or "/" in candidate or "\\" in candidate:
