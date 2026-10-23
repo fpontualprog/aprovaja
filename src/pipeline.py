@@ -4,7 +4,8 @@ import json
 import re
 from pathlib import Path
 from src.discovery.cebraspe import descobrir_prova, baixar_pdf, listar_pdfs_gabarito
-from src.extraction.pdf_parser import extrair_texto_pdf, segmentar_itens, extrair_imagens_questoes\nfrom src.extraction.gabarito_parser import extrair_gabarito_pdf
+from src.extraction.pdf_parser import extrair_texto_pdf, segmentar_itens, extrair_imagens_questoes
+from src.extraction.gabarito_parser import extrair_gabarito_pdf
 from src.structuring.deepseek import estruturar_itens
 from src.export.writers import exportar_questoes
 
