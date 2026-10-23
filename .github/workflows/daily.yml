@@ -20,16 +20,11 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
           python -m scripts.run_single --evento PF_25_ADM
-      - name: Salvar arquivos gerados como artifacts
+      - name: Salvar pasta data como artefato baixável
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coleta-PF_25_ADM
-          path: |
-            data/*_questoes.csv
-            data/*_questoes.xlsx
-            data/*_questoes.json
-            data/*_descoberta.json
-            data/imagens/
+          path: data/
           if-no-files-found: warn
           retention-days: 14
