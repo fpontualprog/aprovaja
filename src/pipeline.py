@@ -37,8 +37,7 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
 
         caminho = trabalho / f"{indice:02d}_{nome}"
         baixar_pdf(url_download, str(caminho))
-        texto = extrair_texto_pdf(caminho)
-        itens = segmentar_itens(texto)
+        itens = extrair_itens_pdf(caminho)
         pasta_imagens_pdf = destino / "imagens" / _nome_seguro(Path(nome).stem)
         extrair_imagens_questoes(caminho, itens, pasta_imagens_pdf)
         for item in itens:
