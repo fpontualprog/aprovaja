@@ -316,7 +316,16 @@ def run(config_path: Path, out: Path, max_downloads: int, max_pages_override: in
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("paginas_web_visitadas", "pdfs_descobertos", "pdfs_processados", "pdfs_rejeitados_por_qualidade")}, ensure_ascii=False))
     print(f"Relatório: {report_path}")
-    return 0 if not page_errors and not download_errors else 1
+    # Falhas pontuais de páginas/PDFs não devem descartar os documentos válidos já processados.
+    # A execução só falha se não conseguir processar nenhum PDF; erros parciais ficam no relatório.
+    if page_errors or download_errors:
+        print(json.dumps({
+            "aviso": "Execução parcial: houve erros pontuais, registrados no relatório.",
+            "erros_paginas": len(page_errors),
+            "erros_pdfs": len(download_errors),
+            "pdfs_processados": processed
+        }, ensure_ascii=False))
+    return 0 if processed > 0 else 1
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
