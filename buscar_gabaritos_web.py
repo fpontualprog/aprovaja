@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "provas_data" / "revisao" / "questoes_candidatas.json"
-OFFICIAL = {"fgv":["conhecimento.fgv.br"],"cebraspe":["cebraspe.org.br"],"fcc":["fcc.org.br"]}
+OFFICIAL = {"fgv":["conhecimento.fgv.br"],"cebraspe":["cebraspe.org.br"],"fcc":["fcc.org.br","concursosfcc.com.br"]}
 KEYWORDS = re.compile(r"(?i)gabarito|respostas? das? quest|questões anuladas|questoes anuladas")
 
 def norm(x): return re.sub(r"[^a-z0-9]+"," ",str(x or "").lower()).strip()
@@ -21,6 +21,12 @@ def source_slug(url):
     name = re.sub(r"(?i)(gabarito|respostas?|prova|tipo|caderno|definitivo|preliminar)", " ", name)
     return norm(name)
 
+def detect_exam_type(url, explicit=None):
+    value = " ".join([str(explicit or ""), str(url or "")]).lower()
+    for pattern in (r"tipo[\s_-]*0?([1-9])", r"caderno[\s_-]*(?:tipo[\s_-]*)?0?([1-9])", r"\bvers[aã]o\s*0?([1-9])\b"):
+        match = re.search(pattern, value)
+        if match: return "tipo " + match.group(1)
+    return ""
 def domains_for(meta):
     signal = norm(meta.get("banca")) + " " + norm(meta.get("fonte")) + " " + norm(meta.get("url_origem"))
     for key, domains in OFFICIAL.items():
@@ -36,9 +42,9 @@ def search(meta, session):
     if not domains:
         return []
     slug = source_slug(meta.get("url_origem"))
-    parts = [meta.get(k) for k in ("banca","titulo","concurso","cargo","orgao","ano")]
+    parts = [meta.get(k) for k in ("banca","concurso","titulo","orgao","cargo","ano","tipo_prova")]
     if slug: parts.append(slug)
-    query = " ".join(str(x) for x in parts if x) + " gabarito filetype:pdf"
+    query = " ".join(str(x) for x in parts if x) + " gabarito oficial filetype:pdf"
     found=[]
     # Google e Bing são alternativas: falha de um buscador não encerra a busca.
     for engine in ("https://www.google.com/search?q=", "https://www.bing.com/search?q="):
@@ -94,6 +100,8 @@ def compatible(qmeta, ameta):
     a={k:norm(ameta.get(k)) for k in ("banca","ano","concurso","titulo","cargo","orgao")}
     if q["ano"] and a["ano"] and q["ano"]!=a["ano"]: return False
     if q["banca"] and a["banca"] and q["banca"]!=a["banca"]: return False
+    qt=norm(qmeta.get("tipo_prova")); at=norm(ameta.get("tipo_prova"))
+    if qt and at and qt != at: return False
     if any(q[k] and a[k] and (q[k] in a[k] or a[k] in q[k]) for k in ("concurso","titulo","cargo","orgao")):
         return True
     # Fallback quando a extração deixou os metadados vazios: comparar o identificador
@@ -114,7 +122,7 @@ def main():
         sha=str(q.get("documento_sha256") or "")
         if not sha or sha in seen or q.get("gabarito"): continue
         seen.add(sha)
-        meta={"banca":q.get("banca"),"fonte":q.get("fonte"),"url_origem":q.get("url_fonte"),"titulo":q.get("concurso") or source_slug(q.get("url_fonte")),"concurso":q.get("concurso") or source_slug(q.get("url_fonte")),"cargo":q.get("cargo"),"orgao":q.get("orgao"),"ano":q.get("ano"),"source_slug":source_slug(q.get("url_fonte"))}
+        meta={"banca":q.get("banca"),"fonte":q.get("fonte"),"url_origem":q.get("url_fonte"),"titulo":q.get("concurso") or source_slug(q.get("url_fonte")),"concurso":q.get("concurso") or source_slug(q.get("url_fonte")),"cargo":q.get("cargo"),"orgao":q.get("orgao"),"ano":q.get("ano"),"tipo_prova":detect_exam_type(q.get("url_fonte"),q.get("tipo_prova")),"source_slug":source_slug(q.get("url_fonte"))}
         # Fill missing metadata from nearby candidates from the same PDF.
         same=[x for x in candidates if str(x.get("documento_sha256") or "")==sha]
         for field in ("banca","concurso","cargo","orgao","ano"):
@@ -137,7 +145,7 @@ def main():
     for q in candidates:
         if q.get("gabarito"): continue
         num=str(q.get("numero_detectado") or "").strip()
-        qmeta={"banca":q.get("banca") or ("fgv" if "fgv" in norm(q.get("fonte")) else None),"ano":q.get("ano"),"concurso":q.get("concurso") or source_slug(q.get("url_fonte")),"titulo":q.get("concurso") or source_slug(q.get("url_fonte")),"cargo":q.get("cargo"),"orgao":q.get("orgao"),"url_origem":q.get("url_fonte")}
+        qmeta={"banca":q.get("banca") or ("fgv" if "fgv" in norm(q.get("fonte")) else None),"ano":q.get("ano"),"concurso":q.get("concurso") or source_slug(q.get("url_fonte")),"titulo":q.get("concurso") or source_slug(q.get("url_fonte")),"cargo":q.get("cargo"),"orgao":q.get("orgao"),"url_origem":q.get("url_fonte"),"tipo_prova":detect_exam_type(q.get("url_fonte"),q.get("tipo_prova"))}
         same=[x for x in candidates if str(x.get("documento_sha256") or "")==str(q.get("documento_sha256") or "")]
         for field in ("banca","concurso","cargo","orgao","ano"):
             if not qmeta.get(field): qmeta[field]=next((x.get(field) for x in same if x.get(field)),None)
@@ -155,10 +163,10 @@ def main():
         q["gabarito_fonte_oficial"]=url
         q["pagina_gabarito"]=entry.get("pagina")
         q["gabarito_confianca"]="alta"
-        q["gabarito_metodo"]="extração local por regras + busca web em domínio oficial"
+        q["gabarito_metodo"]="busca oficial por banca/concurso/cargo/tipo + extração local; associação pelo número da questão"
         linked+=1
         if ans=="ANULADA": annulled+=1
-    data["gabarito_web_fallback"]={"fontes_oficiais_encontradas":len(bundles),"questoes_vinculadas":linked,"anuladas":annulled,"politica":"Busca em mais de um buscador e domínio oficial; extração local sem API; usa identificador do PDF quando faltam metadados; conflitos e confiança baixa continuam bloqueados.","gravacao_supabase":False}
+    data["gabarito_web_fallback"]={"fontes_oficiais_encontradas":len(bundles),"questoes_vinculadas":linked,"anuladas":annulled,"politica":"Busca oficial por banca/concurso/cargo/tipo de prova; extrai respostas localmente sem API; vincula pelo número da questão; bloqueia conflitos e baixa confiança.","gravacao_supabase":False}
     tmp=OUT.with_suffix(".web.tmp.json"); tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8"); tmp.replace(OUT)
     import csv
     fields=sorted({k for row in candidates for k in row})
