@@ -146,9 +146,9 @@ def listar_pdfs_gabarito(evento_url: str) -> list[dict[str, str]]:
             for candidate in candidates:
                 if candidate.startswith(("https://", "http://")):
                     url = candidate
-                elif candidate.startswith("/") or "/" in candidate or "\\\\" in candidate:
-                    url = urljoin("https://cdn.cebraspe.org.br/", candidate.replace("\\\\", "/"))
-                elif re.fullmatch(r"[^/?#]+\\.pdf(?:\\?[^#]*)?", candidate, flags=re.I):
+                elif candidate.startswith("/") or "/" in candidate or "\\" in candidate:
+                    url = urljoin("https://cdn.cebraspe.org.br/", candidate.replace("\\", "/"))
+                elif re.fullmatch(r"[^/?#]+\.pdf(?:\?[^#]*)?", candidate, flags=re.I):
                     url = CEBRASPE_CDN.format(
                         evento_url=evento,
                         nome_arquivo=candidate.split("?", 1)[0],
