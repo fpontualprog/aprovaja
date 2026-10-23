@@ -10,7 +10,7 @@ on:
       max_downloads:
         description: "Máximo de PDFs processados nesta execução"
         required: true
-        default: "5"
+        default: "8"
         type: string
   schedule:
     # Execução diária às 13:00 de Recife (16:00 UTC)
@@ -53,7 +53,7 @@ jobs:
             echo "::error::DEEPSEEK_API_PUBLICA está vazia ou indisponível para este workflow. Configure em Settings > Secrets and variables > Actions."
             exit 1
           fi
-          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '5' }}" --max-pages 100
+          python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '8' }}" --max-pages 100
 
       - name: Gerar lote de questões candidatas para revisão
         if: success()
