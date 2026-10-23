@@ -26,15 +26,76 @@ def _event_code(item: dict) -> str | None:
             return str(value).strip()
     return None
 
-def _pdf_links(value: Any) -> list[dict[str, str]]:
-    found = {}
+def _normalizar_chave(value: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", value.lower())
+
+
+def _pdf_links(value: Any, evento: str | None = None) -> list[dict[str, str]]:
+    """Extrai links de PDF sem transformar nomes de campos em URLs."""
+    found: dict[str, dict[str, str]] = {}
+    file_keys = {
+        "nomearquivo", "arquivo", "filename", "file", "urlarquivo",
+        "caminhoarquivo", "linkarquivo", "url", "link", "downloadurl",
+        "urldownload", "caminho", "path",
+    }
+    description_keys = {
+        "descricao", "descricaoarquivo", "nome", "titulo", "tipo",
+        "tipoarquivo", "documento", "descricaoanexo",
+    }
+
     for item in _walk(value):
-        for key, val in item.items():
-            if isinstance(val, str) and ".pdf" in val.lower():
-                url = urljoin("https://cdn.cebraspe.org.br/", val)
-                if url.startswith("https://") and ".pdf" in url.lower():
-                    found[url] = {"url": url, "nome": url.rsplit("/", 1)[-1].split("?", 1)[0]}
-    return list(found.values())
+        normalized = {_normalizar_chave(str(k)): v for k, v in item.items()}
+        description = " ".join(
+            str(normalized[k]) for k in description_keys
+            if k in normalized and isinstance(normalized[k], (str, int))
+        ).strip()
+        objective = "prova objetiva" in description.lower()
+
+        # Primeiro, usa os campos explicitamente relacionados a arquivos/URLs.
+        candidates = []
+        for key in file_keys:
+            val = normalized.get(key)
+            if isinstance(val, str) and val.strip():
+                candidates.append(val.strip())
+
+        # Alguns retornos da API armazenam o nome do arquivo em nomeArquivo,
+        # separado da descrição/tipo do documento.
+        for raw in item.values():
+            if isinstance(raw, str) and ".pdf" in raw.lower() and raw.strip() not in candidates:
+                candidates.append(raw.strip())
+
+        for candidate in candidates:
+            if ".pdf" not in candidate.lower():
+                continue
+            if candidate.startswith(("https://", "http://")):
+                url = candidate
+            elif candidate.startswith("/") or "/" in candidate or "\\" in candidate:
+                url = urljoin("https://cdn.cebraspe.org.br/", candidate.replace("\\", "/"))
+            elif evento and re.fullmatch(r"[^/?#]+\.pdf(?:\?[^#]*)?", candidate, flags=re.I):
+                # Só monta o caminho CDN quando o valor é realmente um nome de arquivo.
+                filename = candidate.split("?", 1)[0]
+                url = CEBRASPE_CDN.format(evento_url=evento, nome_arquivo=filename)
+            else:
+                continue
+
+            if not url.startswith("https://") or ".pdf" not in url.lower():
+                continue
+            filename = url.rsplit("/", 1)[-1].split("?", 1)[0]
+            # Se há descrição disponível, prioriza documentos de prova objetiva.
+            found[url] = {
+                "url": url,
+                "url_download": url,
+                "nome": filename,
+                "nomeArquivo": filename,
+                "descricao": description,
+                "prova_objetiva": "true" if objective else "false",
+            }
+
+    # Quando a API descreve explicitamente os documentos, devolve provas objetivas
+    # se houver alguma; se não houver esse metadado, preserva os PDFs encontrados.
+    records = list(found.values())
+    explicit_objective = [p for p in records if p["prova_objetiva"] == "true"]
+    return explicit_objective or records
 
 def descobrir_prova(evento: str) -> dict[str, Any]:
     """Busca primeiro o evento diretamente; usa a listagem como fallback."""
@@ -63,7 +124,7 @@ def descobrir_prova(evento: str) -> dict[str, Any]:
                     metadata = detail_payload
                 else:
                     metadata = {"evento_url": evento, "dados": detail_payload}
-                pdfs.extend(_pdf_links(detail_payload))
+                pdfs.extend(_pdf_links(detail_payload, evento))
         else:
             detail_error = f"HTTP {detail.status_code}"
     except requests.RequestException as exc:
@@ -88,7 +149,7 @@ def descobrir_prova(evento: str) -> dict[str, Any]:
                 candidates.append(item)
 
         for item in candidates:
-            pdfs.extend(_pdf_links(item))
+            pdfs.extend(_pdf_links(item, evento))
             candidate_code = _event_code(item)
             if candidate_code:
                 try:
@@ -98,7 +159,7 @@ def descobrir_prova(evento: str) -> dict[str, Any]:
                     )
                     if candidate_detail.ok:
                         candidate_payload = candidate_detail.json()
-                        pdfs.extend(_pdf_links(candidate_payload))
+                        pdfs.extend(_pdf_links(candidate_payload, evento))
                         if not metadata or metadata == {"evento_url": evento}:
                             metadata = candidate_payload if isinstance(candidate_payload, dict) else {
                                 "evento_url": candidate_code, "dados": candidate_payload
