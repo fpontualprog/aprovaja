@@ -35,7 +35,7 @@ def triagem_deepseek(nome: str, texto: str) -> dict | None:
         "Classifique o documento de concurso usando SOMENTE as evidências fornecidas. "
         "Categorias permitidas: prova_objetiva, prova_discursiva, gabarito, edital, resultado, "
         "documento_administrativo, outro, inconclusivo. "
-        "O sistema aceita exclusivamente prova_objetiva para extração de questões. "
+        "Prova_objetiva é aceita para extração de questões; gabarito é catalogado separadamente para extração de respostas oficiais. "
         "Prova discursiva, redação, estudo de caso e peça técnica devem ser rejeitados, "
         "mesmo que estejam no mesmo PDF. Gabaritos devem ser catalogados separadamente e não "
         "tratados como prova. Não confunda um edital que menciona prova objetiva com uma prova. "
@@ -83,6 +83,13 @@ def validar_pdf_prova(payload: bytes, nome_arquivo: str = "", paginas_iniciais: 
                 return {"aprovado": False, "motivo": "pdf_sem_paginas", "evidencias": []}
             texto = "\n".join(doc[i].get_text("text") for i in range(min(len(doc), paginas_iniciais)))
             texto_norm = normalizar(texto)
+            # Gabaritos oficiais são fontes para vinculação, nunca provas a segmentar.
+            if re.search(r"gabarito", normalizar(nome_arquivo + " " + texto_norm[:5000]), re.I):
+                ai_gab = triagem_deepseek(nome_arquivo, texto_norm)
+                if ai_gab and ai_gab.get("categoria") == "gabarito" and float(ai_gab.get("confianca", 0) or 0) >= 0.75:
+                    return {"aprovado": True, "motivo": "deepseek_confirmou_gabarito_oficial",
+                            "categoria_documento": "gabarito", "evidencias": ai_gab.get("evidencias", []),
+                            "categoria_ia": "gabarito", "confianca_ia": float(ai_gab.get("confianca", 0) or 0)}
             # Regra absoluta: qualquer sinal explícito de prova discursiva no nome ou no início
             # do documento rejeita o PDF, independentemente da classificação da IA.
             if INDICIOS_DISCURSIVA.search(nome) or INDICIOS_DISCURSIVA.search(texto_norm[:12000]):
