@@ -3,3 +3,12 @@ __pycache__/
 .venv/
 .env
 resultado_coleta_pci_v3/
+.pytest_cache/
+.ipynb_checkpoints/
+data/*
+!data/.gitkeep
+*.csv
+*.xlsx
+*.json
+.vscode/
+.idea/
