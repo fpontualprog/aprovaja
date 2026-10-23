@@ -99,7 +99,7 @@ def compatible(qmeta, ameta):
     # do PDF de origem com o nome/slug do gabarito oficial, sem ignorar conflito de ano/banca.
     qs=set(source_slug(qmeta.get("url_origem")).split())
     ans=set(source_slug(ameta.get("url_origem")).split())
-    distinctive={t for t in qs & ans if len(t)>=3 and t not in {"tipo","prova","gabarito","definitivo","preliminar","caderno","questoes","questoes"}}
+    distinctive={t for t in qs & ans if len(t)>=3 and t not in {"tipo","prova","gabarito","definitivo","preliminar","caderno","questoes","questoes","auditor","analista","fiscal","tributario","tributaria","receita","federal"}}
     return bool(distinctive)
 
 def main():
@@ -127,7 +127,10 @@ def main():
                 r.raise_for_status()
                 answers=extract_pdf(r.content,meta,hit["url"],session,key)
                 if answers:
-                    bundles[hit["url"]]={"meta":meta,"answers":answers}
+                    answer_meta=dict(meta)
+                    answer_meta["url_origem"]=hit["url"]
+                    answer_meta["source_slug"]=source_slug(hit["url"])
+                    bundles[hit["url"]]={"meta":answer_meta,"answers":answers}
                     print(json.dumps({"gabarito_oficial_encontrado":hit["url"],"respostas":len(answers)},ensure_ascii=False))
                     break
             except Exception as e: print("PDF oficial falhou:",str(e)[:180],file=sys.stderr)
