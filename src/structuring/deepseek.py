@@ -19,10 +19,13 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
             "instrucoes": (
                 "Estruture cada item sem alterar seu texto original. Não invente gabarito. "
                 "Retorne somente JSON válido no formato {\"questoes\":[{\"numero\":1,\"enunciado\":\"...\","
-                "\"disciplina\":null,\"gabarito\":null,\"banca\":\"CEBRASPE\",\"concurso\":\"...\"}]}. "
+                "\"disciplina\":null,\"gabarito\":null,\"tem_imagem\":false,\"banca\":\"CEBRASPE\",\"concurso\":\"...\"}]}. "
                 "Se a disciplina não for inequívoca, use null. Preserve a numeração recebida."
             ),
-            "itens": lote,
+            "itens": [
+                {k: v for k, v in item.items() if k != "imagens"}
+                for item in lote
+            ],
         }
         response = client.chat.completions.create(
             model="deepseek-chat",
@@ -44,5 +47,15 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
             raise RuntimeError(f"A DeepSeek retornou JSON inválido no lote iniciado no item {inicio + 1}.") from exc
         if not isinstance(questoes, list):
             raise RuntimeError("A resposta da DeepSeek não contém uma lista 'questoes'.")
+
+        # Reanexa metadados locais após a resposta da IA. Caminhos de imagens
+        # não são enviados à DeepSeek; a correspondência primária é pela ordem do lote.
+        for indice_local, questao in enumerate(questoes):
+            origem = lote[indice_local] if indice_local < len(lote) else {}
+            questao.setdefault("tem_imagem", bool(origem.get("tem_imagem", False)))
+            questao["imagens"] = list(origem.get("imagens") or [])
+            for campo in ("posicao_inicio", "posicao_fim", "arquivo_origem", "url_origem", "texto"):
+                if campo in origem:
+                    questao.setdefault(campo, origem[campo])
         saida.extend(questoes)
     return saida
