@@ -19,4 +19,4 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
-          python scripts/run_single.py --evento PF_25_ADM
+          python -m scripts.run_single --evento PF_25_ADM
