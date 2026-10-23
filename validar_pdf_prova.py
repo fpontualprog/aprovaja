@@ -75,7 +75,7 @@ def triagem_deepseek(nome: str, texto: str) -> dict | None:
 def validar_pdf_prova(payload: bytes, nome_arquivo: str = "", paginas_iniciais: int = 5) -> dict:
     """Só aprova provas objetivas; rejeita discursivas, documentos administrativos e inconclusivos."""
     nome = normalizar(nome_arquivo.replace("_", " ").replace("-", " "))
-    if REJEITAR.search(nome):
+    if REJEITAR.search(nome) and not re.search(r"gabarito", nome, re.I):
         return {"aprovado": False, "motivo": "nome_indica_documento_administrativo", "evidencias": []}
     try:
         with fitz.open(stream=payload, filetype="pdf") as doc:
