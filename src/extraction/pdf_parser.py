@@ -41,7 +41,7 @@ def segmentar_itens(texto: str) -> list[dict[str, Any]]:
     return itens
 
 
-QUESTION_START_RE = re.compile(r"(?m)^\\s*(\\d{1,3})[.)]?\\s+")
+QUESTION_START_RE = re.compile(r"(?m)^\s*(\d{1,3})[.)]?\s+")
 
 
 def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
