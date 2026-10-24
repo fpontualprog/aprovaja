@@ -1,25 +1,25 @@
 {
   "url_fonte": "https://www.pciconcursos.com.br/concursos/",
-  "data_teste": "2026-10-23",
+  "data_teste": "2026-10-24",
   "status": "coleta_completa",
-  "total_extraido_antes_deduplicacao": 54,
-  "total_unico": 54,
+  "total_extraido_antes_deduplicacao": 55,
+  "total_unico": 55,
   "duplicatas_removidas": 0,
   "por_uf": {
-    "PE": 9,
-    "PB": 10,
+    "PE": 8,
+    "PB": 9,
     "AL": 4,
     "RN": 11,
     "SE": 1,
-    "CE": 8,
-    "BA": 11
+    "CE": 12,
+    "BA": 10
   },
   "prazos": {
-    "vencidos": 3,
-    "futuros_ou_hoje_a_confirmar": 51,
+    "vencidos": 2,
+    "futuros_ou_hoje_a_confirmar": 53,
     "sem_data": 0
   },
-  "registros_com_campos_ausentes": 2,
+  "registros_com_campos_ausentes": 1,
   "erros": [],
   "arquivos_principais_atualizados": true,
   "gravou_no_supabase": false,

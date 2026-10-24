@@ -1,13 +1,13 @@
 {
-  "data_validacao": "2026-10-23",
+  "data_validacao": "2026-10-24",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
-  "total_json": 54,
+  "total_json": 55,
   "por_uf": {
     "AL": 4,
-    "BA": 11,
-    "CE": 8,
-    "PB": 10,
-    "PE": 9,
+    "BA": 10,
+    "CE": 12,
+    "PB": 9,
+    "PE": 8,
     "RN": 11,
     "SE": 1
   },
@@ -23,26 +23,20 @@
   "estados_sem_registros": [],
   "duplicatas_de_url": 0,
   "campos_ausentes_por_tipo": {
-    "salario": 2
+    "salario": 1
   },
   "csv": {
     "existe": true,
-    "linhas": 54,
+    "linhas": 55,
     "colunas_esperadas_ausentes": []
   },
   "csv_json_consistentes_em_contagem_e_colunas": true,
-  "total_apontamentos": 2,
+  "total_apontamentos": 1,
   "total_erros_bloqueantes": 0,
   "apontamentos": [
     {
       "tipo": "dado_ausente",
-      "registro": "linha 16 | PB | Prefeitura de Pedra Lavrada",
-      "campo": "salario",
-      "detalhe": "Não inferir nem preencher por estimativa"
-    },
-    {
-      "tipo": "dado_ausente",
-      "registro": "linha 48 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
+      "registro": "linha 49 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
       "campo": "salario",
       "detalhe": "Não inferir nem preencher por estimativa"
     }

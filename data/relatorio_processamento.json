@@ -1,9 +1,9 @@
 {
-  "data_processamento": "2026-10-23",
+  "data_processamento": "2026-10-24",
   "origem": "concursos_pci_nordeste.json",
-  "total_origem": 54,
-  "elegiveis_com_data_hoje_ou_futura": 51,
-  "historico_prazo_vencido": 3,
+  "total_origem": 55,
+  "elegiveis_com_data_hoje_ou_futura": 53,
+  "historico_prazo_vencido": 2,
   "excluidos_sem_data_ou_invalida": 0,
   "urls_duplicadas_ignoradas": 0,
   "registros_problematicos": [],
