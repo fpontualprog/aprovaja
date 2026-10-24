@@ -110,6 +110,24 @@ def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
             f"Não foi possível identificar questões em blocos do PDF {caminho_pdf}."
         )
 
+    # Descarta números de estatísticas/enunciados que foram confundidos com itens.
+    # Em cadernos C/E, os itens de um mesmo caderno formam uma sequência crescente
+    # e contínua. Mantém a sequência contínua mais longa iniciada pelo primeiro item.
+    if itens:
+        numeros = {item["numero"] for item in itens}
+        inicio_sequencia = itens[0]["numero"]
+        fim_sequencia = inicio_sequencia
+        while fim_sequencia + 1 in numeros:
+            fim_sequencia += 1
+
+        sequencia = [
+            item for item in itens
+            if inicio_sequencia <= item["numero"] <= fim_sequencia
+        ]
+        # Só aplica o filtro se houver uma sequência razoável de itens.
+        if len(sequencia) >= 5:
+            itens = sequencia
+
     # Evita duplicações ocasionais quando o mesmo bloco aparece em mais de uma
     # região do PDF, mantendo a ordem física de leitura.
     unicas: list[dict[str, Any]] = []
