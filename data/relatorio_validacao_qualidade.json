@@ -1,5 +1,5 @@
 {
-  "data_validacao": "2026-10-24",
+  "data_validacao": "2026-10-25",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
   "total_json": 55,
   "por_uf": {
