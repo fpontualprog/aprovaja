@@ -2,7 +2,7 @@
 from __future__ import annotations
 import re
 from pathlib import Path
-import fitz
+import pymupdf
 
 # Aceita C/E e alternativas A-E, com ou sem hífen/dois-pontos entre os campos.
 _PAIR_RE = re.compile(
@@ -20,7 +20,7 @@ def extrair_gabarito_pdf(caminho_pdf: str | Path) -> dict[int, str]:
     Em duplicidades mantém a primeira resposta encontrada.
     """
     respostas: dict[int, str] = {}
-    with fitz.open(str(caminho_pdf)) as documento:
+    with pymupdf.open(str(caminho_pdf)) as documento:
         texto = "\n".join(pagina.get_text("text", sort=True) for pagina in documento)
 
     for linha in texto.splitlines():
