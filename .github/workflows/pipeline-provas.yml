@@ -69,8 +69,11 @@ jobs:
           APROVAJA_IA_MODEL: deepseek-flash
         run: python vincular_gabaritos_ia.py
 
-      - name: Buscar e extrair gabaritos oficiais sem API
+      - name: Buscar gabaritos oficiais na web com apoio da DeepSeek
         if: success()
+        env:
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_KEY }}
+          APROVAJA_IA_MODEL: deepseek-flash
         run: python buscar_gabaritos_web.py
 
       - name: Enviar candidatos ao Supabase (se configurado)
