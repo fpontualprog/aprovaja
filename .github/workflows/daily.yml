@@ -1,8 +1,8 @@
-name: Coleta diaria
+name: APROVAJÁ — coleta legada de questões (manual)
 
 on:
-  schedule:
-    - cron: "0 6 * * *"
+  # Agendamento automático desativado para evitar concorrência com pipeline-provas.yml.
+  # Execute manualmente apenas quando precisar do evento PF_25_ADM.
   workflow_dispatch:
 
 jobs:
