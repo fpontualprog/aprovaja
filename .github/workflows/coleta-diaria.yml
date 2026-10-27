@@ -1,5 +1,17 @@
-# Desativado como workflow independente para consolidar os agendamentos.
-# Não apagar: a integração PCI e seus scripts/dados continuam preservados para migração.
 name: Coleta diária PCI desativada (aguarda integração)
 
-on: {}
+on:
+  workflow_dispatch:
+    inputs:
+      aviso:
+        description: "Workflow desativado; use pipeline-provas.yml para coleta de questões."
+        required: false
+        default: "desativado"
+        type: string
+
+jobs:
+  desativado:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow desativado. A coleta operacional está centralizada em pipeline-provas.yml."
