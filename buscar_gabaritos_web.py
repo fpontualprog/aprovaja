@@ -37,32 +37,116 @@ def domains_for(meta):
     if host.endswith("fcc.org.br") or host.endswith("concursosfcc.com.br"): return OFFICIAL["fcc"]
     return []
 
+def deepseek_search_queries(meta, key):
+    """Pede à DeepSeek consultas específicas; a API não navega sozinha, então as consultas são executadas nos buscadores."""
+    base = " ".join(str(meta.get(k) or "") for k in ("banca","concurso","titulo","orgao","cargo","ano","tipo_prova")).strip()
+    fallback = [
+        f'"{base}" gabarito definitivo site oficial filetype:pdf',
+        f'"{base}" gabarito preliminar site oficial',
+        f'"{base}" respostas questões banca oficial',
+    ]
+    if not key:
+        return fallback
+    prompt = (
+        "Crie até 4 consultas de busca na web para localizar gabaritos oficiais de concurso público. "
+        "Use apenas os metadados fornecidos, priorize gabarito definitivo, preliminar e retificações. "
+        "Não invente URLs nem respostas. Retorne somente JSON: {\\"queries\\":[\\"consulta 1\\"]}. "
+        f"Metadados: {json.dumps(meta, ensure_ascii=False)}"
+    )
+    try:
+        response = requests.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={"model": os.getenv("APROVAJA_IA_MODEL", "deepseek-flash"),
+                  "messages":[{"role":"system","content":"Você prepara consultas de pesquisa precisas; não afirme que pesquisou nem invente fontes."},
+                              {"role":"user","content":prompt}],
+                  "temperature":0.1},
+            timeout=35,
+        )
+        response.raise_for_status()
+        content = response.json()["choices"][0]["message"]["content"]
+        match = re.search(r"\{.*\}", content, re.S)
+        if match:
+            queries = json.loads(match.group(0)).get("queries", [])
+            clean = [" ".join(str(q).split()) for q in queries if str(q).strip()]
+            if clean:
+                print(json.dumps({"deepseek_consultas_gabarito":len(clean)}, ensure_ascii=False))
+                return clean[:4] + fallback[:1]
+    except Exception as e:
+        print("DeepSeek não gerou consultas de gabarito; usando consultas padrão:", str(e)[:160], file=sys.stderr)
+    return fallback
+
+
+def deepseek_rank_results(meta, hits, key):
+    """A DeepSeek ordena apenas resultados reais já retornados pelos buscadores; URLs não são aceitas da resposta do modelo."""
+    if not key or len(hits) < 2:
+        return hits
+    prompt = (
+        "Ordene os resultados para encontrar o gabarito oficial exato desta prova. "
+        "Priorize domínio oficial, mesma banca, concurso, cargo, ano e tipo/caderno. "
+        "Não invente URLs e não declare resposta de questão. Retorne JSON {\\"order\\":[0,1]} "
+        "com índices dos resultados recebidos, do mais ao menos relevante. "
+        f"Metadados: {json.dumps(meta, ensure_ascii=False)}\\nResultados: "
+        f"{json.dumps([{\\"index\\":i,\\"titulo\\":h.get('titulo'),\\"url\\":h.get('url')} for i,h in enumerate(hits)], ensure_ascii=False)}"
+    )
+    try:
+        response = requests.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={"model": os.getenv("APROVAJA_IA_MODEL", "deepseek-flash"),
+                  "messages":[{"role":"system","content":"Você avalia relevância de resultados reais. Nunca crie links."},
+                              {"role":"user","content":prompt}],
+                  "temperature":0},
+            timeout=35,
+        )
+        response.raise_for_status()
+        content = response.json()["choices"][0]["message"]["content"]
+        match = re.search(r"\{.*\}", content, re.S)
+        if match:
+            order = json.loads(match.group(0)).get("order", [])
+            indexes = []
+            for value in order:
+                if isinstance(value, int) and 0 <= value < len(hits) and value not in indexes:
+                    indexes.append(value)
+            if indexes:
+                ranked = [hits[i] for i in indexes]
+                ranked.extend(h for i,h in enumerate(hits) if i not in indexes)
+                print(json.dumps({"deepseek_resultados_oficiais_ordenados":len(ranked)}, ensure_ascii=False))
+                return ranked
+    except Exception as e:
+        print("DeepSeek não ordenou resultados; mantendo ordem do buscador:", str(e)[:160], file=sys.stderr)
+    return hits
+
+
 def search(meta, session):
     domains = domains_for(meta)
     if not domains:
         return []
-    slug = source_slug(meta.get("url_origem"))
-    parts = [meta.get(k) for k in ("banca","concurso","titulo","orgao","cargo","ano","tipo_prova")]
-    if slug: parts.append(slug)
-    query = " ".join(str(x) for x in parts if x) + " gabarito oficial filetype:pdf"
+    key = os.getenv("DEEPSEEK_API_PUBLICA", "").strip()
+    queries = deepseek_search_queries(meta, key)
     found=[]
-    # Google e Bing são alternativas: falha de um buscador não encerra a busca.
-    for engine in ("https://www.google.com/search?q=", "https://www.bing.com/search?q="):
-        try:
-            r=session.get(engine+quote(query),headers={"User-Agent":"Mozilla/5.0"},timeout=20)
-            if not r.ok: continue
-            soup=BeautifulSoup(r.text,"html.parser")
-            for a in soup.select("a[href]"):
-                url=a.get("href","")
-                if url.startswith("/url?q="): url=url.split("/url?q=",1)[1].split("&",1)[0]
-                host=(urlparse(url).hostname or "").lower()
-                if not url.startswith("http") or not any(host==d or host.endswith("."+d) for d in domains): continue
-                label=" ".join(a.get_text(" ",strip=True).split())
-                if ".pdf" in url.lower() or "gabarito" in (label+" "+url).lower():
-                    if url not in [x["url"] for x in found]: found.append({"url":url,"titulo":label})
-            if len(found)>=4: break
-        except Exception as e: print("Busca web falhou:",str(e)[:160],file=sys.stderr)
-    return found[:4]
+    # Os buscadores executam as consultas; somente domínios oficiais conhecidos são aceitos.
+    for query in queries:
+        for engine in ("https://www.google.com/search?q=", "https://www.bing.com/search?q="):
+            try:
+                r=session.get(engine+quote(query),headers={"User-Agent":"Mozilla/5.0"},timeout=20)
+                if not r.ok: continue
+                soup=BeautifulSoup(r.text,"html.parser")
+                for a in soup.select("a[href]"):
+                    url=a.get("href","")
+                    if url.startswith("/url?q="): url=url.split("/url?q=",1)[1].split("&",1)[0]
+                    host=(urlparse(url).hostname or "").lower()
+                    if not url.startswith("http") or not any(host==d or host.endswith("."+d) for d in domains): continue
+                    label=" ".join(a.get_text(" ",strip=True).split())
+                    if ".pdf" in url.lower() or "gabarito" in (label+" "+url).lower():
+                        if url not in [x["url"] for x in found]:
+                            found.append({"url":url,"titulo":label})
+                if len(found)>=12: break
+            except Exception as e:
+                print("Busca web falhou:",str(e)[:160],file=sys.stderr)
+        if len(found)>=12: break
+    ranked = deepseek_rank_results(meta, found, key)
+    return ranked[:8]
 
 def extract_pdf(pdf_bytes, meta, url, session, key=None):
     """Extrai gabaritos por regras locais; não chama API de IA."""
