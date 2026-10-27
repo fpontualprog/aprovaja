@@ -213,13 +213,24 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         nome_origem = str(questao.get("arquivo_origem") or "")
         respostas = respostas_por_prova.get(nome_origem, {})
         numero = questao.get("numero")
+        resposta = None
         if numero is not None:
             try:
                 resposta = respostas.get(int(numero))
             except (TypeError, ValueError):
                 resposta = None
-            if resposta is not None and not questao.get("gabarito"):
-                questao["gabarito"] = resposta
+
+        if resposta is not None:
+            questao["gabarito"] = resposta
+            questao["gabarito_pendente"] = False
+            if resposta == "X":
+                questao["anulada"] = True
+            else:
+                questao.setdefault("anulada", False)
+        else:
+            questao["gabarito"] = None
+            questao["gabarito_pendente"] = True
+            questao.setdefault("anulada", False)
 
     for questao in questoes:
         questao.setdefault("concurso", evento)
