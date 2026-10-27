@@ -113,6 +113,8 @@ def main() -> int:
     total_enviadas = total_invalidas = total_ignoradas = 0
     for arquivo in arquivos:
         evento_padrao = arquivo.stem
+        if evento_padrao.endswith("_questoes"):
+            evento_padrao = evento_padrao[:-len("_questoes")]
         registros = []
         with arquivo.open("r", encoding="utf-8-sig", newline="") as f:
             amostra = f.read(4096)
