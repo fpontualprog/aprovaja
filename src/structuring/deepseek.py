@@ -48,10 +48,34 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
         if not isinstance(questoes, list):
             raise RuntimeError("A resposta da DeepSeek não contém uma lista 'questoes'.")
         if len(questoes) != len(lote):
-            raise RuntimeError(
-                f"A DeepSeek retornou {len(questoes)} questões para um lote de {len(lote)} "
-                f"(início no item {inicio + 1}); lote rejeitado para evitar perda de questões."
-            )
+            # Recupera o lote sem descartar o que já foi estruturado antes.
+            # Primeiro tenta novamente cada item isoladamente; se a IA falhar,
+            # preserva o item bruto para revisão manual, sem inventar campos.
+            recuperadas: list[dict] = []
+            for indice_local, origem in enumerate(lote):
+                try:
+                    individual = estruturar_itens([origem], evento, banca)
+                    if len(individual) == 1:
+                        recuperadas.extend(individual)
+                        continue
+                except Exception:
+                    pass
+
+                recuperadas.append({
+                    "numero": origem.get("numero"),
+                    "enunciado": origem.get("texto") or origem.get("enunciado") or "",
+                    "texto": origem.get("texto") or origem.get("enunciado") or "",
+                    "disciplina": None,
+                    "gabarito": None,
+                    "banca": banca,
+                    "concurso": evento,
+                    "tem_imagem": bool(origem.get("tem_imagem", False)),
+                    "imagens": list(origem.get("imagens") or []),
+                    "status_estruturacao": "pendente_revisao",
+                    "motivo_pendencia": "A IA não retornou uma questão individual válida; conteúdo original preservado.",
+                })
+            saida.extend(recuperadas)
+            continue
 
         # Reanexa metadados locais após a resposta da IA. Caminhos de imagens
         # não são enviados à DeepSeek; a correspondência primária é pela ordem do lote.
