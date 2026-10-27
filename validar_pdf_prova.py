@@ -5,7 +5,7 @@ import os
 import re
 import unicodedata
 import requests
-import fitz
+import pymupdf
 
 REJEITAR = re.compile(r"\b(edital|diario oficial|resultado|convocacao|homologacao|retificacao|comunicado|aviso|extrato|contrato|ata de registro|gabarito preliminar|gabarito definitivo|lista de inscritos)\b", re.I)
 INDICIOS_DISCURSIVA = re.compile(
@@ -78,7 +78,7 @@ def validar_pdf_prova(payload: bytes, nome_arquivo: str = "", paginas_iniciais: 
     if REJEITAR.search(nome) and not re.search(r"gabarito", nome, re.I):
         return {"aprovado": False, "motivo": "nome_indica_documento_administrativo", "evidencias": []}
     try:
-        with fitz.open(stream=payload, filetype="pdf") as doc:
+        with pymupdf.open(stream=payload, filetype="pdf") as doc:
             if not len(doc):
                 return {"aprovado": False, "motivo": "pdf_sem_paginas", "evidencias": []}
             texto = "\n".join(doc[i].get_text("text") for i in range(min(len(doc), paginas_iniciais)))
