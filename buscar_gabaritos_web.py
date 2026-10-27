@@ -3,7 +3,7 @@
 from __future__ import annotations
 import json, os, re, sys
 from pathlib import Path
-from urllib.parse import quote, urlparse, unquote
+from urllib.parse import quote, urlparse, unquote, parse_qs
 import requests, pymupdf
 from bs4 import BeautifulSoup
 
@@ -122,30 +122,63 @@ def deepseek_rank_results(meta, hits, key):
 def search(meta, session):
     domains = domains_for(meta)
     if not domains:
+        print(json.dumps({"busca_gabarito_pulada": "banca/domínio oficial não identificado", "banca": meta.get("banca"), "fonte": meta.get("fonte"), "url_origem": meta.get("url_origem")}, ensure_ascii=False))
         return []
     key = os.getenv("DEEPSEEK_API_PUBLICA", "").strip()
     queries = deepseek_search_queries(meta, key)
-    found=[]
-    # Os buscadores executam as consultas; somente domínios oficiais conhecidos são aceitos.
+    found = []
+    engines = (
+        ("google", "https://www.google.com/search?q="),
+        ("bing", "https://www.bing.com/search?q="),
+        ("duckduckgo", "https://html.duckduckgo.com/html/?q="),
+    )
+
+    def unwrap_url(raw):
+        raw = unquote(str(raw or "").strip())
+        parsed = urlparse(raw)
+        if raw.startswith("//"):
+            raw = "https:" + raw
+            parsed = urlparse(raw)
+        if parsed.path.startswith("/url") or parsed.path == "/url":
+            params = parse_qs(parsed.query)
+            raw = (params.get("q") or params.get("url") or [raw])[0]
+        elif parsed.hostname and (parsed.hostname.endswith("google.com") or parsed.hostname.endswith("bing.com")):
+            params = parse_qs(parsed.query)
+            raw = (params.get("q") or params.get("url") or [raw])[0]
+        return raw
+
     for query in queries:
-        for engine in ("https://www.google.com/search?q=", "https://www.bing.com/search?q="):
+        for engine_name, base_url in engines:
             try:
-                r=session.get(engine+quote(query),headers={"User-Agent":"Mozilla/5.0"},timeout=20)
-                if not r.ok: continue
-                soup=BeautifulSoup(r.text,"html.parser")
-                for a in soup.select("a[href]"):
-                    url=a.get("href","")
-                    if url.startswith("/url?q="): url=url.split("/url?q=",1)[1].split("&",1)[0]
-                    host=(urlparse(url).hostname or "").lower()
-                    if not url.startswith("http") or not any(host==d or host.endswith("."+d) for d in domains): continue
-                    label=" ".join(a.get_text(" ",strip=True).split())
-                    if ".pdf" in url.lower() or "gabarito" in (label+" "+url).lower():
-                        if url not in [x["url"] for x in found]:
-                            found.append({"url":url,"titulo":label})
-                if len(found)>=12: break
-            except Exception as e:
-                print("Busca web falhou:",str(e)[:160],file=sys.stderr)
-        if len(found)>=12: break
+                response = session.get(
+                    base_url + quote(query),
+                    headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36"},
+                    timeout=20,
+                )
+                if not response.ok:
+                    print(json.dumps({"busca_gabarito_http": engine_name, "status": response.status_code}, ensure_ascii=False))
+                    continue
+                soup = BeautifulSoup(response.text, "html.parser")
+                anchors = soup.select("a[href]")
+                for anchor in anchors:
+                    url = unwrap_url(anchor.get("href", ""))
+                    parsed = urlparse(url)
+                    host = (parsed.hostname or "").lower()
+                    if parsed.scheme not in ("http", "https") or not any(host == d or host.endswith("." + d) for d in domains):
+                        continue
+                    label = " ".join(anchor.get_text(" ", strip=True).split())
+                    combined = (label + " " + url).lower()
+                    if ".pdf" not in parsed.path.lower() and not KEYWORDS.search(combined):
+                        continue
+                    if url not in [item["url"] for item in found]:
+                        found.append({"url": url, "titulo": label, "buscador": engine_name})
+                if len(found) >= 12:
+                    break
+            except Exception as error:
+                print(json.dumps({"busca_gabarito_erro": engine_name, "erro": str(error)[:160]}, ensure_ascii=False))
+        if len(found) >= 12:
+            break
+    print(json.dumps({"busca_gabarito_diagnostico": {"dominios_oficiais": domains, "consultas": len(queries), "resultados_oficiais_brutos": len(found)}}, ensure_ascii=False))
     ranked = deepseek_rank_results(meta, found, key)
     return ranked[:8]
 
