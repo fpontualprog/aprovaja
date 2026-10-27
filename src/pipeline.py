@@ -49,7 +49,8 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         raise RuntimeError(f"Nenhum item foi extraído dos PDFs do evento {evento}.")
     questoes = estruturar_itens(itens_brutos, evento)
 
-    # Baixa os gabaritos e associa cada arquivo ao caderno da prova pelo nome-base.
+    # Baixa e extrai gabaritos; a associação exige nome-base idêntico após normalização.
+    # Se houver gabarito definitivo e preliminar do mesmo caderno, prioriza o definitivo.
     gabaritos = listar_pdfs_gabarito(evento)
     gabaritos_baixados: list[tuple[str, dict[int, str]]] = []
     pasta_gabaritos = trabalho / "gabaritos"
@@ -77,6 +78,8 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         if respostas:
             gabaritos_baixados.append((nome_gabarito, respostas))
 
+    # Escolhe no máximo um gabarito por caderno. Não mistura respostas de PDFs
+    # diferentes e não usa fallback global quando não existe correspondência.
     respostas_por_prova: dict[str, dict[int, str]] = {}
     nomes_provas = list(dict.fromkeys(
         str(q.get("arquivo_origem", "")) for q in itens_brutos if q.get("arquivo_origem")
@@ -85,25 +88,24 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         chave_prova = chave_caderno(nome_prova)
         correspondentes = [
             (nome, respostas) for nome, respostas in gabaritos_baixados
-            if chave_caderno(nome) == chave_prova
-            or (chave_prova and chave_prova in chave_caderno(nome))
-            or (chave_caderno(nome) and chave_caderno(nome) in chave_prova)
+            if chave_prova and chave_caderno(nome) == chave_prova
         ]
         if correspondentes:
-            combinado: dict[int, str] = {}
-            for _, respostas in correspondentes:
-                for numero, resposta in respostas.items():
-                    combinado.setdefault(numero, resposta)
-            respostas_por_prova[nome_prova] = combinado
+            correspondentes.sort(
+                key=lambda item: (
+                    "definitivo" not in item[0].lower(),
+                    "preliminar" in item[0].lower(),
+                )
+            )
+            nome_escolhido, respostas_escolhidas = correspondentes[0]
+            respostas_por_prova[nome_prova] = respostas_escolhidas
+            print(f"[gabarito] {nome_prova} associado a {nome_escolhido}")
+        else:
+            print(f"[gabarito] Sem correspondência exata para {nome_prova}; respostas não serão preenchidas automaticamente.")
 
     for questao in questoes:
         nome_origem = str(questao.get("arquivo_origem") or "")
-        respostas = respostas_por_prova.get(nome_origem)
-        if respostas is None:
-            respostas = {}
-            for _, mapa in gabaritos_baixados:
-                for numero, resposta in mapa.items():
-                    respostas.setdefault(numero, resposta)
+        respostas = respostas_por_prova.get(nome_origem, {})
         numero = questao.get("numero")
         if numero is not None:
             try:
