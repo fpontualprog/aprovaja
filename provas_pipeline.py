@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlparse, urldefrag
 import requests
 from bs4 import BeautifulSoup
-import fitz
+import pymupdf
 from validar_pdf_prova import validar_pdf_prova
 
 ROOT = Path(__file__).resolve().parent
@@ -107,13 +107,13 @@ def extract_pdf(pdf_path: Path, record: dict, out: Path) -> dict:
     """Gera JSON por página; mantém ordem/posição dos blocos, imagens originais e render da página."""
     assets_dir = out / "midias" / record["sha256"]
     pages = []
-    with fitz.open(pdf_path) as doc:
+    with pymupdf.open(pdf_path) as doc:
         for page_index, page in enumerate(doc):
             page_no = page_index + 1
             page_dir = assets_dir / f"pagina_{page_no:04d}"
             page_dir.mkdir(parents=True, exist_ok=True)
             # Render da página preserva visualmente tabelas, gráficos, fórmulas e layout.
-            pix = page.get_pixmap(matrix=fitz.Matrix(1.7, 1.7), alpha=False)
+            pix = page.get_pixmap(matrix=pymupdf.Matrix(1.7, 1.7), alpha=False)
             page_image = page_dir / "pagina_completa.png"
             pix.save(page_image)
             blocks_out = []
