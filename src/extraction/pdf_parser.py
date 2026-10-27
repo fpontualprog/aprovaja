@@ -45,91 +45,57 @@ QUESTION_START_RE = re.compile(r"(?m)^\s*(\d{1,3})[.)]?\s+")
 
 
 def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
-    """Localiza questões a partir dos blocos do PDF, respeitando colunas.
+    """Localiza questões pela numeração no texto corrido do PDF.
 
-    Cada coluna é percorrida de cima para baixo. Se um bloco contiver várias
-    questões, os marcadores numéricos no início das linhas dividem o bloco.
-    A posição global é recuperada no texto da página para manter compatibilidade
-    com a extração heurística de imagens.
+    Usa o regex global histórico e conserva a sequência crescente de números,
+    evitando depender da estrutura de blocos/colunas do documento.
     """
+    texto = extrair_texto_pdf(caminho_pdf)
+    padrao = re.compile(r"\\n(\\d{1,3})\\s")
+    matches = list(padrao.finditer("\\n" + texto))
+    if not matches:
+        raise ValueError(
+            f"Não foi possível identificar questões numeradas no texto do PDF {caminho_pdf}."
+        )
+
     itens: list[dict[str, Any]] = []
-    with pymupdf.open(str(caminho_pdf)) as documento:
-        offset_pagina = 0
-        for pagina in documento:
-            texto_pagina = pagina.get_text("text", sort=True)
-            blocos = [
-                bloco for bloco in pagina.get_text("blocks")
-                if len(bloco) >= 5 and isinstance(bloco[4], str) and bloco[4].strip()
-            ]
-
-            # Ordena por coluna e, dentro dela, de cima para baixo. O CORTE_X
-            # já usado no projeto separa a coluna esquerda da direita.
-            esquerda = sorted(
-                (b for b in blocos if float(b[0]) < CORTE_X),
-                key=lambda b: (float(b[1]), float(b[0])),
-            )
-            direita = sorted(
-                (b for b in blocos if float(b[0]) >= CORTE_X),
-                key=lambda b: (float(b[1]), float(b[0])),
-            )
-            blocos_ordenados = esquerda + direita
-
-            for bloco in blocos_ordenados:
-                texto_bloco = str(bloco[4]).strip()
-                marcadores = list(QUESTION_START_RE.finditer(texto_bloco))
-                if not marcadores:
-                    continue
-
-                # Só divide nos marcadores de início de linha do bloco; números
-                # no meio de frases, datas e textos de apoio não iniciam questões.
-                for i, marcador in enumerate(marcadores):
-                    inicio_bloco = marcador.start()
-                    fim_bloco = marcadores[i + 1].start() if i + 1 < len(marcadores) else len(texto_bloco)
-                    conteudo = texto_bloco[inicio_bloco:fim_bloco].strip()
-                    if len(conteudo) < 20:
-                        continue
-                    numero = int(marcador.group(1))
-                    posicao = texto_pagina.find(conteudo[:60])
-                    if posicao < 0:
-                        posicao = texto_pagina.find(marcador.group(0).strip())
-                    itens.append({
-                        "numero": numero,
-                        "texto": conteudo,
-                        "posicao_inicio": offset_pagina + posicao if posicao >= 0 else offset_pagina,
-                        "posicao_fim": (
-                            offset_pagina + posicao + len(conteudo)
-                            if posicao >= 0 else offset_pagina + len(texto_pagina)
-                        ),
-                        "tem_imagem": False,
-                        "imagens": [],
-                    })
-            offset_pagina += len(texto_pagina) + 1
+    texto_com_prefixo = "\\n" + texto
+    for indice, match in enumerate(matches):
+        numero = int(match.group(1))
+        inicio = match.start() + 1
+        fim = matches[indice + 1].start() + 1 if indice + 1 < len(matches) else len(texto_com_prefixo)
+        conteudo = texto_com_prefixo[inicio:fim].strip()
+        if len(conteudo) < 20:
+            continue
+        itens.append({
+            "numero": numero,
+            "texto": conteudo,
+            "posicao_inicio": max(0, inicio - 1),
+            "posicao_fim": max(0, fim - 1),
+            "tem_imagem": False,
+            "imagens": [],
+        })
 
     if not itens:
         raise ValueError(
-            f"Não foi possível identificar questões em blocos do PDF {caminho_pdf}."
+            f"Não foi possível extrair conteúdo de questões numeradas no PDF {caminho_pdf}."
         )
 
-    # Descarta números de estatísticas/enunciados que foram confundidos com itens.
-    # Em cadernos C/E, os itens de um mesmo caderno formam uma sequência crescente
-    # e contínua. Mantém a sequência contínua mais longa iniciada pelo primeiro item.
-    if itens:
-        numeros = {item["numero"] for item in itens}
-        inicio_sequencia = itens[0]["numero"]
-        fim_sequencia = inicio_sequencia
-        while fim_sequencia + 1 in numeros:
-            fim_sequencia += 1
+    # Mantém a sequência contínua mais longa iniciada pelo primeiro item
+    # detectado, conforme a lógica anterior que já funcionava com a prova da PF.
+    numeros = {item["numero"] for item in itens}
+    inicio_sequencia = itens[0]["numero"]
+    fim_sequencia = inicio_sequencia
+    while fim_sequencia + 1 in numeros:
+        fim_sequencia += 1
+    sequencia = [
+        item for item in itens
+        if inicio_sequencia <= item["numero"] <= fim_sequencia
+    ]
+    if len(sequencia) >= 5:
+        itens = sequencia
 
-        sequencia = [
-            item for item in itens
-            if inicio_sequencia <= item["numero"] <= fim_sequencia
-        ]
-        # Só aplica o filtro se houver uma sequência razoável de itens.
-        if len(sequencia) >= 5:
-            itens = sequencia
-
-    # Evita duplicações ocasionais quando o mesmo bloco aparece em mais de uma
-    # região do PDF, mantendo a ordem física de leitura.
+    # Remove duplicatas mantendo a ordem original de leitura.
     unicas: list[dict[str, Any]] = []
     vistos: set[tuple[int, str]] = set()
     for item in itens:
@@ -138,7 +104,6 @@ def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
             vistos.add(chave)
             unicas.append(item)
     return unicas
-
 
 def extrair_itens_pdf(caminho_pdf: str | Path) -> list[dict[str, Any]]:
     """Extrai questões usando blocos e separação de colunas do PDF."""
