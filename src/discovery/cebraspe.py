@@ -2,8 +2,7 @@
 from __future__ import annotations
 import re
 from typing import Any
-from urllib.parse import urljoin, urlparse, parse_qs, unquote
-from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 import requests
 from src.config import CEBRASPE_API_LISTA, CEBRASPE_API_DETALHE, CEBRASPE_CDN
 
@@ -169,60 +168,6 @@ def listar_pdfs_gabarito(evento_url: str) -> list[dict[str, str]]:
     return list(urls.values())
 
 
-
-def buscar_gabaritos_web_oficial(evento: str, contexto: str = "") -> list[dict[str, str]]:
-    """Busca gabaritos como alternativa à API, aceitando apenas links do domínio oficial.
-
-    A busca pública é um mecanismo de descoberta, não uma confirmação: cada PDF
-    ainda passa pelo parser e pelo comparador documental antes de ser associado.
-    """
-    evento = evento.strip()
-    if not evento:
-        return []
-    termos = " ".join(x for x in (evento.replace("_", " ").replace("-", " "), contexto) if x)
-    consultas = [
-        f'site:cebraspe.org.br "{termos}" gabarito PDF',
-        f'site:cdn.cebraspe.org.br/concursos "{termos}" gabarito',
-    ]
-    encontrados: dict[str, dict[str, str]] = {}
-    for consulta in consultas:
-        try:
-            response = SESSION.get(
-                "https://html.duckduckgo.com/html/",
-                params={"q": consulta},
-                timeout=TIMEOUT,
-            )
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, "html.parser")
-        except (requests.RequestException, ValueError):
-            continue
-        for anchor in soup.select("a.result__a, a[href]"):
-            href = (anchor.get("href") or "").strip()
-            titulo = anchor.get_text(" ", strip=True)
-            # DuckDuckGo pode envolver o destino em um redirecionador.
-            if "duckduckgo.com/l/?" in href:
-                destino = parse_qs(urlparse(href).query).get("uddg", [""])[0]
-                href = unquote(destino)
-            parsed = urlparse(href)
-            host = (parsed.hostname or "").lower()
-            if parsed.scheme != "https" or not (host == "cebraspe.org.br" or host.endswith(".cebraspe.org.br")):
-                continue
-            if ".pdf" not in parsed.path.lower():
-                continue
-            texto = f"{titulo} {href}".lower()
-            if "gabarito" not in texto:
-                continue
-            nome = unquote(parsed.path.rsplit("/", 1)[-1]) or "gabarito_encontrado.pdf"
-            encontrados.setdefault(href, {
-                "url": href,
-                "url_download": href,
-                "nome": nome,
-                "nomeArquivo": nome,
-                "descricao": titulo or "Gabarito encontrado em busca web",
-                "descoberto_por": "busca_web_restrita_cebraspe",
-                "fonte_oficial": "true",
-            })
-    return list(encontrados.values())
 
 
 def descobrir_prova(evento: str) -> dict[str, Any]:
