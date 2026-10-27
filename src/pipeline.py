@@ -108,6 +108,23 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
             baixar_pdf(url, str(caminho_gabarito))
             respostas = extrair_gabarito_pdf(caminho_gabarito)
             cabecalho_gabarito = extrair_cabecalho_pdf(caminho_gabarito)
+
+            # A banca pode não aparecer no texto do gabarito. Nesse caso, só
+            # registramos CEBRASPE como evidência de origem quando o PDF veio
+            # do CDN oficial listado pelo endpoint oficial de documentos.
+            from urllib.parse import urlparse
+            host_origem = (urlparse(url).hostname or "").lower()
+            if host_origem == "cdn.cebraspe.org.br":
+                fontes = cabecalho_gabarito.setdefault("fontes_campos", {})
+                if not cabecalho_gabarito.get("banca"):
+                    cabecalho_gabarito["banca"] = "CEBRASPE"
+                    fontes["banca"] = "origem_oficial_cebraspe"
+                cabecalho_gabarito["origem_documento"] = {
+                    "url": url,
+                    "host": host_origem,
+                    "descoberto_por": "listar_pdfs_gabarito",
+                    "fonte_oficial": True,
+                }
         except (OSError, ValueError, RuntimeError) as exc:
             registros_associacao.append({
                 "arquivo_prova": None,
