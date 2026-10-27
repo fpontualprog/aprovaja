@@ -50,7 +50,7 @@ def deepseek_search_queries(meta, key):
     prompt = (
         "Crie até 4 consultas de busca na web para localizar gabaritos oficiais de concurso público. "
         "Use apenas os metadados fornecidos, priorize gabarito definitivo, preliminar e retificações. "
-        "Não invente URLs nem respostas. Retorne somente JSON: {\\"queries\\":[\\"consulta 1\\"]}. "
+        "Não invente URLs nem respostas. Retorne somente JSON com a chave queries contendo uma lista de consultas. "
         f"Metadados: {json.dumps(meta, ensure_ascii=False)}"
     )
     try:
@@ -85,7 +85,7 @@ def deepseek_rank_results(meta, hits, key):
     prompt = (
         "Ordene os resultados para encontrar o gabarito oficial exato desta prova. "
         "Priorize domínio oficial, mesma banca, concurso, cargo, ano e tipo/caderno. "
-        "Não invente URLs e não declare resposta de questão. Retorne JSON {\\"order\\":[0,1]} "
+        "Não invente URLs e não declare resposta de questão. Retorne JSON com a chave order contendo índices inteiros, por exemplo [0,1]. "
         "com índices dos resultados recebidos, do mais ao menos relevante. "
         f"Metadados: {json.dumps(meta, ensure_ascii=False)}\\nResultados: "
         f"{json.dumps(result_list, ensure_ascii=False)}"
