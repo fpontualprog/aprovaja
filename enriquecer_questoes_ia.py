@@ -11,7 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import requests
-import fitz
+import pymupdf
 
 ROOT = Path(__file__).resolve().parent
 JSON_DIR = ROOT / "provas_data" / "json"
@@ -43,10 +43,10 @@ def read_image(path: Path) -> str | None:
         payload = path.read_bytes()
         mime = "image/png"
         if len(payload) > MAX_IMAGE_BYTES:
-            source = fitz.Pixmap(str(path))
+            source = pymupdf.Pixmap(str(path))
             scale = min(1.0, 1600 / max(source.width, source.height))
-            matrix = fitz.Matrix(scale, scale)
-            reduced = fitz.Pixmap(source, matrix)
+            matrix = pymupdf.Matrix(scale, scale)
+            reduced = pymupdf.Pixmap(source, matrix)
             payload = reduced.tobytes("jpeg")
             mime = "image/jpeg"
         if len(payload) > MAX_IMAGE_BYTES:
