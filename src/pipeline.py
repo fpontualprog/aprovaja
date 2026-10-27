@@ -9,6 +9,7 @@ from src.discovery.cebraspe import (
     descobrir_prova,
     baixar_pdf,
     listar_pdfs_gabarito,
+    buscar_gabaritos_web_oficial,
 )
 from src.extraction.pdf_parser import extrair_itens_pdf, extrair_imagens_questoes
 from src.extraction.gabarito_parser import extrair_gabarito_pdf
@@ -68,10 +69,30 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
     registros_associacao: list[dict] = []
     pasta_gabaritos = trabalho / "gabaritos"
     pasta_gabaritos.mkdir(parents=True, exist_ok=True)
+    erro_lista_gabaritos = None
     try:
         candidatos_gabarito = listar_pdfs_gabarito(evento)
     except Exception as exc:
         candidatos_gabarito = []
+        erro_lista_gabaritos = str(exc)
+
+    # Se a API oficial não listou gabaritos, procura na web, mas só aceita
+    # resultados HTTPS do domínio CEBRASPE. A busca não confirma a associação:
+    # cada arquivo ainda precisa passar por extração e comparação documental.
+    if not candidatos_gabarito:
+        try:
+            candidatos_gabarito = buscar_gabaritos_web_oficial(evento)
+        except Exception as exc:
+            registros_associacao.append({
+                "arquivo_prova": None,
+                "arquivo_gabarito": None,
+                "status_associacao": "pendente_de_confirmacao",
+                "coincidencias": [],
+                "divergencias": [],
+                "campos_ausentes": ["busca_web_gabaritos"],
+                "justificativa": f"Falharam a listagem oficial e a busca web: {erro_lista_gabaritos or 'nenhum gabarito listado'}; {exc}",
+            })
+    if not candidatos_gabarito:
         registros_associacao.append({
             "arquivo_prova": None,
             "arquivo_gabarito": None,
@@ -79,7 +100,10 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
             "coincidencias": [],
             "divergencias": [],
             "campos_ausentes": ["lista_gabaritos"],
-            "justificativa": f"Não foi possível consultar os gabaritos do evento: {exc}",
+            "justificativa": (
+                f"Nenhum gabarito foi localizado pela API ou busca web oficial. "
+                f"Erro da API: {erro_lista_gabaritos or 'nenhum PDF listado'}"
+            ),
         })
 
     urls_gabaritos_vistos: set[str] = set()
@@ -114,7 +138,11 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
             # do CDN oficial listado pelo endpoint oficial de documentos.
             from urllib.parse import urlparse
             host_origem = (urlparse(url).hostname or "").lower()
-            if host_origem == "cdn.cebraspe.org.br":
+            host_oficial = (
+                host_origem == "cebraspe.org.br"
+                or host_origem.endswith(".cebraspe.org.br")
+            )
+            if host_oficial:
                 fontes = cabecalho_gabarito.setdefault("fontes_campos", {})
                 if not cabecalho_gabarito.get("banca"):
                     cabecalho_gabarito["banca"] = "CEBRASPE"
@@ -122,7 +150,7 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
                 cabecalho_gabarito["origem_documento"] = {
                     "url": url,
                     "host": host_origem,
-                    "descoberto_por": "listar_pdfs_gabarito",
+                    "descoberto_por": candidato.get("descoberto_por", "listar_pdfs_gabarito"),
                     "fonte_oficial": True,
                 }
         except Exception as exc:
