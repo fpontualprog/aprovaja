@@ -76,6 +76,23 @@ def _chamar_ia(client: Any, lote: list[dict], evento: str, banca: str) -> list[d
     return questoes
 
 
+def _validar_numeracao(questoes: list[dict], lote: list[dict]) -> None:
+    """Evita associar a resposta de uma questão à origem de outra."""
+    for indice, (questao, origem) in enumerate(zip(questoes, lote), start=1):
+        numero_origem = origem.get("numero")
+        numero_saida = questao.get("numero")
+        if numero_origem is not None and numero_saida is not None:
+            try:
+                coincide = int(numero_origem) == int(numero_saida)
+            except (TypeError, ValueError):
+                coincide = str(numero_origem).strip() == str(numero_saida).strip()
+            if not coincide:
+                raise ValueError(
+                    f"Numeração divergente na posição {indice}: origem={numero_origem!r}, "
+                    f"IA={numero_saida!r}."
+                )
+
+
 def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") -> list[dict]:
     """Estrutura por lotes; tenta recuperar individualmente e preserva falhas para revisão."""
     if not itens:
@@ -94,6 +111,7 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
                 raise ValueError(
                     f"A IA retornou {len(questoes)} questões para {len(lote)} itens de entrada."
                 )
+            _validar_numeracao(questoes, lote)
             saida.extend(_anexar_origem(q, origem) for q, origem in zip(questoes, lote))
             continue
         except Exception as exc:
@@ -105,6 +123,7 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
             try:
                 individuais = _chamar_ia(client, [origem], evento, banca)
                 if len(individuais) == 1:
+                    _validar_numeracao(individuais, [origem])
                     saida.append(_anexar_origem(individuais[0], origem))
                     continue
                 motivo = f"{motivo_lote} A tentativa individual não retornou exatamente uma questão."
