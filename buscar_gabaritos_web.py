@@ -4,7 +4,7 @@ from __future__ import annotations
 import json, os, re, sys
 from pathlib import Path
 from urllib.parse import quote, urlparse, unquote
-import requests, fitz
+import requests, pymupdf
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parent
@@ -152,7 +152,7 @@ def search(meta, session):
 def extract_pdf(pdf_bytes, meta, url, session, key=None):
     """Extrai gabaritos por regras locais; não chama API de IA."""
     if not pdf_bytes.startswith(b"%PDF") or len(pdf_bytes)>25000000: return {}
-    pdf=fitz.open(stream=pdf_bytes,filetype="pdf")
+    pdf=pymupdf.open(stream=pdf_bytes,filetype="pdf")
     result={}
     # Formatos comuns em gabaritos: "1 A", "01 - B", "Questão 1: C".
     line_patterns = [
