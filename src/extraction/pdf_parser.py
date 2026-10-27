@@ -61,10 +61,14 @@ def _encontrar_questoes(caminho_pdf):
     matches = list(padrao.finditer(texto_total))
 
     aceitos = []
-    esperado = 1
+    esperado = None
     for m in matches:
         n = int(m.group(1))
-        if n == esperado:
+        if esperado is None:
+            # A primeira questão pode começar em qualquer número (ex.: 51).
+            aceitos.append(m)
+            esperado = n + 1
+        elif n == esperado:
             aceitos.append(m)
             esperado += 1
 
