@@ -9,7 +9,7 @@ dispara uma chamada de rede automaticamente.
 from pathlib import Path
 import sys
 
-import fitz
+import pymupdf
 import requests
 
 URL_GABARITO = (
@@ -36,7 +36,7 @@ def main() -> None:
     DESTINO.write_bytes(response.content)
     print(f"PDF salvo em: {DESTINO} ({len(response.content)} bytes)")
 
-    with fitz.open(DESTINO) as documento:
+    with pymupdf.open(DESTINO) as documento:
         texto = "\n".join(
             pagina.get_text("text", sort=True) for pagina in documento
         )
