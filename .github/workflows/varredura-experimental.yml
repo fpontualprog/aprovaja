@@ -1,5 +1,17 @@
-# Desativado para manter um único workflow operacional de coleta.
-# A lógica experimental é mantida no repositório para futura incorporação ao coletor principal.
 name: Varredura experimental desativada
 
-on: {}
+on:
+  workflow_dispatch:
+    inputs:
+      aviso:
+        description: "Workflow desativado; use pipeline-provas.yml para coleta de questões."
+        required: false
+        default: "desativado"
+        type: string
+
+jobs:
+  desativado:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow desativado. A coleta operacional está centralizada em pipeline-provas.yml."
