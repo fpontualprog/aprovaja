@@ -1,15 +1,6 @@
 name: APROVAJÁ — coleta a cada 3 dias e alimentação do banco de questões
 
 on:
-  push:
-    paths:
-      - '.github/workflows/pipeline-provas.yml'
-      - 'publicar_questoes_supabase.py'
-      - 'provas_pipeline.py'
-      - 'validar_pdf_prova.py'
-      - 'segmentar_questoes_candidatas.py'
-      - 'vincular_gabaritos_ia.py buscar_gabaritos_web.py'
-      - 'buscar_gabaritos_web.py'
   workflow_dispatch:
     inputs:
       max_downloads:
