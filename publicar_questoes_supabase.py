@@ -28,13 +28,35 @@ def main() -> int:
 
     data = json.loads(INPUT.read_text(encoding="utf-8"))
     groups: dict[str, list[dict]] = defaultdict(list)
+    total = 0
+    rejected_no_key = 0
+    rejected_unverified = 0
     for item in data.get("candidatos", []):
+        total += 1
+        # Regra rígida: somente respostas extraídas de gabarito oficial com confiança alta.
+        answer = str(item.get("gabarito") or "").strip().upper()
+        source = str(item.get("gabarito_fonte_oficial") or "").strip()
+        status = str(item.get("gabarito_status") or "")
+        confidence = str(item.get("gabarito_confianca") or "").lower()
+        if not answer:
+            rejected_no_key += 1
+            continue
+        if confidence != "alta" or not (source or status in {"EXTRAIDO_DOCUMENTO_ORIGINAL", "EXTRAIDO_GABARITO_SEPARADO_COMPATIVEL"}):
+            rejected_unverified += 1
+            continue
+        if answer not in {"A", "B", "C", "D", "E", "C", "E", "ANULADA"}:
+            rejected_unverified += 1
+            continue
         sha = str(item.get("documento_sha256") or "").lower()
         if len(sha) == 64 and all(c in "0123456789abcdef" for c in sha):
             groups[sha].append(item)
+    accepted = sum(len(items) for items in groups.values())
+    print(json.dumps({"candidatos_total": total, "aceitos_com_gabarito_oficial": accepted,
+                      "bloqueados_sem_gabarito": rejected_no_key,
+                      "bloqueados_sem_confirmacao_oficial": rejected_unverified}, ensure_ascii=False))
     if not groups:
-        print("Nenhum candidato vinculado a um PDF com SHA-256 válido; nada foi enviado.")
-        return 0
+        print("BLOQUEADO: nenhum candidato tem gabarito oficial confirmado. Nada foi enviado ao Supabase.", file=sys.stderr)
+        return 1
 
     endpoint = f"{base_url}/functions/v1/importar-questoes-pdf"
     headers = {
