@@ -1,20 +1,31 @@
 """Orquestra descoberta, download, extração, estruturação e exportação."""
 from __future__ import annotations
+
 import json
 import re
 from pathlib import Path
-from src.discovery.cebraspe import descobrir_prova, baixar_pdf, listar_pdfs_gabarito
+
+from src.discovery.cebraspe import (
+    descobrir_prova,
+    baixar_pdf,
+    listar_pdfs_gabarito,
+)
 from src.extraction.pdf_parser import extrair_itens_pdf, extrair_imagens_questoes
 from src.extraction.gabarito_parser import extrair_gabarito_pdf
-from src.extraction.document_matcher import extrair_cabecalho_pdf, comparar_prova_gabarito
+from src.extraction.document_matcher import (
+    extrair_cabecalho_pdf,
+    comparar_prova_gabarito,
+)
 from src.structuring.deepseek import estruturar_itens
 from src.export.writers import exportar_questoes
+
 
 def _nome_seguro(valor: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", valor).strip("._") or "prova"
 
+
 def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
-    """Processa PDFs localizados na API do Cebraspe e exporta as questões estruturadas."""
+    """Processa provas e associa gabaritos apenas com evidência documental suficiente."""
     destino = Path(saida)
     destino.mkdir(parents=True, exist_ok=True)
     trabalho = destino / "pdfs" / _nome_seguro(evento)
@@ -25,7 +36,7 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
         json.dumps(descoberta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
 
-    itens_brutos = []
+    itens_brutos: list[dict] = []
     cabecalhos_provas: dict[str, dict] = {}
     for indice, prova in enumerate(descoberta["provas"], start=1):
         nome = _nome_seguro(prova.get("nome") or f"prova_{indice}.pdf")
@@ -51,8 +62,84 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
             item["url_origem"] = url_download
         itens_brutos.extend(itens)
 
+    # Baixa e lê os gabaritos separadamente. Falhas individuais são registradas,
+    # sem transformar um documento não lido em candidato de associação.
+    gabaritos_baixados: list[tuple[str, dict[int, str], dict]] = []
+    registros_associacao: list[dict] = []
+    pasta_gabaritos = trabalho / "gabaritos"
+    pasta_gabaritos.mkdir(parents=True, exist_ok=True)
+    try:
+        candidatos_gabarito = listar_pdfs_gabarito(evento)
+    except Exception as exc:
+        candidatos_gabarito = []
+        registros_associacao.append({
+            "arquivo_prova": None,
+            "arquivo_gabarito": None,
+            "status_associacao": "pendente_de_confirmacao",
+            "coincidencias": [],
+            "divergencias": [],
+            "campos_ausentes": ["lista_gabaritos"],
+            "justificativa": f"Não foi possível consultar os gabaritos do evento: {exc}",
+        })
+
+    urls_gabaritos_vistos: set[str] = set()
+    for indice, candidato in enumerate(candidatos_gabarito, start=1):
+        url = candidato.get("url_download") or candidato.get("url")
+        nome = _nome_seguro(candidato.get("nome") or f"gabarito_{indice}.pdf")
+        if not nome.lower().endswith(".pdf"):
+            nome += ".pdf"
+        if not isinstance(url, str) or not url.startswith("https://"):
+            registros_associacao.append({
+                "arquivo_prova": None,
+                "arquivo_gabarito": nome,
+                "status_associacao": "pendente_de_confirmacao",
+                "coincidencias": [],
+                "divergencias": [],
+                "campos_ausentes": ["url_gabarito"],
+                "justificativa": "O registro de gabarito não possui URL HTTPS válida.",
+            })
+            continue
+        if url in urls_gabaritos_vistos:
+            continue
+        urls_gabaritos_vistos.add(url)
+
+        caminho_gabarito = pasta_gabaritos / f"{indice:03d}_{nome}"
+        try:
+            baixar_pdf(url, str(caminho_gabarito))
+            respostas = extrair_gabarito_pdf(caminho_gabarito)
+            cabecalho_gabarito = extrair_cabecalho_pdf(caminho_gabarito)
+        except (OSError, ValueError, RuntimeError) as exc:
+            registros_associacao.append({
+                "arquivo_prova": None,
+                "arquivo_gabarito": nome,
+                "status_associacao": "pendente_de_confirmacao",
+                "coincidencias": [],
+                "divergencias": [],
+                "campos_ausentes": ["conteudo_gabarito"],
+                "justificativa": f"Não foi possível baixar ou interpretar o PDF do gabarito: {exc}",
+            })
+            continue
+
+        if not respostas:
+            registros_associacao.append({
+                "arquivo_prova": None,
+                "arquivo_gabarito": nome,
+                "status_associacao": "pendente_de_confirmacao",
+                "coincidencias": [],
+                "divergencias": [],
+                "campos_ausentes": ["respostas_extraidas"],
+                "justificativa": "O PDF foi lido, mas nenhuma resposta foi extraída.",
+            })
+            continue
+
+        gabaritos_baixados.append((nome, respostas, cabecalho_gabarito))
+
     if not itens_brutos:
+        (trabalho / "associacoes_gabaritos.json").write_text(
+            json.dumps(registros_associacao, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         raise RuntimeError(f"Nenhum item foi extraído dos PDFs do evento {evento}.")
+
     questoes = estruturar_itens(itens_brutos, evento)
 
     # Associa gabaritos por evidências extraídas dos cabeçalhos dos próprios PDFs.
@@ -70,7 +157,7 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
                 "coincidencias": [],
                 "divergencias": [],
                 "campos_ausentes": ["cabecalho_prova"],
-                "justificativa": "Não foi possível extrair o cabeçalho da prova."
+                "justificativa": "Não foi possível extrair o cabeçalho da prova.",
             })
             continue
 
@@ -81,7 +168,6 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
             if registro["status_associacao"] == "confirmado":
                 candidatos.append((nome_gabarito, respostas, registro))
 
-        # Só usa uma associação documental confirmada e não ambígua.
         if len(candidatos) == 1:
             nome_escolhido, respostas_escolhidas, registro = candidatos[0]
             respostas_por_prova[nome_prova] = respostas_escolhidas
@@ -94,7 +180,7 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
                 "coincidencias": [],
                 "divergencias": [],
                 "campos_ausentes": [],
-                "justificativa": "Mais de um gabarito foi documentalmente confirmado; revisão necessária."
+                "justificativa": "Mais de um gabarito foi documentalmente confirmado; revisão necessária.",
             })
             print(f"[gabarito] Associação ambígua para {nome_prova}; respostas não preenchidas.")
         else:
