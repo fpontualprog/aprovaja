@@ -125,7 +125,9 @@ def processar_concurso(evento: str, saida: str = "data") -> list[dict]:
                     "descoberto_por": "listar_pdfs_gabarito",
                     "fonte_oficial": True,
                 }
-        except (OSError, ValueError, RuntimeError) as exc:
+        except Exception as exc:
+            # Uma falha HTTP, PDF corrompido ou erro de leitura em um candidato
+            # não deve interromper o processamento dos demais gabaritos.
             registros_associacao.append({
                 "arquivo_prova": None,
                 "arquivo_gabarito": nome,
