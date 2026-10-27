@@ -3,14 +3,14 @@ from __future__ import annotations
 import re
 from pathlib import Path
 from typing import Any
-import fitz
+import pymupdf
 from src.config import CORTE_X
 
 ITEM_RE = re.compile(r"(?m)^\s*(\d{1,3})[.)]?\s+")
 
 def extrair_texto_pdf(caminho: str | Path) -> str:
     texto = []
-    with fitz.open(str(caminho)) as doc:
+    with pymupdf.open(str(caminho)) as doc:
         for pagina in doc:
             texto.append(pagina.get_text("text", sort=True))
     resultado = "\n".join(texto).strip()
@@ -53,7 +53,7 @@ def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
     com a extração heurística de imagens.
     """
     itens: list[dict[str, Any]] = []
-    with fitz.open(str(caminho_pdf)) as documento:
+    with pymupdf.open(str(caminho_pdf)) as documento:
         offset_pagina = 0
         for pagina in documento:
             texto_pagina = pagina.get_text("text", sort=True)
@@ -160,7 +160,7 @@ def extrair_imagens_questoes(
     pasta = Path(pasta_saida)
     pasta.mkdir(parents=True, exist_ok=True)
 
-    with fitz.open(str(caminho_pdf)) as doc:
+    with pymupdf.open(str(caminho_pdf)) as doc:
         # Mapeia offsets globais do texto extraído para página e coordenada vertical.
         page_data = []
         offset = 0
@@ -248,9 +248,9 @@ def extrair_imagens_questoes(
                     )
                     if matching_rect is None:
                         continue
-                    pix = fitz.Pixmap(doc, xref)
+                    pix = pymupdf.Pixmap(doc, xref)
                     if pix.n - pix.alpha > 3:
-                        pix = fitz.Pixmap(fitz.csRGB, pix)
+                        pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
                     safe_num = re.sub(r"[^A-Za-z0-9_-]", "_", str(questao.get("numero", q_index + 1)))
                     question_image_index += 1
                     output = pasta / f"q{safe_num}_img{question_image_index}.png"
