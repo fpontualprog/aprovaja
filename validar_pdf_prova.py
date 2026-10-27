@@ -90,6 +90,10 @@ def validar_pdf_prova(payload: bytes, nome_arquivo: str = "", paginas_iniciais: 
                     return {"aprovado": True, "motivo": "deepseek_confirmou_gabarito_oficial",
                             "categoria_documento": "gabarito", "evidencias": ai_gab.get("evidencias", []),
                             "categoria_ia": "gabarito", "confianca_ia": float(ai_gab.get("confianca", 0) or 0)}
+                # Não permitir que um PDF identificado como gabarito caia no fluxo
+                # de prova objetiva caso a IA falhe, discorde ou tenha baixa confiança.
+                return {"aprovado": False, "motivo": "gabarito_nao_confirmado_para_catalogacao_separada",
+                        "categoria_documento": "gabarito", "evidencias": (ai_gab or {}).get("evidencias", [])}
             # Regra absoluta: qualquer sinal explícito de prova discursiva no nome ou no início
             # do documento rejeita o PDF, independentemente da classificação da IA.
             if INDICIOS_DISCURSIVA.search(nome) or INDICIOS_DISCURSIVA.search(texto_norm[:12000]):
