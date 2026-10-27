@@ -1,0 +1,42 @@
+name: APROVAJÁ — coleta e sincronização de questões
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Diário às 13h de Brasília (16h UTC).
+    - cron: "0 16 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aprovaja-coleta-upload-questoes
+  cancel-in-progress: false
+
+jobs:
+  coletar-e-enviar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instalar dependências
+        run: python -m pip install -r requirements.txt
+
+      - name: Executar coleta e exportação do evento PF_25_ADM
+        run: |
+          python -c "from src.pipeline import processar_concurso; processar_concurso('PF_25_ADM', saida='data')"
+
+      - name: Enviar CSVs ao Supabase com upsert
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/upload_supabase.py
