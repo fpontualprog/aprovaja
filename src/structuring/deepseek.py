@@ -47,6 +47,11 @@ def estruturar_itens(itens: list[dict], evento: str, banca: str = "CEBRASPE") ->
             raise RuntimeError(f"A DeepSeek retornou JSON inválido no lote iniciado no item {inicio + 1}.") from exc
         if not isinstance(questoes, list):
             raise RuntimeError("A resposta da DeepSeek não contém uma lista 'questoes'.")
+        if len(questoes) != len(lote):
+            raise RuntimeError(
+                f"A DeepSeek retornou {len(questoes)} questões para um lote de {len(lote)} "
+                f"(início no item {inicio + 1}); lote rejeitado para evitar perda de questões."
+            )
 
         # Reanexa metadados locais após a resposta da IA. Caminhos de imagens
         # não são enviados à DeepSeek; a correspondência primária é pela ordem do lote.
