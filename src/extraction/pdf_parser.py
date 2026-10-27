@@ -44,66 +44,64 @@ def segmentar_itens(texto: str) -> list[dict[str, Any]]:
 QUESTION_START_RE = re.compile(r"(?m)^\s*(\d{1,3})[.)]?\s+")
 
 
-def _encontrar_questoes(caminho_pdf: str | Path) -> list[dict[str, Any]]:
-    """Localiza questões pela numeração no texto corrido do PDF.
+def _encontrar_questoes(caminho_pdf):
+    """Extrai questões pela ordem de leitura das colunas e numeração crescente."""
+    import pymupdf
+    import re
 
-    Usa o regex global histórico e conserva a sequência crescente de números,
-    evitando depender da estrutura de blocos/colunas do documento.
-    """
-    texto = extrair_texto_pdf(caminho_pdf)
-    padrao = re.compile(r"\\n(\\d{1,3})\\s")
-    matches = list(padrao.finditer("\\n" + texto))
-    if not matches:
-        raise ValueError(
-            f"Não foi possível identificar questões numeradas no texto do PDF {caminho_pdf}."
-        )
+    doc = pymupdf.open(caminho_pdf)
+    CORTE_X = 300
 
-    itens: list[dict[str, Any]] = []
-    texto_com_prefixo = "\\n" + texto
-    for indice, match in enumerate(matches):
-        numero = int(match.group(1))
-        inicio = match.start() + 1
-        fim = matches[indice + 1].start() + 1 if indice + 1 < len(matches) else len(texto_com_prefixo)
-        conteudo = texto_com_prefixo[inicio:fim].strip()
-        if len(conteudo) < 20:
-            continue
-        itens.append({
-            "numero": numero,
-            "texto": conteudo,
-            "posicao_inicio": max(0, inicio - 1),
-            "posicao_fim": max(0, fim - 1),
+    texto_paginas = []
+    for pagina in doc:
+        blocos = pagina.get_text("blocks")
+        esquerda, direita = [], []
+        for b in blocos:
+            x0, y0, x1, y1, texto, *_ = b
+            texto = texto.strip()
+            if not texto:
+                continue
+            if x0 < CORTE_X:
+                esquerda.append((y0, texto))
+            else:
+                direita.append((y0, texto))
+        esquerda.sort(key=lambda t: t[0])
+        direita.sort(key=lambda t: t[0])
+        texto_paginas.append("\n".join(t for _, t in esquerda))
+        texto_paginas.append("\n".join(t for _, t in direita))
+
+    texto_total = "\n".join(texto_paginas)
+    doc.close()
+
+    # Regex global para encontrar números de questão.
+    padrao = re.compile(r'\n(\d{1,3})\s')
+    matches = list(padrao.finditer(texto_total))
+
+    aceitos = []
+    esperado = 1
+    for m in matches:
+        n = int(m.group(1))
+        if n == esperado:
+            aceitos.append(m)
+            esperado += 1
+
+    questoes = []
+    for i, m in enumerate(aceitos):
+        fim = aceitos[i + 1].start() if i + 1 < len(aceitos) else len(texto_total)
+        inicio_conteudo = m.start() + 1
+        questoes.append({
+            "numero": int(m.group(1)),
+            "texto": texto_total[inicio_conteudo:fim].strip(),
+            "posicao_inicio": inicio_conteudo,
+            "posicao_fim": fim,
             "tem_imagem": False,
             "imagens": [],
         })
 
-    if not itens:
-        raise ValueError(
-            f"Não foi possível extrair conteúdo de questões numeradas no PDF {caminho_pdf}."
-        )
+    if not questoes:
+        raise ValueError(f"Não foi possível identificar questões no PDF {caminho_pdf}.")
 
-    # Mantém a sequência contínua mais longa iniciada pelo primeiro item
-    # detectado, conforme a lógica anterior que já funcionava com a prova da PF.
-    numeros = {item["numero"] for item in itens}
-    inicio_sequencia = itens[0]["numero"]
-    fim_sequencia = inicio_sequencia
-    while fim_sequencia + 1 in numeros:
-        fim_sequencia += 1
-    sequencia = [
-        item for item in itens
-        if inicio_sequencia <= item["numero"] <= fim_sequencia
-    ]
-    if len(sequencia) >= 5:
-        itens = sequencia
-
-    # Remove duplicatas mantendo a ordem original de leitura.
-    unicas: list[dict[str, Any]] = []
-    vistos: set[tuple[int, str]] = set()
-    for item in itens:
-        chave = (item["numero"], item["texto"])
-        if chave not in vistos:
-            vistos.add(chave)
-            unicas.append(item)
-    return unicas
+    return questoes
 
 def extrair_itens_pdf(caminho_pdf: str | Path) -> list[dict[str, Any]]:
     """Extrai questões usando blocos e separação de colunas do PDF."""
