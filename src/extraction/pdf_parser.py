@@ -49,29 +49,12 @@ def _encontrar_questoes(caminho_pdf):
     import pymupdf
     import re
 
-    doc = pymupdf.open(caminho_pdf)
-    CORTE_X = 300
-
     texto_paginas = []
-    for pagina in doc:
-        blocos = pagina.get_text("blocks")
-        esquerda, direita = [], []
-        for b in blocos:
-            x0, y0, x1, y1, texto, *_ = b
-            texto = texto.strip()
-            if not texto:
-                continue
-            if x0 < CORTE_X:
-                esquerda.append((y0, texto))
-            else:
-                direita.append((y0, texto))
-        esquerda.sort(key=lambda t: t[0])
-        direita.sort(key=lambda t: t[0])
-        texto_paginas.append("\n".join(t for _, t in esquerda))
-        texto_paginas.append("\n".join(t for _, t in direita))
+    with pymupdf.open(str(caminho_pdf)) as doc:
+        for pagina in doc:
+            texto_paginas.append(pagina.get_text("text"))
 
     texto_total = "\n".join(texto_paginas)
-    doc.close()
 
     # Regex global para encontrar números de questão.
     padrao = re.compile(r'\n(\d{1,3})\s')
