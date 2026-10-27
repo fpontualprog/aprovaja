@@ -23,7 +23,7 @@ on:
         default: false
         type: boolean
   schedule:
-    # Execução diária às 13:00 de Recife (16:00 UTC)
+    # Execução diária às 13:00, horário de Brasília (America/Sao_Paulo; 16:00 UTC)
     - cron: "0 16 * * *"
 
 permissions:
