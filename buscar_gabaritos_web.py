@@ -81,13 +81,14 @@ def deepseek_rank_results(meta, hits, key):
     """A DeepSeek ordena apenas resultados reais já retornados pelos buscadores; URLs não são aceitas da resposta do modelo."""
     if not key or len(hits) < 2:
         return hits
+    result_list = [{"index": i, "titulo": h.get("titulo"), "url": h.get("url")} for i, h in enumerate(hits)]
     prompt = (
         "Ordene os resultados para encontrar o gabarito oficial exato desta prova. "
         "Priorize domínio oficial, mesma banca, concurso, cargo, ano e tipo/caderno. "
         "Não invente URLs e não declare resposta de questão. Retorne JSON {\\"order\\":[0,1]} "
         "com índices dos resultados recebidos, do mais ao menos relevante. "
         f"Metadados: {json.dumps(meta, ensure_ascii=False)}\\nResultados: "
-        f"{json.dumps([{\\"index\\":i,\\"titulo\\":h.get('titulo'),\\"url\\":h.get('url')} for i,h in enumerate(hits)], ensure_ascii=False)}"
+        f"{json.dumps(result_list, ensure_ascii=False)}"
     )
     try:
         response = requests.post(
