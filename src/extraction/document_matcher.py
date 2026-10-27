@@ -121,11 +121,19 @@ def comparar_prova_gabarito(prova: dict[str, Any], gabarito: dict[str, Any]) -> 
 
     campos_essenciais = {"banca", "orgao", "edital", "codigo_caderno", "nivel", "categoria"}
     conflitos_essenciais = campos_essenciais.intersection(divergencias)
+    fontes_gabarito = gabarito.get("fontes_campos") or {}
+    origem_documento = gabarito.get("origem_documento") or {}
+    origem_oficial_cebraspe = (
+        origem_documento.get("fonte_oficial") is True
+        and origem_documento.get("host") == "cdn.cebraspe.org.br"
+        and fontes_gabarito.get("banca") == "origem_oficial_cebraspe"
+    )
+    confirmacao_temporal = "edital" in coincidencias or "data_aplicacao" in coincidencias
     confirmada = (
         not conflitos_essenciais
         and {"banca", "orgao", "nivel", "categoria"}.issubset(coincidencias)
         and "codigo_caderno" in coincidencias
-        and ("edital" in coincidencias or "data_aplicacao" in coincidencias)
+        and (confirmacao_temporal or origem_oficial_cebraspe)
     )
     status = "confirmado" if confirmada else "incompativel" if conflitos_essenciais else "pendente_de_confirmacao"
     return {
