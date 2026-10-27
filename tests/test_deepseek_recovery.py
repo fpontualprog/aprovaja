@@ -49,3 +49,14 @@ def test_recupera_lote_incompleto_sem_perder_itens(monkeypatch):
 def test_lista_vazia_nao_chama_api(monkeypatch):
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
     assert deepseek.estruturar_itens([], "Concurso teste") == []
+
+def test_rejeita_numero_de_questao_trocado():
+    try:
+        deepseek._validar_numeracao(
+            [{"numero": 9, "enunciado": "resposta trocada"}],
+            [{"numero": 8, "texto": "origem"}],
+        )
+    except ValueError as exc:
+        assert "Numeração divergente" in str(exc)
+    else:
+        raise AssertionError("A numeração divergente deveria ser rejeitada.")
