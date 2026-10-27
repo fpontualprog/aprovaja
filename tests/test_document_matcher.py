@@ -73,3 +73,24 @@ def test_rejeita_divergencia_de_nivel() -> None:
     prova = {"arquivo": "prova.pdf", "banca": "CEBRASPE", "orgao": "Polícia Federal", "edital": "Edital 2025", "codigo_caderno": "PF_CB1_01", "nivel": "médio", "categoria": "conhecimentos básicos"}
     gabarito = {"arquivo": "gabarito.pdf", "banca": "CEBRASPE", "orgao": "Polícia Federal", "edital": "Edital 2025", "codigo_caderno": "094_PF_CB1_01", "nivel": "superior", "categoria": "conhecimentos básicos"}
     assert comparar_prova_gabarito(prova, gabarito)["status_associacao"] == "incompativel"
+
+def test_confirma_gabarito_oficial_sem_edital_ou_data_no_pdf() -> None:
+    prova = {
+        "arquivo": "PF_25_ADM_CB1_download_teste.pdf",
+        "banca": "CEBRASPE", "orgao": "Polícia Federal",
+        "codigo_caderno": "PF_CB1_01", "nivel": "superior",
+        "categoria": "conhecimentos básicos",
+    }
+    gabarito = {
+        "arquivo": "Gab_Definitivo_094_PF_CB1_01.pdf",
+        "banca": "CEBRASPE", "orgao": "Polícia Federal",
+        "codigo_caderno": "094_PF_CB1_01", "nivel": "superior",
+        "categoria": "conhecimentos básicos",
+        "fontes_campos": {"banca": "origem_oficial_cebraspe"},
+        "origem_documento": {
+            "fonte_oficial": True,
+            "host": "cdn.cebraspe.org.br",
+        },
+    }
+    resultado = comparar_prova_gabarito(prova, gabarito)
+    assert resultado["status_associacao"] == "confirmado"
