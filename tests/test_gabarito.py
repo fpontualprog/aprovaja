@@ -41,9 +41,9 @@ def main() -> None:
             pagina.get_text("text", sort=True) for pagina in documento
         )
 
-    inicio, fim = 1000, 3000
+    inicio, fim = 1500, 3500
     print(f"\n--- TEXTO EXTRAÍDO: CARACTERES {inicio} A {fim} ---\n")
-    print(texto[inicio:fim] or "(O texto extraído não chega à posição 1000.)")
+    print(texto[inicio:fim] or "(O texto extraído não chega à posição 1500.)")
     print("\n--- FIM DO TRECHO ---")
     if not texto.strip():
         print(
