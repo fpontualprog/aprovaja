@@ -1,4 +1,4 @@
-name: APROVAJÁ — coleta diária e alimentação do banco de questões
+name: APROVAJÁ — coleta a cada 3 dias e alimentação do banco de questões
 
 on:
   push:
@@ -18,13 +18,13 @@ on:
         default: "8"
         type: string
       usar_ia:
-        description: "Usar créditos de IA nesta execução (padrão: não)"
+        description: "Usar créditos de IA nesta execução manual"
         required: true
-        default: false
+        default: true
         type: boolean
   schedule:
-    # Execução diária às 13:00, horário de Brasília (America/Sao_Paulo; 16:00 UTC)
-    - cron: "0 16 * * *"
+    # Execução a cada 3 dias, às 13:00 de Brasília (16:00 UTC).
+    - cron: "0 16 */3 * *"
 
 permissions:
   contents: read
@@ -54,9 +54,9 @@ jobs:
       - name: Validar sintaxe
         run: python -m py_compile provas_pipeline.py segmentar_questoes_candidatas.py validar_pdf_prova.py publicar_questoes_supabase.py enriquecer_questoes_ia.py vincular_gabaritos_ia.py buscar_gabaritos_web.py
 
-      - name: Coletar PDFs, fazer triagem DeepSeek e gerar JSON multimodal
+      - name: Coletar até 8 PDFs, fazer triagem DeepSeek e gerar JSON multimodal
         env:
-          # Sem chave de IA: a coleta usa heurísticas gratuitas para ordenar links.
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_KEY }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python provas_pipeline.py --max-downloads "${{ inputs.max_downloads || '8' }}" --max-pages 100
 
@@ -64,17 +64,17 @@ jobs:
         if: success()
         run: python segmentar_questoes_candidatas.py
 
-      - name: Enriquecer questões com IA (opcional, consome créditos)
-        if: success() && inputs.usar_ia == true
+      - name: Enriquecer questões com IA DeepSeek
+        if: success() && (github.event_name == 'schedule' || inputs.usar_ia == true)
         env:
-          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_KEY }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python enriquecer_questoes_ia.py
 
-      - name: Extrair gabaritos locais com IA (opcional, consome créditos)
-        if: success() && inputs.usar_ia == true
+      - name: Extrair gabaritos locais com IA DeepSeek
+        if: success() && (github.event_name == 'schedule' || inputs.usar_ia == true)
         env:
-          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_PUBLICA }}
+          DEEPSEEK_API_PUBLICA: ${{ secrets.DEEPSEEK_API_KEY }}
           APROVAJA_IA_MODEL: deepseek-flash
         run: python vincular_gabaritos_ia.py
 
