@@ -45,6 +45,17 @@ jobs:
         if: success()
         run: python segmentar_questoes_candidatas.py
 
+      - name: Diagnosticar arquivos produzidos pelo coletor
+        if: always()
+        run: |
+          echo "CSV em data/:"
+          if [ -d data ]; then find data -maxdepth 3 -type f -iname '*.csv' -printf '%p (%s bytes)\\n' | sort; else echo 'Pasta data/ não existe.'; fi
+          echo "Arquivos em provas_data/:"
+          if [ -d provas_data ]; then find provas_data -maxdepth 4 -type f -printf '%p (%s bytes)\\n' | sort | head -300; else echo 'Pasta provas_data/ não existe.'; fi
+          for d in provas_data/originais provas_data/json provas_data/revisao; do
+            if [ -d "$d" ]; then echo "$d: $(find "$d" -type f | wc -l) arquivo(s)"; else echo "$d: ausente"; fi
+          done
+
       - name: Publicar artefatos para inspeção
         if: always()
         uses: actions/upload-artifact@v4
