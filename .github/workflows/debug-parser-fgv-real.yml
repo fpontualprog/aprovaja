@@ -2,6 +2,18 @@ name: Diagnóstico real do parser FGV b1102
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "scripts/validar_questoes_fgv.py"
+      - "scripts/extrair_json_fgv.py"
+      - "tests/test_validar_questoes_fgv.py"
+      - ".github/workflows/debug-parser-fgv-real.yml"
+  pull_request:
+    paths:
+      - "scripts/validar_questoes_fgv.py"
+      - "scripts/extrair_json_fgv.py"
+      - "tests/test_validar_questoes_fgv.py"
+      - ".github/workflows/debug-parser-fgv-real.yml"
 
 permissions:
   contents: read
