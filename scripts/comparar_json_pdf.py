@@ -49,7 +49,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("json", type=Path)
     ap.add_argument("texto_bruto", type=Path)
-    ap.add_argument("--questoes", default="1,2,3,30,45,46,60,75,89,90")
+    ap.add_argument("--questoes", default="1,2,3,30,45,46,60,75,89,90", help="Números separados por vírgula")
+    ap.add_argument("--todas", action="store_true", help="Inspeciona todas as questões do JSON; ignora --questoes")
     ap.add_argument("--todas-com-recursos", action="store_true", help="Inclui flags True; null é ignorado.")
     ap.add_argument("--diff", action="store_true", help="Procura enunciado/alternativas na página normalizada e mostra aproximação se não encontrar.")
     ap.add_argument("--registrar", type=Path, help="Cria modelo JSON para preencher status e observações após revisão visual.")
@@ -65,7 +66,8 @@ def main() -> int:
         return 2
     paginas = blocos_por_pagina(bruto)
     try:
-        nums = {int(x.strip()) for x in args.questoes.split(",") if x.strip()}
+        nums = ({int(q["numero"]) for q in dados["questoes"] if isinstance(q, dict) and "numero" in q}
+                if args.todas else {int(x.strip()) for x in args.questoes.split(",") if x.strip()})
     except ValueError:
         print("ERRO: --questoes deve conter números separados por vírgula.", file=sys.stderr)
         return 2
