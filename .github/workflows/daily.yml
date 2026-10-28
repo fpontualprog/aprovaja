@@ -35,6 +35,19 @@ jobs:
         run: |
           python -c "from src.pipeline import processar_concurso; processar_concurso('PF_25_ADM', saida='data')"
 
+      - name: Diagnosticar arquivos gerados em data/
+        if: always()
+        run: |
+          echo "Diretório de trabalho: $PWD"
+          if [ -d data ]; then
+            echo "Arquivos em data/:"
+            find data -maxdepth 3 -type f -printf '%p (%s bytes)\\n' | sort
+            echo "CSVs encontrados:"
+            find data -maxdepth 3 -type f -iname '*.csv' -print | sort
+          else
+            echo "::warning::A pasta data/ não foi criada."
+          fi
+
       - name: Enviar CSVs ao Supabase com upsert
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
