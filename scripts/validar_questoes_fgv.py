@@ -22,6 +22,9 @@ RE_RODAPE = re.compile(
     re.IGNORECASE,
 )
 RE_FONTE = re.compile(r"^\s*Fonte\s*:", re.IGNORECASE)
+RE_INICIO_LEGENDA = re.compile(r"^\s*(?:Evolução histórica|Gráfico\b|Figura\b|Tabela\b)", re.IGNORECASE)
+RE_CABECALHO_SECAO = re.compile(r"^\s*(?:CONHECIMENTOS ESPECÍFICOS|CONHECIMENTOS GERAIS|Eixo Temático\s*\d+\b)", re.IGNORECASE)
+RE_CABECALHO_SECAO_EMBUTIDO = re.compile(r"\s+(?:CONHECIMENTOS ESPECÍFICOS|CONHECIMENTOS GERAIS|Eixo Temático\s*\d+\b).*$", re.IGNORECASE)
 TAM_MIN_ENUNCIADO = 40
 TAM_MIN_ALTERNATIVA = 3
 
@@ -80,9 +83,24 @@ def parse_texto_bruto(texto: str) -> list[Questao]:
             continue
         if RE_CABECALHO.search(linha) or RE_RODAPE.match(linha):
             continue
-        # Legenda FGV costuma ter título em linha própria seguido de "Fonte:".
-        # Separa título + fonte do enunciado e preserva-os em legenda_figura.
+        # Descarta cabeçalhos de seção, inclusive quando o extrator os cola
+        # ao final da linha anterior (por exemplo, alternativa E + título da seção).
+        if RE_CABECALHO_SECAO.match(linha):
+            continue
+        linha_sem_cabecalho = RE_CABECALHO_SECAO_EMBUTIDO.sub("", linha).rstrip()
+        if not linha_sem_cabecalho.strip():
+            continue
+        linha = linha_sem_cabecalho
+        # A legenda pode ocupar várias linhas. Quando surge Fonte:, recua até
+        # o início reconhecível do título e remove o bloco inteiro do enunciado.
         if atual is not None and parte == "enunciado" and RE_FONTE.match(linha) and buffer:
+            inicio = next((i for i, item in enumerate(buffer) if RE_INICIO_LEGENDA.match(item.strip())), None)
+            if inicio is not None:
+                linhas_legenda = [x.strip() for x in buffer[inicio:] if x.strip()]
+                buffer = buffer[:inicio]
+                legenda = " ".join(linhas_legenda + [linha.strip()]).strip()
+                atual.legenda_figura = (atual.legenda_figura + " " + legenda).strip()
+                continue
             titulo_legenda = buffer[-1].strip()
             if titulo_legenda and len(titulo_legenda) >= 12:
                 buffer.pop()
@@ -148,7 +166,7 @@ def validar(questoes: list[Questao], min_questoes: int = 80) -> tuple[bool, list
             txt = q.alternativas[letra].strip()
             if len(txt) < TAM_MIN_ALTERNATIVA:
                 q.erros.append(f"alternativa ({letra}) vazia ou truncada")
-            if RE_CABECALHO.search(txt):
+            if RE_CABECALHO.search(txt) or RE_CABECALHO_SECAO_EMBUTIDO.search(txt):
                 q.erros.append(f"cabeçalho vazou para alternativa ({letra})")
         vals = [v.strip() for v in q.alternativas.values()]
         if len(vals) != len(set(vals)):
