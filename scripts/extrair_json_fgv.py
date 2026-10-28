@@ -52,6 +52,8 @@ def montar_json(questoes, mapa_recursos: dict[int, dict[str, bool]]) -> dict:
             "enunciado": q.enunciado.strip(),
             "alternativas": {k: v.strip() for k, v in q.alternativas.items()},
             "pagina_pdf": q.pagina_pdf,
+            "legenda_figura": q.legenda_figura,
+            "legenda_tabela": q.legenda_tabela,
             "tem_figura": recursos.get("tem_figura"),
             "tem_tabela": recursos.get("tem_tabela"),
         })
