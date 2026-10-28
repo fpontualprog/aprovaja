@@ -111,6 +111,43 @@ A partir dos dados apresentados, é correto concluir que:
         self.assertIn("Evolução histórica", questoes[0].legenda_figura)
         self.assertIn("Fonte: GBD, 2021", questoes[0].legenda_figura)
 
+    def test_cabecalho_de_secao_colado_na_alternativa_e_removido(self):
+        texto = """===== PÁGINA 1 =====
+1
+Este enunciado é suficientemente longo para testar o cabeçalho de seção.
+(A) Alternativa A com conteúdo suficiente.
+(B) Alternativa B com conteúdo suficiente.
+(C) Alternativa C com conteúdo suficiente.
+(D) Alternativa D com conteúdo suficiente.
+(E) A avaliação de desempenho do agente público fica suspensa no período do teletrabalho, mesmo que sejam utilizadas as opções de status da ferramenta de comunicação da equipe. CONHECIMENTOS ESPECÍFICOS Eixo Temático 1 - Seguridade Social
+"""
+        questoes = parse_texto_bruto(texto)
+        self.assertEqual(len(questoes), 1)
+        self.assertNotIn("CONHECIMENTOS ESPECÍFICOS", questoes[0].alternativas["E"])
+        self.assertNotIn("Eixo Temático", questoes[0].alternativas["E"])
+
+    def test_legenda_multilinha_inteira_e_separada_do_enunciado(self):
+        texto = """===== PÁGINA 1 =====
+1
+O estudo apresenta os resultados históricos de saúde pública.
+Evolução histórica das taxas de mortalidade e DALY segundo sexo
+e grupo de causa. Brasil, 1990-2019.
+Fonte: GBD, 2021.
+A partir dos dados apresentados, é correto concluir que:
+(A) Alternativa A com conteúdo suficiente.
+(B) Alternativa B com conteúdo suficiente.
+(C) Alternativa C com conteúdo suficiente.
+(D) Alternativa D com conteúdo suficiente.
+(E) Alternativa E com conteúdo suficiente.
+"""
+        questoes = parse_texto_bruto(texto)
+        self.assertNotIn("Evolução histórica", questoes[0].enunciado)
+        self.assertNotIn("e grupo de causa", questoes[0].enunciado)
+        self.assertIn("A partir dos dados apresentados", questoes[0].enunciado)
+        self.assertIn("Evolução histórica", questoes[0].legenda_figura)
+        self.assertIn("e grupo de causa", questoes[0].legenda_figura)
+        self.assertIn("Fonte: GBD, 2021", questoes[0].legenda_figura)
+
     def test_sequencia_quebrada_e_detectada(self):
         questoes = [
             Questao(numero=1, enunciado="Enunciado longo o bastante para passar na validação estrutural.", alternativas={k: f"Conteúdo alternativo {k}" for k in "ABCDE"}),
