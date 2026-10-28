@@ -58,8 +58,9 @@ A detecção de imagem/tabela é feita por página e não garante que o recurso 
 
 ### Achados confirmados na inspeção visual
 
-- **Q44 — DIVERGENTE leve:** o título da figura e a linha `Fonte: GBD, 2021.` foram concatenados ao enunciado. Correção implementada: identificar a linha `Fonte:` no bloco do enunciado, retirar a linha anterior como título da legenda e gravar o conjunto em `legenda_figura`, fora do enunciado. Regra heurística a validar em outras provas.
-- **Q90 — CORTE confirmado:** `Realização` do rodapé foi anexado à alternativa E. Correção implementada: descartar linhas isoladas de rodapé, incluindo `Realização`, `FGV`, `Página N` e `Bloco Temático N`.
+- **Q44 — DIVERGENTE leve:** o título da figura e a linha `Fonte: GBD, 2021.` foram concatenados ao enunciado. A primeira correção removeu apenas parte do título; o novo ajuste procura o início reconhecível da legenda e transfere o bloco multilinha completo para `legenda_figura`. **Aguardando revalidação no PDF real.**
+- **Q90 — CORTE confirmado:** `Realização` do rodapé foi anexado à alternativa E. O filtro de rodapé removeu esse texto no run `40619517211`; resultado confirmado pelo usuário. Aguardar nova execução de regressão.
+- **Q30 — DIVERGENTE:** a alternativa E termina com o cabeçalho da próxima seção (`CONHECIMENTOS ESPECÍFICOS / Eixo Temático 1 - Seguridade Social`). Adicionado tratamento para descartar cabeçalhos de seção isolados ou colados ao final de uma alternativa, além de teste de regressão. **Aguardando revalidação no PDF real.**
 - **Resultado do `--diff`:** na amostra inspecionada, auxiliou a localizar 2/2 ocorrências reais (Q44 e Q90). Isso é evidência pontual de utilidade como triagem, não uma estimativa geral de precisão nem substituto da revisão visual. A validação estrutural confere características formais; não comprova fidelidade semântica nem que a alternativa correta/gabarito foi identificado. O JSON de inspeção não deve ser importado em produção ainda.
 
 ## Gate de Supabase
