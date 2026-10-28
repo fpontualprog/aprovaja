@@ -80,8 +80,10 @@ jobs:
 
       - name: Gerar relatório de inspeção da amostra
         run: |
-          python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt --questoes 1,2,3,30,43,44,45,46,60,75,89,90 --todas-com-recursos --diff --registrar inspecao_amostra_v2.json > inspecao_amostra_v2.txt
-          cat inspecao_amostra_v2.txt
+          python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt --todas --todas-com-recursos --diff --registrar inspecao_amostra_v3.json > inspecao_amostra_v3.txt
+          grep -E "Resumo:|similaridade aproximada < 90%" inspecao_amostra_v3.txt | tail -n 30
+          echo "Diagnósticos normalizados encontrados: $(grep -c 'correspondência normalizada encontrada' inspecao_amostra_v3.txt || true)"
+          echo "Campos não encontrados exatamente: $(grep -c 'NÃO ENCONTRADO EXATAMENTE' inspecao_amostra_v3.txt || true)"
 
       - name: Upload Supabase (bloqueado até homologação)
         if: vars.SUPABASE_UPLOAD_ENABLED == 'true'
@@ -98,8 +100,8 @@ jobs:
           path: |
             saida_b1102.json
             debug_b1102.txt
-            inspecao_amostra_v2.txt
-            inspecao_amostra_v2.json
+            inspecao_amostra_v3.txt
+            inspecao_amostra_v3.json
             b1102.pdf
           if-no-files-found: warn
           retention-days: 14
