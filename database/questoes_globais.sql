@@ -24,3 +24,11 @@ create index if not exists questoes_globais_evento_numero_idx
 -- A tabela é um acervo global. Não exponha a service-role key no frontend.
 -- Configure RLS/policies conforme a política de leitura desejada pelo app.
 alter table public.questoes_globais enable row level security;
+
+-- Permite que usuários autenticados consultem o acervo global pelo cliente do app.
+drop policy if exists "questoes_globais_select_authenticated" on public.questoes_globais;
+create policy "questoes_globais_select_authenticated"
+    on public.questoes_globais
+    for select
+    to authenticated
+    using (true);
