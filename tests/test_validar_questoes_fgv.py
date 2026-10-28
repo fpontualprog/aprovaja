@@ -52,6 +52,29 @@ class TestValidarQuestoesFGV(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("alternativa (E) ausente", q.erros)
 
+
+    def test_proxima_questao_separa_mesmo_com_alternativa_anterior_ausente(self):
+        texto = """1
+Enunciado da primeira questão suficientemente comprido para passar pela validação estrutural.
+(A) Alternativa A suficientemente longa.
+(B) Alternativa B suficientemente longa.
+(C) Alternativa C suficientemente longa.
+(D) Alternativa D suficientemente longa.
+2
+Enunciado da segunda questão suficientemente comprido para passar pela validação estrutural.
+(A) Alternativa A da segunda questão suficientemente longa.
+(B) Alternativa B da segunda questão suficientemente longa.
+(C) Alternativa C da segunda questão suficientemente longa.
+(D) Alternativa D da segunda questão suficientemente longa.
+(E) Alternativa E da segunda questão suficientemente longa.
+"""
+        questoes = parse_texto_bruto(texto)
+        self.assertEqual([q.numero for q in questoes], [1, 2])
+        self.assertNotIn("E", questoes[0].alternativas)
+        ok, _ = validar(questoes, min_questoes=2)
+        self.assertFalse(ok)
+        self.assertIn("alternativa (E) ausente", questoes[0].erros)
+
     def test_sequencia_quebrada_e_detectada(self):
         questoes = [
             Questao(numero=1, enunciado="Enunciado longo o bastante para passar na validação estrutural.", alternativas={k: f"Conteúdo alternativo {k}" for k in "ABCDE"}),
