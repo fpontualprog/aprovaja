@@ -13,7 +13,7 @@
 | Geração e validação do JSON | Concluído — 90 OK / 0 SUSPEITA / 0 FALHA | [Artefatos para inspeção](https://github.com/fpontualprog/aprovaja/actions/runs/40617643875/artifacts/12785692910) |
 | Script de inspeção | Atualizado em `d734df4`; incluir `--diff` e `--registrar` | [Código atual](https://github.com/fpontualprog/aprovaja/blob/main/scripts/comparar_json_pdf.py) |
 | Relatório automático da amostra | Configurado no workflow; pendente de execução da nova versão | O JSON de registro nasce como modelo pendente; não indica aprovação humana |
-| Inspeção estratificada JSON × PDF | **Pendente** | Checklist abaixo |
+| Inspeção estratificada JSON × PDF | **Concluída na amostra inicial** | 10 OK, Q44 DIVERGENTE leve e Q90 CORTE confirmados visualmente; [run de inspeção](https://github.com/fpontualprog/aprovaja/actions/runs/40618363781) |
 | Generalização para outra prova FGV | Pendente | Não executar antes da inspeção |
 | Generalização para outra banca | Pendente | CEBRASPE e depois VUNESP/FCC |
 | Supabase | **Desativado** | Gate explícito; nenhum envio nesta etapa |
@@ -49,12 +49,18 @@ A comparação do texto bruto ajuda a localizar divergências do parser, mas a d
 1. Confirmar sequência 1–90, sem duplicações ou lacunas.
 2. Comparar integralmente enunciado e alternativas A–E da amostra com o PDF.
 3. Revisar todos os casos com figura/tabela e registrar se o recurso pertence à questão correta.
-4. Investigar divergências e corrigir parser ou extração conforme a origem.
+4. Reexecutar o workflow após os fixes e confirmar Q44/Q90 contra o PDF.
 5. Guardar o registro de revisão e repetir a validação após cada correção.
 
 ## Limitações atuais
 
-A detecção de imagem/tabela é feita por página e não garante que o recurso pertence a uma questão específica. A validação estrutural confere características formais; não comprova fidelidade semântica nem que a alternativa correta/gabarito foi identificado. O JSON de inspeção não deve ser importado em produção ainda.
+A detecção de imagem/tabela é feita por página e não garante que o recurso pertence a uma questão específica. O campo legado `tem_figura` deve ser interpretado como `pagina_tem_figura`: é um sinalizador da página, não prova de que a questão individual contenha figura. A inspeção visual indicou falso positivo na Q43 e figura real na Q44.
+
+### Achados confirmados na inspeção visual
+
+- **Q44 — DIVERGENTE leve:** o título da figura e a linha `Fonte: GBD, 2021.` foram concatenados ao enunciado. Correção implementada: identificar a linha `Fonte:` no bloco do enunciado, retirar a linha anterior como título da legenda e gravar o conjunto em `legenda_figura`, fora do enunciado. Regra heurística a validar em outras provas.
+- **Q90 — CORTE confirmado:** `Realização` do rodapé foi anexado à alternativa E. Correção implementada: descartar linhas isoladas de rodapé, incluindo `Realização`, `FGV`, `Página N` e `Bloco Temático N`.
+- **Resultado do `--diff`:** na amostra inspecionada, auxiliou a localizar 2/2 ocorrências reais (Q44 e Q90). Isso é evidência pontual de utilidade como triagem, não uma estimativa geral de precisão nem substituto da revisão visual. A validação estrutural confere características formais; não comprova fidelidade semântica nem que a alternativa correta/gabarito foi identificado. O JSON de inspeção não deve ser importado em produção ainda.
 
 ## Gate de Supabase
 
