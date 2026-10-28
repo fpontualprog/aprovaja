@@ -26,4 +26,21 @@ jobs:
       - name: Validar sintaxe dos módulos
         run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py scripts/upload_supabase.py
       - name: Executar testes unitários
-        run: python -m pytest -q tests/test_parser_fgv.py tests/test_upload_supabase.py tests/test_payload_local.py
+        shell: bash
+        run: |
+          set +e
+          python -m pytest -vv tests/test_parser_fgv.py tests/test_upload_supabase.py tests/test_payload_local.py 2>&1 | tee pytest-report.txt
+          test_status=${PIPESTATUS[0]}
+          echo "$test_status" > pytest-exit-code.txt
+          exit "$test_status"
+
+      - name: Publicar relatório dos testes como artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes-parser-fgv
+          path: |
+            pytest-report.txt
+            pytest-exit-code.txt
+          if-no-files-found: warn
+          retention-days: 14
