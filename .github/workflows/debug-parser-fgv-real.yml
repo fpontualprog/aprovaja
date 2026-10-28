@@ -1,4 +1,5 @@
 name: Diagnóstico real do parser FGV b1102
+# Reexecução controlada da inspeção completa v3 (90 questões).
 
 on:
   workflow_dispatch:
