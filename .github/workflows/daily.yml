@@ -48,7 +48,8 @@ jobs:
             echo "::warning::A pasta data/ não foi criada."
           fi
 
-      - name: Enviar CSVs ao Supabase com upsert
+      - name: Enviar CSVs ao Supabase com upsert (somente com habilitação explícita)
+        if: ${{ vars.ENABLE_SUPABASE_UPLOAD == 'true' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
