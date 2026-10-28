@@ -80,11 +80,8 @@ jobs:
 
       - name: Gerar relatório de inspeção da amostra
         run: |
-          python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt \
-            --questoes 1,2,3,30,45,46,60,75,89,90 \
-            --todas-com-recursos --diff \
-            --registrar inspecao_amostra_v1.json > inspecao_amostra_v1.txt
-          cat inspecao_amostra_v1.txt
+          python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt --questoes 1,2,3,30,43,44,45,46,60,75,89,90 --todas-com-recursos --diff --registrar inspecao_amostra_v2.json > inspecao_amostra_v2.txt
+          cat inspecao_amostra_v2.txt
 
       - name: Upload Supabase (bloqueado até homologação)
         if: vars.SUPABASE_UPLOAD_ENABLED == 'true'
