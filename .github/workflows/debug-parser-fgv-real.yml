@@ -1,0 +1,65 @@
+name: Diagnóstico real do parser FGV b1102
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostico-fgv-real:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar PyMuPDF
+        run: python -m pip install "pymupdf>=1.24.0"
+
+      - name: Baixar prova oficial FGV b1102
+        run: |
+          curl --fail --location --retry 3 \
+            "https://conhecimento.fgv.br/sites/default/files/concursos/b1102.pdf" \
+            --output b1102.pdf
+          file b1102.pdf
+          test -s b1102.pdf
+
+      - name: Extrair texto real do PDF
+        run: |
+          python - <<'PY'
+          import pymupdf
+          from pathlib import Path
+
+          pdf = pymupdf.open("b1102.pdf")
+          texto = "\n\n".join(
+              f"\n===== PÁGINA {i + 1} =====\n{pagina.get_text('text')}"
+              for i, pagina in enumerate(pdf)
+          )
+          Path("debug_b1102.txt").write_text(texto, encoding="utf-8")
+          print(f"PDF: {len(pdf)} páginas")
+          print(f"Texto extraído: {len(texto)} caracteres")
+          print("\n--- INÍCIO DO TEXTO EXTRAÍDO ---")
+          print(texto[:5000])
+          if len(texto.strip()) < 1000:
+              raise SystemExit("Extração insuficiente; verificar se o PDF exige OCR.")
+          PY
+
+      - name: Executar diagnóstico do parser FGV
+        continue-on-error: true
+        run: python scripts/teste_parser_local.py debug_b1102.txt --min-questoes 80
+
+      - name: Publicar texto e PDF para inspeção
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-parser-fgv-b1102
+          path: |
+            debug_b1102.txt
+            b1102.pdf
+          if-no-files-found: warn
+          retention-days: 14
