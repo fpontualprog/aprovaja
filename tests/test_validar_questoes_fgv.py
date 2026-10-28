@@ -75,6 +75,42 @@ Enunciado da segunda questão suficientemente comprido para passar pela validaç
         self.assertFalse(ok)
         self.assertIn("alternativa (E) ausente", questoes[0].erros)
 
+    def test_rodape_realizacao_nao_vaza_para_alternativa(self):
+        texto = """===== PÁGINA 1 =====
+1
+Este enunciado é suficientemente longo para testar a remoção do rodapé.
+(A) Alternativa A com conteúdo suficiente.
+(B) Alternativa B com conteúdo suficiente.
+(C) Alternativa C com conteúdo suficiente.
+(D) Alternativa D com conteúdo suficiente.
+(E) Alternativa E com conteúdo suficiente.
+Realização
+"""
+        questoes = parse_texto_bruto(texto)
+        self.assertEqual(len(questoes), 1)
+        self.assertNotIn("Realização", questoes[0].alternativas["E"])
+
+    def test_legenda_com_fonte_e_separada_do_enunciado(self):
+        texto = """===== PÁGINA 1 =====
+1
+O estudo apresenta os resultados históricos de saúde pública.
+Evolução histórica das taxas de mortalidade e DALY segundo sexo e grupo de causa.
+Fonte: GBD, 2021.
+A partir dos dados apresentados, é correto concluir que:
+(A) Alternativa A com conteúdo suficiente.
+(B) Alternativa B com conteúdo suficiente.
+(C) Alternativa C com conteúdo suficiente.
+(D) Alternativa D com conteúdo suficiente.
+(E) Alternativa E com conteúdo suficiente.
+"""
+        questoes = parse_texto_bruto(texto)
+        self.assertEqual(len(questoes), 1)
+        self.assertIn("A partir dos dados apresentados", questoes[0].enunciado)
+        self.assertNotIn("Evolução histórica", questoes[0].enunciado)
+        self.assertNotIn("Fonte: GBD", questoes[0].enunciado)
+        self.assertIn("Evolução histórica", questoes[0].legenda_figura)
+        self.assertIn("Fonte: GBD, 2021", questoes[0].legenda_figura)
+
     def test_sequencia_quebrada_e_detectada(self):
         questoes = [
             Questao(numero=1, enunciado="Enunciado longo o bastante para passar na validação estrutural.", alternativas={k: f"Conteúdo alternativo {k}" for k in "ABCDE"}),
