@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/validar_questoes_fgv.py"
       - "scripts/extrair_json_fgv.py"
+      - "scripts/comparar_json_pdf.py"
       - "tests/test_validar_questoes_fgv.py"
       - ".github/workflows/debug-parser-fgv-real.yml"
   pull_request:
@@ -77,6 +78,14 @@ jobs:
       - name: Validar JSON gerado
         run: python scripts/validar_questoes_fgv.py saida_b1102.json --json --min-questoes 90
 
+      - name: Gerar relatório de inspeção da amostra
+        run: |
+          python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt \\
+            --questoes 1,2,3,30,45,46,60,75,89,90 \\
+            --todas-com-recursos --diff \\
+            --registrar inspecao_amostra_v1.json > inspecao_amostra_v1.txt
+          cat inspecao_amostra_v1.txt
+
       - name: Upload Supabase (bloqueado até homologação)
         if: vars.SUPABASE_UPLOAD_ENABLED == 'true'
         run: |
@@ -92,6 +101,8 @@ jobs:
           path: |
             saida_b1102.json
             debug_b1102.txt
+            inspecao_amostra_v1.txt
+            inspecao_amostra_v1.json
             b1102.pdf
           if-no-files-found: warn
           retention-days: 14
