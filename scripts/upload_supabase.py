@@ -1,8 +1,7 @@
-"""Importa questões de CSV para a tabela global public.questoes_globais.
+"""Importa questões de CSV para public.questoes_globais, respeitando o schema real.
 
-Por padrão, lê data/PF_25_ADM.csv. Se ele não existir, tenta o CSV exportado
-pelo pipeline (data/PF_25_ADM_questoes.csv). É possível selecionar outro CSV
-com QUESTOES_CSV. Nunca coloque a SUPABASE_SERVICE_ROLE_KEY no repositório.
+O upload usa evento_url + numero como chave de idempotência e envia somente
+colunas existentes na tabela. Nunca coloque SUPABASE_SERVICE_ROLE_KEY no repo.
 """
 from __future__ import annotations
 
@@ -21,11 +20,12 @@ DATA_DIR = ROOT / "data"
 BATCH_SIZE = 500
 
 ALIASES = {
-    "evento_url": ("evento_url", "evento", "concurso", "codigo_evento"),
+    "evento_url": ("evento_url", "url_origem", "url_fonte", "source_url", "url_prova", "url"),
     "numero": ("numero", "questao", "questão", "numero_questao", "número"),
     "enunciado": ("enunciado", "texto", "questao_texto", "questão_texto"),
     "texto_apoio": ("texto_apoio", "texto de apoio", "contexto"),
     "tipo": ("tipo", "tipo_questao", "tipo de questão"),
+    "formato_gabarito": ("formato_gabarito", "formato gabarito", "formato_resposta"),
     "gabarito": ("gabarito", "resposta", "resposta_correta"),
     "disciplina": ("disciplina", "materia", "matéria", "subject"),
     "imagens": ("imagens", "caminhos_imagens", "images"),
@@ -48,7 +48,6 @@ def _imagens(valor: Any) -> list[str]:
     if valor is None or str(valor).strip() == "":
         return []
     texto = str(valor).strip()
-    # CSVs podem conter listas serializadas como JSON/Python ou caminhos separados por vírgula.
     if texto.startswith("[") and texto.endswith("]"):
         try:
             parsed = ast.literal_eval(texto)
@@ -59,26 +58,44 @@ def _imagens(valor: Any) -> list[str]:
     return [item.strip().strip('"').strip("'") for item in texto.split(",") if item.strip().strip('"').strip("'")]
 
 
-def _registro(row: dict[str, Any], evento_padrao: str) -> dict[str, Any] | None:
+def _registro(row: dict[str, Any], evento_padrao: str = "") -> dict[str, Any] | None:
     row = _normalizar_colunas(row)
-    evento = str(_valor(row, "evento_url", evento_padrao)).strip()
+    evento_valor = _valor(row, "evento_url", evento_padrao)
+    evento = str(evento_valor or "").strip()
     numero_bruto = _valor(row, "numero")
     enunciado = _valor(row, "enunciado")
-    if not evento or numero_bruto is None or enunciado is None or not str(enunciado).strip():
+    # A chave do banco exige URL real da prova; não inventar URL com o nome do CSV.
+    if not evento.startswith(("https://", "http://")) or numero_bruto is None or enunciado is None or not str(enunciado).strip():
         return None
     try:
         numero = int(str(numero_bruto).strip())
     except (TypeError, ValueError):
         return None
+    if numero < 1:
+        return None
+
+    tipo = str(_valor(row, "tipo", "certo_errado")).strip().lower() or "certo_errado"
+    formato_bruto = _valor(row, "formato_gabarito")
+    formato = str(formato_bruto).strip().lower() if formato_bruto is not None else ""
+    if not formato:
+        if tipo in ("multipla_escolha", "múltipla escolha", "multipla escolha", "multiple_choice"):
+            formato = "multipla_escolha"
+        elif tipo in ("certo_errado", "certo/errado", "certo errado", "cebraspe"):
+            formato = "cebraspe"
 
     gabarito_bruto = _valor(row, "gabarito")
     gabarito = str(gabarito_bruto).strip().upper() if gabarito_bruto is not None else None
     if gabarito == "":
         gabarito = None
-    if gabarito not in (None, "C", "E", "X"):
-        gabarito = None
 
-    tipo = str(_valor(row, "tipo", "certo_errado")).strip() or "certo_errado"
+    if gabarito is not None:
+        if formato == "cebraspe" and gabarito not in ("C", "E", "X"):
+            return None
+        if formato == "multipla_escolha" and gabarito not in ("A", "B", "C", "D", "E"):
+            return None
+        if formato not in ("cebraspe", "multipla_escolha"):
+            return None
+
     texto_apoio = _valor(row, "texto_apoio")
     disciplina = _valor(row, "disciplina")
     return {
@@ -89,6 +106,7 @@ def _registro(row: dict[str, Any], evento_padrao: str) -> dict[str, Any] | None:
         "disciplina": str(disciplina).strip() if disciplina is not None and str(disciplina).strip() else None,
         "tipo": tipo,
         "gabarito": gabarito,
+        "formato_gabarito": formato or None,
         "imagens": _imagens(_valor(row, "imagens")),
     }
 
@@ -106,10 +124,7 @@ def _arquivo_csv() -> Path | None:
             raise FileNotFoundError(f"CSV de QUESTOES_CSV não encontrado: {path}")
         return path
 
-    candidatos = [
-        DATA_DIR / "PF_25_ADM.csv",
-        DATA_DIR / "PF_25_ADM_questoes.csv",
-    ]
+    candidatos = [DATA_DIR / "PF_25_ADM.csv", DATA_DIR / "PF_25_ADM_questoes.csv"]
     for candidato in candidatos:
         if candidato.is_file():
             return candidato
@@ -131,17 +146,14 @@ def main() -> int:
 
     print(f"[CSV] Arquivo selecionado: {arquivo}")
     print(f"[CSV] Tamanho: {arquivo.stat().st_size} bytes")
-    evento_padrao = arquivo.stem
-    if evento_padrao.endswith("_questoes"):
-        evento_padrao = evento_padrao[:-len("_questoes")]
-
-    registros = []
+    registros: list[dict[str, Any]] = []
     invalidas = 0
+    formatos = {"cebraspe": 0, "multipla_escolha": 0, "sem_gabarito": 0}
     with arquivo.open("r", encoding="utf-8-sig", newline="") as f:
         amostra = f.read(4096)
         f.seek(0)
         try:
-            dialect = csv.Sniffer().sniff(amostra, delimiters=",;\\t")
+            dialect = csv.Sniffer().sniff(amostra, delimiters=",;\t")
         except csv.Error:
             dialect = csv.excel
         leitor = csv.DictReader(f, dialect=dialect)
@@ -149,16 +161,21 @@ def main() -> int:
         linhas_lidas = 0
         for linha, row in enumerate(leitor, start=2):
             linhas_lidas += 1
-            registro = _registro(row, evento_padrao)
+            registro = _registro(row)
             if registro is None:
                 invalidas += 1
-                print(f"[AVISO] {arquivo.name}:{linha}: linha inválida, ignorada.")
+                print(f"[AVISO] {arquivo.name}:{linha}: linha inválida ou incompatível com o schema, ignorada.")
                 continue
+            if registro["gabarito"] is None:
+                formatos["sem_gabarito"] += 1
+            elif registro["formato_gabarito"] in formatos:
+                formatos[registro["formato_gabarito"]] += 1
             registros.append(registro)
 
     print(f"[CSV] Linhas de dados lidas: {linhas_lidas}")
     print(f"[CSV] Registros válidos preparados: {len(registros)}")
     print(f"[CSV] Linhas inválidas ignoradas: {invalidas}")
+    print(f"[CSV] Distribuição dos registros: {formatos}")
     if not registros:
         print(f"ERRO: nenhum registro válido encontrado em {arquivo}.", file=sys.stderr)
         return 2
@@ -177,10 +194,7 @@ def main() -> int:
             traceback.print_exc()
             return 3
 
-    print(
-        f"Concluído: {enviados} questão(ões) enviadas de {arquivo.name} para "
-        f"questoes_globais; {invalidas} linha(s) inválidas ignoradas."
-    )
+    print(f"Concluído: {enviados} questão(ões) processadas de {arquivo.name}; {invalidas} linha(s) inválidas ignoradas.")
     return 0
 
 
