@@ -155,7 +155,7 @@ def validar(questoes: list[Questao], min_questoes: int = 80) -> tuple[bool, list
     for q in questoes:
         if len(q.enunciado.strip()) < TAM_MIN_ENUNCIADO:
             q.erros.append(f"enunciado curto ({len(q.enunciado.strip())} chars)")
-        if RE_CABECALHO.search(q.enunciado):
+        if RE_CABECALHO.search(q.enunciado) or RE_CABECALHO_SECAO_EMBUTIDO.search(q.enunciado):
             q.erros.append("cabeçalho vazou para o enunciado")
         if RE_INICIO_OUTRA_QUESTAO.search(q.enunciado):
             q.erros.append("enunciado contém início de outra questão")
