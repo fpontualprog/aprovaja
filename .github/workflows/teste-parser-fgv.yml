@@ -2,6 +2,11 @@ name: Testes do parser FGV e upload Supabase
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/teste-parser-fgv.yml'
 
 permissions:
   contents: read
