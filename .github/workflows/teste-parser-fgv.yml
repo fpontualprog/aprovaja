@@ -26,4 +26,4 @@ jobs:
       - name: Validar sintaxe dos módulos
         run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py scripts/upload_supabase.py
       - name: Executar testes unitários
-        run: python -m pytest -q tests/test_parser_fgv.py tests/test_upload_supabase.py
+        run: python -m pytest -q tests/test_parser_fgv.py tests/test_upload_supabase.py tests/test_payload_local.py
