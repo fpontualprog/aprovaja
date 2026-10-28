@@ -16,6 +16,12 @@ RE_CABECALHO = re.compile(
 RE_ALTERNATIVA = re.compile(r"^\s*\(([A-E])\)\s*(.*)$")
 RE_NUM_QUESTAO = re.compile(r"^\s*(\d{1,2})\s*$")
 RE_INICIO_OUTRA_QUESTAO = re.compile(r"^\s*(\d{1,2})\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ]")
+RE_RODAPE = re.compile(
+    r"^\s*(?:Realização\s*:?.*|FGV(?: Conhecimento)?|"
+    r"Concurso Público Nacional Unificado|Página\s*\d+|Bloco Temático\s*\d+)\s*$",
+    re.IGNORECASE,
+)
+RE_FONTE = re.compile(r"^\s*Fonte\s*:", re.IGNORECASE)
 TAM_MIN_ENUNCIADO = 40
 TAM_MIN_ALTERNATIVA = 3
 
@@ -26,6 +32,8 @@ class Questao:
     enunciado: str = ""
     alternativas: dict[str, str] = field(default_factory=dict)
     pagina_pdf: int | None = None
+    legenda_figura: str = ""
+    legenda_tabela: str = ""
     erros: list[str] = field(default_factory=list)
     avisos: list[str] = field(default_factory=list)
 
@@ -70,8 +78,17 @@ def parse_texto_bruto(texto: str) -> list[Questao]:
         if m_pag:
             pagina_atual = int(m_pag.group(1))
             continue
-        if RE_CABECALHO.search(linha):
+        if RE_CABECALHO.search(linha) or RE_RODAPE.match(linha):
             continue
+        # Legenda FGV costuma ter título em linha própria seguido de "Fonte:".
+        # Separa título + fonte do enunciado e preserva-os em legenda_figura.
+        if atual is not None and parte == "enunciado" and RE_FONTE.match(linha) and buffer:
+            titulo_legenda = buffer[-1].strip()
+            if titulo_legenda and len(titulo_legenda) >= 12:
+                buffer.pop()
+                legenda = f"{titulo_legenda} {linha.strip()}".strip()
+                atual.legenda_figura = (atual.legenda_figura + " " + legenda).strip()
+                continue
         m_alt = RE_ALTERNATIVA.match(linha)
         if m_alt and atual is not None:
             salvar_buffer()
@@ -149,6 +166,8 @@ def carregar_json(caminho: Path) -> list[Questao]:
             enunciado=q.get("enunciado", ""),
             alternativas=q.get("alternativas", {}),
             pagina_pdf=q.get("pagina_pdf"),
+            legenda_figura=q.get("legenda_figura", ""),
+            legenda_tabela=q.get("legenda_tabela", ""),
         )
         for q in dados.get("questoes", [])
     ]
