@@ -63,7 +63,7 @@ def coletar_prova(json_path: str, gabarito: dict[int, str] | None = None) -> lis
         q["documento_sha256"] = meta.get("sha256")
         q["fonte"] = meta.get("source") or meta.get("fonte")
         q["url_fonte"] = meta.get("url") or meta.get("url_origem")
-        q["evento_url"] = meta.get("evento_url") or meta.get("source") or caminho.stem
+        q["evento_url"] = meta.get("evento_url") or meta.get("url_origem") or meta.get("url")
         if q.get("tipo") == "certo_errado":
             q["formato_gabarito"] = "cebraspe"
         elif q.get("tipo") == "multipla_escolha":
