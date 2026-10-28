@@ -13,13 +13,14 @@ def test_associar_imagens_paths_retorna_apenas_strings_no_intervalo():
             {"tipo": "imagem", "arquivo": "midias/imagem_014b.png"},
         ]},
         {"pagina": 15, "blocos": [
+            {"tipo": "imagem", "arquivo": "midias/imagem_014.png"},
             {"tipo": "imagem", "arquivo": "midias/imagem_015.png"},
         ]},
     ]
 
-    paths = associar_imagens_paths({}, paginas, 14, 14)
+    paths = associar_imagens_paths({}, paginas, 14, 15)
 
-    assert paths == ["midias/imagem_014.png", "midias/imagem_014b.png"]
+    assert paths == ["midias/imagem_014.png", "midias/imagem_014b.png", "midias/imagem_015.png"]
     assert all(isinstance(path, str) for path in paths)
 
 
