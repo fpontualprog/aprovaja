@@ -80,13 +80,15 @@ def parse_texto_bruto(texto: str) -> list[Questao]:
             buffer = [m_alt.group(2)]
             continue
         m_num = RE_NUM_QUESTAO.match(linha)
-        if m_num and letra_atual is None:
+        if m_num:
             n = int(m_num.group(1))
-            # Evita tratar números de página isolados como questões fora do intervalo plausível.
-            if 1 <= n <= 99:
+            # Número isolado fora das alternativas inicia a próxima questão.
+            # Dentro de alternativa, números isolados podem ser itens de uma lista.
+            if 1 <= n <= 99 and (atual is None or letra_atual is None):
                 fechar_questao()
                 atual = Questao(numero=n, pagina_pdf=pagina_atual)
                 parte = "enunciado"
+                letra_atual = None
                 continue
         if atual is not None:
             buffer.append(linha.strip())
