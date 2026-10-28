@@ -11,6 +11,8 @@
 | Testes unitários do validador | Concluído — 5/5 | [Testes do parser](https://github.com/fpontualprog/aprovaja/actions/runs/40617041615) |
 | Validação estrutural do texto bruto | Concluído — 90 OK / 0 SUSPEITA / 0 FALHA | [Relatório por questão](https://github.com/fpontualprog/aprovaja/actions/runs/40617643875) |
 | Geração e validação do JSON | Concluído — 90 OK / 0 SUSPEITA / 0 FALHA | [Artefatos para inspeção](https://github.com/fpontualprog/aprovaja/actions/runs/40617643875/artifacts/12785692910) |
+| Script de inspeção | Atualizado em `d734df4`; incluir `--diff` e `--registrar` | [Código atual](https://github.com/fpontualprog/aprovaja/blob/main/scripts/comparar_json_pdf.py) |
+| Relatório automático da amostra | Configurado no workflow; pendente de execução da nova versão | O JSON de registro nasce como modelo pendente; não indica aprovação humana |
 | Inspeção estratificada JSON × PDF | **Pendente** | Checklist abaixo |
 | Generalização para outra prova FGV | Pendente | Não executar antes da inspeção |
 | Generalização para outra banca | Pendente | CEBRASPE e depois VUNESP/FCC |
@@ -34,13 +36,13 @@ Revisar no PDF original e registrar OK/DIVERGENTE com nota para cada item:
 - [ ] Todas as questões com `tem_tabela=true`
 - [ ] Questões com enunciado aparentemente cortado entre páginas
 
-Use `scripts/comparar_json_pdf.py` para imprimir lado a lado o texto do JSON e a página indicada do texto bruto. Exemplo:
+Use `scripts/comparar_json_pdf.py` para exibir o JSON e a página indicada do texto bruto, com diagnóstico aproximado opcional e modelo de registro estruturado. O modo `--diff` procura cada campo na página normalizada; por ser uma comparação com a página inteira, pode apontar divergência quando o texto está distribuído por mais de uma página ou quando o parser reordena elementos. Não é um diff semântico nem prova de fidelidade. Exemplo:
 
 ```bash
-python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt --questoes 1,2,3,30,45,46,60,75,89,90 --todas-com-recursos
+python scripts/comparar_json_pdf.py saida_b1102.json debug_b1102.txt --questoes 1,2,3,30,45,46,60,75,89,90 --todas-com-recursos --diff --registrar inspecao_amostra_v1.json > inspecao_amostra_v1.txt
 ```
 
-A comparação do texto bruto ajuda a localizar divergências do parser, mas a decisão final exige conferir visualmente o PDF. A saída do script é um auxílio, não um atestado automático de fidelidade.
+A comparação do texto bruto ajuda a localizar divergências do parser, mas a decisão final exige conferir visualmente o PDF. O arquivo `inspecao_amostra_v1.json` é criado com `status=PENDENTE`; preencher `OK`, `DIVERGENTE` ou `CORTE` e as observações após a revisão visual. O script organiza a inspeção, mas a decisão de fidelidade é humana. Um `OK` registrado significa apenas que aquela questão foi conferida visualmente, não que o parser esteja correto para toda a prova.
 
 ## Critérios para homologar esta prova
 
