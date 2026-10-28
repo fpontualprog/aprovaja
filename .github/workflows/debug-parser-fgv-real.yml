@@ -18,8 +18,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Instalar PyMuPDF
-        run: python -m pip install "pymupdf>=1.24.0"
+      - name: Instalar dependências
+        run: python -m pip install --upgrade pip "pymupdf>=1.24.0"
+
+      - name: Testes unitários do validador
+        run: python -m unittest tests.test_validar_questoes_fgv -v
 
       - name: Baixar prova oficial FGV b1102
         run: |
@@ -35,13 +38,13 @@ jobs:
           import pymupdf
           from pathlib import Path
 
-          pdf = pymupdf.open("b1102.pdf")
-          texto = "\n\n".join(
-              f"\n===== PÁGINA {i + 1} =====\n{pagina.get_text('text')}"
-              for i, pagina in enumerate(pdf)
-          )
+          with pymupdf.open("b1102.pdf") as pdf:
+              texto = "\n\n".join(
+                  f"\n===== PÁGINA {i + 1} =====\n{pagina.get_text('text')}"
+                  for i, pagina in enumerate(pdf)
+              )
+              print(f"PDF: {len(pdf)} páginas")
           Path("debug_b1102.txt").write_text(texto, encoding="utf-8")
-          print(f"PDF: {len(pdf)} páginas")
           print(f"Texto extraído: {len(texto)} caracteres")
           print("\n--- INÍCIO DO TEXTO EXTRAÍDO ---")
           print(texto[:5000])
@@ -49,16 +52,26 @@ jobs:
               raise SystemExit("Extração insuficiente; verificar se o PDF exige OCR.")
           PY
 
-      - name: Executar diagnóstico do parser FGV
+      - name: Diagnóstico complementar do parser existente
         continue-on-error: true
         run: python scripts/teste_parser_local.py debug_b1102.txt --min-questoes 80
 
-      - name: Publicar texto e PDF para inspeção
+      - name: Validar estrutura das 90 questões
+        run: python scripts/validar_questoes_fgv.py debug_b1102.txt --min-questoes 90
+
+      - name: Gerar JSON para inspeção
+        run: python scripts/extrair_json_fgv.py debug_b1102.txt --pdf b1102.pdf --saida saida_b1102.json
+
+      - name: Validar JSON gerado
+        run: python scripts/validar_questoes_fgv.py saida_b1102.json --json --min-questoes 90
+
+      - name: Publicar JSON, texto e PDF para inspeção
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostico-parser-fgv-b1102
+          name: saida-parser-fgv-b1102
           path: |
+            saida_b1102.json
             debug_b1102.txt
             b1102.pdf
           if-no-files-found: warn
