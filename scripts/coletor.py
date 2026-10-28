@@ -40,6 +40,8 @@ def montar_questao_canonica(numero: int, tipo: str, enunciado: str, texto_apoio:
 def preparar_payload_supabase(questao: dict[str, Any]) -> dict[str, Any]:
     """Filtra metadados locais e valida as colunas obrigatórias do banco."""
     payload = {k: v for k, v in questao.items() if k in COLUNAS_REAIS}
+    if questao.get("enunciado_supabase"):
+        payload["enunciado"] = questao["enunciado_supabase"]
     if not isinstance(payload.get("imagens"), list) or any(not isinstance(path, str) for path in payload["imagens"]):
         raise ValueError("imagens deve ser uma lista de strings compatível com text[]")
     faltando = [k for k in ("evento_url", "numero", "enunciado", "tipo") if payload.get(k) in (None, "")]
