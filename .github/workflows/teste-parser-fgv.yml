@@ -1,4 +1,4 @@
-name: Testes do parser FGV
+name: Testes do parser FGV e upload Supabase
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  testes-parser:
+  testes-parser-e-upload:
     runs-on: ubuntu-24.04
     steps:
       - name: Baixar repositório
@@ -16,9 +16,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Instalar pytest
-        run: python -m pip install pytest
+      - name: Instalar dependências dos testes
+        run: python -m pip install pytest "supabase>=2.0.0,<3"
       - name: Validar sintaxe dos módulos
-        run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py
+        run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py scripts/upload_supabase.py
       - name: Executar testes unitários
-        run: python -m pytest -q tests/test_parser_fgv.py
+        run: python -m pytest -q tests/test_parser_fgv.py tests/test_upload_supabase.py
