@@ -68,3 +68,13 @@ def test_questao_sem_gabarito_pode_entrar_em_revisao():
     assert registro is not None
     assert registro["gabarito"] is None
     assert registro["formato_gabarito"] == "cebraspe"
+
+
+def test_tipo_ausente_e_rejeitado_para_nao_assumir_cebraspe():
+    row = {
+        "evento_url": "https://banca.example/prova.pdf",
+        "numero": "6",
+        "enunciado": "Enunciado sem tipo explícito",
+        "gabarito": "A",
+    }
+    assert _registro(row) is None
