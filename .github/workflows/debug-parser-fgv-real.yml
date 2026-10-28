@@ -98,8 +98,8 @@ jobs:
           path: |
             saida_b1102.json
             debug_b1102.txt
-            inspecao_amostra_v1.txt
-            inspecao_amostra_v1.json
+            inspecao_amostra_v2.txt
+            inspecao_amostra_v2.json
             b1102.pdf
           if-no-files-found: warn
           retention-days: 14
