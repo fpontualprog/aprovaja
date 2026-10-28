@@ -81,14 +81,31 @@ def main() -> int:
                 if response.ok:
                     result = response.json()
                     summary = result.get("resumo", {})
+                    persistence = result.get("persistencia") or {}
+                    valid_response = (
+                        bool(result.get("trace_id"))
+                        and bool(result.get("lote_id"))
+                        and isinstance(summary, dict)
+                        and persistence.get("verificada") is True
+                        and persistence.get("atualizacao_lote_confirmada") is True
+                        and isinstance(persistence.get("itens_no_lote"), int)
+                        and int(summary.get("erros", -1)) == 0
+                    )
                     print(json.dumps({
                         "arquivo_sha256": sha,
+                        "trace_id": result.get("trace_id"),
                         "lote_id": result.get("lote_id"),
                         "status": result.get("status"),
                         "resumo": summary,
+                        "persistencia": persistence,
+                        "validacao_persistencia": valid_response,
                     }, ensure_ascii=False))
-                    successes += 1
-                    sent += len(payload["items"])
+                    if valid_response:
+                        successes += 1
+                        sent += len(payload["items"])
+                    else:
+                        print(f"Resposta HTTP {response.status_code}, mas persistência não foi confirmada para {sha[:12]}. Corpo: {response.text[:1000]}", file=sys.stderr)
+                        failures += 1
                 else:
                     print(f"Falha ao enviar {sha[:12]}: HTTP {response.status_code} - {response.text[:500]}", file=sys.stderr)
                     failures += 1
