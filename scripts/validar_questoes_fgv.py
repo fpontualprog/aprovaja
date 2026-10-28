@@ -82,9 +82,17 @@ def parse_texto_bruto(texto: str) -> list[Questao]:
         m_num = RE_NUM_QUESTAO.match(linha)
         if m_num:
             n = int(m_num.group(1))
-            # Número isolado fora das alternativas inicia a próxima questão.
-            # Dentro de alternativa, números isolados podem ser itens de uma lista.
-            if 1 <= n <= 99 and (atual is None or letra_atual is None):
+            # O próximo número sequencial é um novo enunciado mesmo se a questão
+            # anterior terminou na alternativa (E). Isso também deixa exposta
+            # uma alternativa ausente, em vez de absorver a próxima questão.
+            inicia_nova = (
+                1 <= n <= 99
+                and (
+                    atual is None
+                    or (atual is not None and n == atual.numero + 1)
+                )
+            )
+            if inicia_nova:
                 fechar_questao()
                 atual = Questao(numero=n, pagina_pdf=pagina_atual)
                 parte = "enunciado"
