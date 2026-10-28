@@ -87,7 +87,7 @@ def separar_alternativas(bloco: dict[str, Any]) -> dict[str, Any]:
     letras = [(m.group(1) or m.group(2)).upper() for m in matches]
 
     # Aceita somente uma sequência completa A-E, sem repetição ou salto.
-    if len(matches) not in (4, 5) or letras != list("ABCDE"[:len(matches)]):
+    if len(matches) != 5 or letras != list("ABCDE"):
         return {
             "numero": bloco["numero"],
             "tipo": "indeterminado",
