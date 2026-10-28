@@ -9,13 +9,8 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/sefaz-al-abre-concurso-publico-com-vagas-para-o-cargo-de-auditor-fiscal",
-    "coletado_em": "2026-10-26",
+    "coletado_em": "2026-10-28",
     "fonte": "PCI Concursos",
-    "edital_url": null,
-    "banca": "Cebraspe",
-    "banca_url": "https://www.cebraspe.org.br/concursos",
-    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://www.cebraspe.org.br/concursos",
-    "resolver_edital_status": "banca_identificada_edital_nao_localizado",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
   {
@@ -28,13 +23,8 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-trindade-pe-divulga-retificacao-em-concurso-com-vagas-para-diversos-niveis",
-    "coletado_em": "2026-10-26",
+    "coletado_em": "2026-10-28",
     "fonte": "PCI Concursos",
-    "edital_url": null,
-    "banca": "IGEDUC",
-    "banca_url": "https://igeduc.org.br/",
-    "mensagem_edital": "Edital não localizado automaticamente. Consulte a página oficial da banca organizadora: https://igeduc.org.br/",
-    "resolver_edital_status": "banca_identificada_edital_nao_localizado",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   }
 ]

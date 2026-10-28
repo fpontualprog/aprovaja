@@ -1,14 +1,14 @@
 {
-  "data_validacao": "2026-10-26",
+  "data_validacao": "2026-10-28",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
-  "total_json": 55,
+  "total_json": 50,
   "por_uf": {
-    "AL": 4,
-    "BA": 10,
-    "CE": 12,
+    "AL": 3,
+    "BA": 12,
+    "CE": 13,
     "PB": 9,
     "PE": 8,
-    "RN": 11,
+    "RN": 4,
     "SE": 1
   },
   "estados_esperados": [
@@ -23,20 +23,26 @@
   "estados_sem_registros": [],
   "duplicatas_de_url": 0,
   "campos_ausentes_por_tipo": {
-    "salario": 1
+    "salario": 2
   },
   "csv": {
     "existe": true,
-    "linhas": 55,
+    "linhas": 50,
     "colunas_esperadas_ausentes": []
   },
   "csv_json_consistentes_em_contagem_e_colunas": true,
-  "total_apontamentos": 1,
+  "total_apontamentos": 2,
   "total_erros_bloqueantes": 0,
   "apontamentos": [
     {
       "tipo": "dado_ausente",
-      "registro": "linha 49 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
+      "registro": "linha 42 | BA | Comando do 2º Distrito Naval da Marinha do Brasil",
+      "campo": "salario",
+      "detalhe": "Não inferir nem preencher por estimativa"
+    },
+    {
+      "tipo": "dado_ausente",
+      "registro": "linha 47 | BA | Prefeitura de Maraú",
       "campo": "salario",
       "detalhe": "Não inferir nem preencher por estimativa"
     }
