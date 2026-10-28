@@ -77,6 +77,13 @@ jobs:
       - name: Validar JSON gerado
         run: python scripts/validar_questoes_fgv.py saida_b1102.json --json --min-questoes 90
 
+      - name: Upload Supabase (bloqueado até homologação)
+        if: vars.SUPABASE_UPLOAD_ENABLED == 'true'
+        run: |
+          echo "::error::SUPABASE_UPLOAD_ENABLED está true, mas o uploader ainda não foi homologado/configurado."
+          echo "Nenhum dado foi enviado ao Supabase. Mantenha a variável ausente ou false."
+          exit 1
+
       - name: Publicar JSON, texto e PDF para inspeção
         if: always()
         uses: actions/upload-artifact@v4
