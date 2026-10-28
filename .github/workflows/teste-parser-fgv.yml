@@ -25,11 +25,14 @@ jobs:
         run: python -m pip install pytest "supabase>=2.0.0,<3"
       - name: Validar sintaxe dos módulos
         run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py scripts/upload_supabase.py
+      - name: Listar testes coletados
+        run: python -m pytest tests/ --collect-only -v
+
       - name: Executar testes unitários
         shell: bash
         run: |
           set +e
-          python -m pytest -vv tests/test_parser_fgv.py tests/test_upload_supabase.py tests/test_payload_local.py 2>&1 | tee pytest-report.txt
+          python -m pytest tests/ -v --tb=short 2>&1 | tee pytest-report.txt
           test_status=${PIPESTATUS[0]}
           echo "$test_status" > pytest-exit-code.txt
           exit "$test_status"
