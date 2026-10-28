@@ -11,7 +11,7 @@ Pipeline isolada para coleta e processamento de concursos do PCI Concursos antes
 - Nenhum script deste repositório acessa ou modifica o Supabase.
 
 ## GitHub Actions
-Workflow em `.github/workflows/coleta-diaria.yml` agendado diariamente às 10:15 UTC (07:15 no horário de Recife) e com execução manual em **Actions → Coleta diária de concursos PCI → Run workflow**.
+Workflow em `.github/workflows/coleta-diaria.yml` (branch `main`), agendado diariamente às 10:15 UTC (07:15 no horário de Recife) e com execução manual em **Actions → Coleta diária de concursos PCI → Run workflow**. Esta rotina é independente do pipeline de provas PDF e não acessa o Supabase.
 
 ## Arquivos publicados
 Após uma execução bem-sucedida, os dados ficam em `data/`:
@@ -23,7 +23,7 @@ Após uma execução bem-sucedida, os dados ficam em `data/`:
 O workflow só faz commit em `data/` após coleta e validação bem-sucedidas. A base original em `resultado_coleta_pci_v3/` é gerada em cada execução e não é versionada.
 
 ## Configuração
-1. Confira os arquivos da branch `feat/pci-concursos-coletor`.
+1. Confira os scripts e o workflow na branch `main`.
 2. Abra **Actions** e execute manualmente uma primeira vez.
 3. Inspecione logs e os JSON publicados.
 4. Somente depois prepare a rotina de leitura do Supabase. Nenhuma sincronização com banco está incluída nesta etapa.
