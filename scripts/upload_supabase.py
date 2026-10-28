@@ -74,7 +74,11 @@ def _registro(row: dict[str, Any], evento_padrao: str = "") -> dict[str, Any] | 
     if numero < 1:
         return None
 
-    tipo = str(_valor(row, "tipo", "certo_errado")).strip().lower() or "certo_errado"
+    tipo_bruto = _valor(row, "tipo")
+    # Não assumir CEBRASPE por omissão: isso classificaria questões FGV incorretamente.
+    if tipo_bruto is None or not str(tipo_bruto).strip():
+        return None
+    tipo = str(tipo_bruto).strip().lower()
     formato_bruto = _valor(row, "formato_gabarito")
     formato = str(formato_bruto).strip().lower() if formato_bruto is not None else ""
     if not formato:
