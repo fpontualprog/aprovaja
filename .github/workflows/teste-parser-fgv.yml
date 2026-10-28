@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Instalar dependências dos testes
-        run: python -m pip install pytest "supabase>=2.0.0,<3"
+        run: python -m pip install -r requirements.txt
       - name: Validar sintaxe dos módulos
         run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py scripts/upload_supabase.py
       - name: Listar testes coletados
