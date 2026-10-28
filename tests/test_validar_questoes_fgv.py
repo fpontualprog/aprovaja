@@ -148,6 +148,17 @@ A partir dos dados apresentados, é correto concluir que:
         self.assertIn("e grupo de causa", questoes[0].legenda_figura)
         self.assertIn("Fonte: GBD, 2021", questoes[0].legenda_figura)
 
+
+    def test_validador_detecta_cabecalho_de_secao_no_enunciado(self):
+        q = Questao(
+            numero=1,
+            enunciado="Este enunciado tem tamanho suficiente, mas CONHECIMENTOS GERAIS foi anexado.",
+            alternativas={k: f"Alternativa {k} com conteúdo suficiente." for k in "ABCDE"},
+        )
+        ok, _ = validar([q], min_questoes=1)
+        self.assertFalse(ok)
+        self.assertIn("cabeçalho vazou para o enunciado", q.erros)
+
     def test_sequencia_quebrada_e_detectada(self):
         questoes = [
             Questao(numero=1, enunciado="Enunciado longo o bastante para passar na validação estrutural.", alternativas={k: f"Conteúdo alternativo {k}" for k in "ABCDE"}),
