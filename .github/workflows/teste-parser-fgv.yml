@@ -22,7 +22,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Instalar dependências dos testes
-        run: python -m pip install -r requirements.txt
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install "pymupdf>=1.24.0" "openai>=1.40.0"
+      - name: Confirmar dependências críticas
+        run: |
+          python -m pip show pymupdf openai
+          python -c "import pymupdf, openai; print('pymupdf e openai importados com sucesso')"
       - name: Validar sintaxe dos módulos
         run: python -m py_compile scripts/parser_fgv.py scripts/imagens.py scripts/validacao.py scripts/gabarito.py scripts/coletor.py scripts/upload_supabase.py
       - name: Listar testes coletados
