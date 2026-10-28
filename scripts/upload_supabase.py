@@ -10,6 +10,7 @@ import ast
 import csv
 import os
 import sys
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -94,6 +95,9 @@ def _registro(row: dict[str, Any], evento_padrao: str) -> dict[str, Any] | None:
 
 def _arquivo_csv() -> Path | None:
     selecionado = os.getenv("QUESTOES_CSV")
+    print(f"[CSV] Diretório esperado: {DATA_DIR}")
+    encontrados_agora = sorted(DATA_DIR.glob("*.csv")) if DATA_DIR.exists() else []
+    print(f"[CSV] CSVs encontrados em data/: {[p.name for p in encontrados_agora]}")
     if selecionado:
         path = Path(selecionado)
         if not path.is_absolute():
@@ -125,6 +129,8 @@ def main() -> int:
         print(f"ERRO: nenhum CSV encontrado em {DATA_DIR}.", file=sys.stderr)
         return 2
 
+    print(f"[CSV] Arquivo selecionado: {arquivo}")
+    print(f"[CSV] Tamanho: {arquivo.stat().st_size} bytes")
     evento_padrao = arquivo.stem
     if evento_padrao.endswith("_questoes"):
         evento_padrao = evento_padrao[:-len("_questoes")]
@@ -138,7 +144,11 @@ def main() -> int:
             dialect = csv.Sniffer().sniff(amostra, delimiters=",;\\t")
         except csv.Error:
             dialect = csv.excel
-        for linha, row in enumerate(csv.DictReader(f, dialect=dialect), start=2):
+        leitor = csv.DictReader(f, dialect=dialect)
+        print(f"[CSV] Colunas detectadas: {leitor.fieldnames}")
+        linhas_lidas = 0
+        for linha, row in enumerate(leitor, start=2):
+            linhas_lidas += 1
             registro = _registro(row, evento_padrao)
             if registro is None:
                 invalidas += 1
@@ -146,6 +156,9 @@ def main() -> int:
                 continue
             registros.append(registro)
 
+    print(f"[CSV] Linhas de dados lidas: {linhas_lidas}")
+    print(f"[CSV] Registros válidos preparados: {len(registros)}")
+    print(f"[CSV] Linhas inválidas ignoradas: {invalidas}")
     if not registros:
         print(f"ERRO: nenhum registro válido encontrado em {arquivo}.", file=sys.stderr)
         return 2
@@ -154,10 +167,15 @@ def main() -> int:
     enviados = 0
     for inicio in range(0, len(registros), BATCH_SIZE):
         lote = registros[inicio:inicio + BATCH_SIZE]
-        client.table("questoes_globais").upsert(
-            lote, on_conflict="evento_url,numero"
-        ).execute()
-        enviados += len(lote)
+        print(f"[SUPABASE] Tentando enviar lote {inicio // BATCH_SIZE + 1} com {len(lote)} registro(s); total planejado={len(registros)}.")
+        try:
+            client.table("questoes_globais").upsert(lote, on_conflict="evento_url,numero").execute()
+            enviados += len(lote)
+            print(f"[SUPABASE] Lote concluído. Total processado: {enviados}.")
+        except Exception as exc:
+            print(f"[SUPABASE][ERRO] Tipo: {type(exc).__name__}; mensagem: {exc}", file=sys.stderr)
+            traceback.print_exc()
+            return 3
 
     print(
         f"Concluído: {enviados} questão(ões) enviadas de {arquivo.name} para "
