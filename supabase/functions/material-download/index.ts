@@ -20,7 +20,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "GET") return json({ error: "Método não permitido." }, 405);
   try {
-    const token = (req.headers.get("Authorization") || "").replace(/^Bearer\\s+/i, "");
+    const authorization = req.headers.get("Authorization") || "";
+    const token = authorization.toLowerCase().startsWith("bearer ") ? authorization.slice(7).trim() : "";
     if (!token) return json({ error: "Autenticação obrigatória." }, 401);
     const materialId = new URL(req.url).searchParams.get("material_id");
     if (!materialId || !/^[0-9a-f-]{36}$/i.test(materialId)) return json({ error: "Material inválido." }, 400);
@@ -41,7 +42,7 @@ Deno.serve(async (req) => {
     const accessToken = await driveToken();
     const driveRes = await fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(material.drive_file_id)}?alt=media`, { headers: { Authorization: `Bearer ${accessToken}` } });
     if (!driveRes.ok || !driveRes.body) return json({ error: "O arquivo não pôde ser obtido do repositório." }, 502);
-    const filename = (material.nome_arquivo || material.titulo || "material").replace(/[\\r\\n"]/g, "_");
+    const filename = (material.nome_arquivo || material.titulo || "material").replaceAll("\r", "_").replaceAll("\n", "_").replaceAll('"', "_");
     return new Response(driveRes.body, { status: 200, headers: { ...cors, "Content-Type": driveRes.headers.get("content-type") || "application/octet-stream", "Content-Disposition": `attachment; filename="${filename}"`, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
   } catch (e) {
     console.error("material-download failure", e);
