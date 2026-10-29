@@ -1,5 +1,5 @@
 -- APROVAJÁ: catálogo protegido de Materiais Gratuitos
--- Não aplicar em produção antes de confirmar o projeto e testar permissões.
+-- Os arquivos ficam no Google Drive; o Supabase guarda somente metadados.
 create sequence if not exists public.materiais_gratuitos_codigo_seq;
 
 create table if not exists public.materiais_gratuitos (
@@ -66,11 +66,10 @@ create trigger trg_materiais_gratuitos_codigo
 before insert or update on public.materiais_gratuitos
 for each row execute function public.aprovaja_material_codigo();
 
-update public.materiais_gratuitos set codigo = null where codigo is null;
-
 alter table public.materiais_gratuitos enable row level security;
 revoke all on table public.materiais_gratuitos from anon;
 grant select, insert, update, delete on public.materiais_gratuitos to authenticated;
+grant usage, select on sequence public.materiais_gratuitos_codigo_seq to authenticated;
 revoke all on function public.aprovaja_is_admin() from public;
 grant execute on function public.aprovaja_is_admin() to authenticated;
 
@@ -95,4 +94,4 @@ on public.materiais_gratuitos for delete to authenticated
 using (public.aprovaja_is_admin());
 
 comment on table public.materiais_gratuitos is
-'Catálogo APROVAJÁ. Arquivos devem ser entregues por Edge Function autenticada; não expor links do Drive.';
+'Catálogo APROVAJÁ. Arquivos permanecem no Google Drive; a tabela guarda apenas metadados e referência ao arquivo.';
