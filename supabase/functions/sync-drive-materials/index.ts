@@ -43,7 +43,9 @@ Deno.serve(async (req) => {
       files.push(...(data.files || [])); pageToken = data.nextPageToken;
     } while (pageToken && files.length < 1000);
     if (!files.length) return json({ ok: true, encontrados: 0, importados: 0, ignorados: 0, mensagem: "Nenhum arquivo encontrado na pasta configurada." });
-    const { data: existing, error: existingError } = await adminClient.from("materiais_gratuitos").select("drive_file_id").in("drive_file_id", files.map(f => f.id).filter(Boolean));
+    const ids = files.map(f => f.id).filter(Boolean);
+    if (!ids.length) return json({ ok: true, encontrados: 0, importados: 0, ignorados: 0, mensagem: "Nenhum arquivo encontrado na pasta configurada." });
+    const { data: existing, error: existingError } = await adminClient.from("materiais_gratuitos").select("drive_file_id").in("drive_file_id", ids);
     if (existingError) return json({ error: "Não foi possível verificar os materiais já cadastrados." }, 500);
     const known = new Set((existing || []).map(x => x.drive_file_id));
     const newFiles = files.filter(f => f.id && !known.has(f.id));
