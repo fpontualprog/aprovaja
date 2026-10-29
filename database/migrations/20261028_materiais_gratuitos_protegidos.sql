@@ -38,7 +38,7 @@ create or replace function public.aprovaja_is_admin()
 returns boolean
 language sql
 stable
-security definer
+security invoker
 set search_path = public, auth
 as $$
   select exists (
