@@ -29,6 +29,7 @@ alter table public.materiais_gratuitos add column if not exists palavras_chave t
 alter table public.materiais_gratuitos add column if not exists drive_modified_time timestamptz;
 alter table public.materiais_gratuitos add column if not exists atualizado_em timestamptz not null default now();
 
+create unique index if not exists materiais_gratuitos_codigo_uidx on public.materiais_gratuitos (codigo) where codigo is not null;
 create unique index if not exists materiais_gratuitos_drive_file_id_uidx on public.materiais_gratuitos (drive_file_id);
 create index if not exists materiais_gratuitos_publicados_idx on public.materiais_gratuitos (publicado, ordem, criado_em desc);
 create index if not exists materiais_gratuitos_disciplina_idx on public.materiais_gratuitos (disciplina);
