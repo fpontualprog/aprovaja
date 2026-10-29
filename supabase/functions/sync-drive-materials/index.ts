@@ -18,7 +18,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Método não permitido." }, 405);
   try {
-    const token = (req.headers.get("Authorization") || "").replace(/^Bearer\\s+/i, "");
+    const authorization = req.headers.get("Authorization") || "";
+    const token = authorization.toLowerCase().startsWith("bearer ") ? authorization.slice(7).trim() : "";
     if (!token) return json({ error: "Autenticação obrigatória." }, 401);
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -51,7 +52,7 @@ Deno.serve(async (req) => {
     const newFiles = files.filter(f => f.id && !known.has(f.id));
     const rows = newFiles.map(f => {
       const ext = (f.name.split(".").pop() || "pdf").toUpperCase();
-      return { titulo: f.name.replace(/\\.[^.]+$/, ""), disciplina: "A classificar", categoria: "Outro", tipo_arquivo: ext, drive_file_id: f.id, nome_arquivo: f.name, drive_modified_time: f.modifiedTime || null, publicado: false, criado_por: user.id };
+      return { titulo: f.name.replace(/\.[^.]+$/, ""), disciplina: "A classificar", categoria: "Outro", tipo_arquivo: ext, drive_file_id: f.id, nome_arquivo: f.name, drive_modified_time: f.modifiedTime || null, publicado: false, criado_por: user.id };
     });
     if (rows.length) {
       const { error: insertError } = await adminClient.from("materiais_gratuitos").insert(rows);
