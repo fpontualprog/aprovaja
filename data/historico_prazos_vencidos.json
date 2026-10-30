@@ -1,5 +1,33 @@
 [
   {
+    "uf": "BA",
+    "concurso": "UFBA - Universidade Federal da Bahia",
+    "vagas": "139 vagas",
+    "nivel": "Médio/Técnico/Superior",
+    "salario": "R$ 5.215,39",
+    "inscricao_ate": "2026-10-29",
+    "situacao_prazo": "prazo_vencido",
+    "campos_ausentes": "",
+    "fonte_url": "https://www.pciconcursos.com.br/noticias/ufba-ba-publica-retificacoes-de-concurso-publico-para-tecnicos-administrativos-em-educacao",
+    "coletado_em": "2026-10-30",
+    "fonte": "PCI Concursos",
+    "observacao_status": "Prazo vencido; mantido somente no histórico."
+  },
+  {
+    "uf": "BA",
+    "concurso": "Prefeitura de Rio Real",
+    "vagas": "148 vagas",
+    "nivel": "Fundamental/Médio/Superior",
+    "salario": "R$ 4.430,06",
+    "inscricao_ate": "2026-10-29",
+    "situacao_prazo": "prazo_vencido",
+    "campos_ausentes": "",
+    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-rio-real-ba-retifica-editais-de-concursos-e-de-processo-seletivo",
+    "coletado_em": "2026-10-30",
+    "fonte": "PCI Concursos",
+    "observacao_status": "Prazo vencido; mantido somente no histórico."
+  },
+  {
     "uf": "AL",
     "concurso": "SEFAZ - Secretaria de Estado da Fazenda de Alagoas",
     "vagas": "40 vagas",
@@ -9,7 +37,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/sefaz-al-abre-concurso-publico-com-vagas-para-o-cargo-de-auditor-fiscal",
-    "coletado_em": "2026-10-29",
+    "coletado_em": "2026-10-30",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
@@ -23,7 +51,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-trindade-pe-divulga-retificacao-em-concurso-com-vagas-para-diversos-niveis",
-    "coletado_em": "2026-10-29",
+    "coletado_em": "2026-10-30",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   }

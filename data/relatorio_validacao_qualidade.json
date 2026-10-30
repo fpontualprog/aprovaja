@@ -1,13 +1,13 @@
 {
-  "data_validacao": "2026-10-29",
+  "data_validacao": "2026-10-30",
   "escopo": "Validação estrutural local; não acessa internet, APROVAJÁ ou Supabase.",
-  "total_json": 49,
+  "total_json": 51,
   "por_uf": {
     "AL": 3,
-    "BA": 13,
+    "BA": 14,
     "CE": 12,
     "PB": 9,
-    "PE": 7,
+    "PE": 8,
     "RN": 4,
     "SE": 1
   },
@@ -27,7 +27,7 @@
   },
   "csv": {
     "existe": true,
-    "linhas": 49,
+    "linhas": 51,
     "colunas_esperadas_ausentes": []
   },
   "csv_json_consistentes_em_contagem_e_colunas": true,
@@ -42,7 +42,7 @@
     },
     {
       "tipo": "dado_ausente",
-      "registro": "linha 46 | BA | Prefeitura de Maraú",
+      "registro": "linha 47 | BA | Prefeitura de Maraú",
       "campo": "salario",
       "detalhe": "Não inferir nem preencher por estimativa"
     }
