@@ -1,6 +1,20 @@
 [
   {
     "uf": "BA",
+    "concurso": "Prefeitura de Salvador",
+    "vagas": "50 vagas",
+    "nivel": "Médio",
+    "salario": "R$ 3.546,42",
+    "inscricao_ate": "2026-10-30",
+    "situacao_prazo": "prazo_vencido",
+    "campos_ausentes": "",
+    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-salvador-ba-abre-concurso-publico-para-guardas-civis-municipais",
+    "coletado_em": "2026-10-31",
+    "fonte": "PCI Concursos",
+    "observacao_status": "Prazo vencido; mantido somente no histórico."
+  },
+  {
+    "uf": "BA",
     "concurso": "UFBA - Universidade Federal da Bahia",
     "vagas": "139 vagas",
     "nivel": "Médio/Técnico/Superior",
@@ -9,7 +23,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/ufba-ba-publica-retificacoes-de-concurso-publico-para-tecnicos-administrativos-em-educacao",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
@@ -23,7 +37,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-rio-real-ba-retifica-editais-de-concursos-e-de-processo-seletivo",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
@@ -37,7 +51,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/sefaz-al-abre-concurso-publico-com-vagas-para-o-cargo-de-auditor-fiscal",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   },
@@ -51,7 +65,7 @@
     "situacao_prazo": "prazo_vencido",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-trindade-pe-divulga-retificacao-em-concurso-com-vagas-para-diversos-niveis",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Prazo vencido; mantido somente no histórico."
   }

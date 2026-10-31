@@ -1,90 +1,6 @@
 [
   {
     "uf": "AL",
-    "concurso": "Prefeitura de Estrela de Alagoas",
-    "vagas": "20 vagas",
-    "nivel": "Fundamental/Médio/Técnico/Superior",
-    "salario": "R$ 2.300,00",
-    "inscricao_ate": "2026-10-30",
-    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-estrela-de-alagoas-al-abre-selecao-para-a-secretaria-de-saude",
-    "coletado_em": "2026-10-30",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
-  },
-  {
-    "uf": "BA",
-    "concurso": "Câmara de Ourolândia",
-    "vagas": "9 vagas",
-    "nivel": "Fundamental/Médio/Superior",
-    "salario": "R$ 2.300,00",
-    "inscricao_ate": "2026-10-30",
-    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-ourolandia-ba-publica-edital-de-concurso-publico-para-diversos-cargos",
-    "coletado_em": "2026-10-30",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
-  },
-  {
-    "uf": "BA",
-    "concurso": "Prefeitura de Palmas de Monte Alto",
-    "vagas": "7 vagas",
-    "nivel": "Médio",
-    "salario": "R$ 3242,00",
-    "inscricao_ate": "2026-10-30",
-    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-palmas-de-monte-alto-ba-abre-concurso-para-agentes-comunitarios-de-saude",
-    "coletado_em": "2026-10-30",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
-  },
-  {
-    "uf": "BA",
-    "concurso": "Prefeitura de Salvador",
-    "vagas": "50 vagas",
-    "nivel": "Médio",
-    "salario": "R$ 3.546,42",
-    "inscricao_ate": "2026-10-30",
-    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-salvador-ba-abre-concurso-publico-para-guardas-civis-municipais",
-    "coletado_em": "2026-10-30",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
-  },
-  {
-    "uf": "CE",
-    "concurso": "Câmara de São Benedito",
-    "vagas": "11 vagas",
-    "nivel": "Fundamental/Médio/Técnico",
-    "salario": "R$ 2.000,00",
-    "inscricao_ate": "2026-10-30",
-    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-sao-benedito-ce-abre-concurso-publico-para-niveis-fundamental-e-medio",
-    "coletado_em": "2026-10-30",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
-  },
-  {
-    "uf": "RN",
-    "concurso": "Prefeitura de Marcelino Vieira",
-    "vagas": "106 vagas",
-    "nivel": "Médio/Técnico/Superior",
-    "salario": "R$ 13.266,00",
-    "inscricao_ate": "2026-10-30",
-    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
-    "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-marcelino-vieira-rn-abre-processo-seletivo-com-salarios-de-ate-13266",
-    "coletado_em": "2026-10-30",
-    "fonte": "PCI Concursos",
-    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
-  },
-  {
-    "uf": "AL",
     "concurso": "Prefeitura de Chã Preta",
     "vagas": "76 vagas",
     "nivel": "Fundamental/Médio/Técnico/Superior",
@@ -93,7 +9,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-cha-preta-al-abre-concursos-com-salarios-de-ate-7256",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -107,7 +23,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-ubajara-ce-publica-retificacao-de-concurso-publico",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -121,7 +37,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/universidade-de-pernambuco-abre-concurso-publico-para-o-cargo-de-advogado",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -135,7 +51,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/consan-ba-reabre-inscricoes-da-selecao-para-assistente-administrativo-tecnico-em-enfermagem-e-assessor-tecnico",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -149,7 +65,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/cro-ce-abre-processo-seletivo-para-o-cargo-de-fiscal-cirurgiao-dentista",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -163,7 +79,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-aracati-ce-abre-concurso-publico-com-salarios-de-ate-5431",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -177,7 +93,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-tibau-do-sul-rn-abre-concurso-publico-com-oito-vagas-imediatas",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -191,7 +107,21 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/cro-se-prorroga-inscricoes-para-concurso-publico-com-salarios-de-ate-4504",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
+    "fonte": "PCI Concursos",
+    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
+  },
+  {
+    "uf": "SE",
+    "concurso": "Secretaria Municipal de Educação de Itabaiana",
+    "vagas": "38 vagas",
+    "nivel": "Fundamental/Médio/Superior",
+    "salario": "R$ 4.514,95",
+    "inscricao_ate": "2026-11-06",
+    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
+    "campos_ausentes": "",
+    "fonte_url": "https://www.pciconcursos.com.br/noticias/secretaria-municipal-de-educacao-de-itabaiana-se-abre-processo-seletivo-com-salarios-de-ate-4514",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -205,7 +135,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-sao-jose-do-sabugi-pb-abre-concurso-para-diversos-cargos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -219,7 +149,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-horizonte-ce-retifica-edital-de-concurso-publico",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -233,7 +163,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-conceicao-pb-reabre-inscricoes-para-concurso-publico",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -247,7 +177,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-aracatu-ba-abre-processo-seletivo-para-a-secretaria-de-educacao",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -261,7 +191,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-firmino-alves-ba-abre-concurso-publico-com-salarios-de-ate-4867",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -275,7 +205,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-firmino-alves-ba-abre-selecao-com-salarios-de-ate-8000",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -289,7 +219,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "salario",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-marau-ba-abre-processo-seletivo-para-agentes-comunitarios-de-saude",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -303,7 +233,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "salario",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/marinha-do-brasil-2-distrito-naval-abre-selecao-para-oficiais-temporarios-rm2-na-bahia",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -317,7 +247,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-alto-santo-ce-retifica-concurso-para-cargos-de-nivel-superior",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -331,7 +261,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-poranga-ce-reabre-inscricoes-para-concursos-publicos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -345,7 +275,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/saeb-ba-abre-concurso-publico-para-especialista-em-politicas-publicas-e-gestao-governamental",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -359,7 +289,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-jaguaribe-ce-reabre-inscricoes-para-concursos-publicos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -373,7 +303,21 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-catu-ba-prorroga-inscricoes-do-concurso-publico-para-diversos-cargos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
+    "fonte": "PCI Concursos",
+    "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
+  },
+  {
+    "uf": "CE",
+    "concurso": "Câmara de Camocim",
+    "vagas": "11 vagas",
+    "nivel": "Fundamental/Médio/Superior",
+    "salario": "R$ 3.800,00",
+    "inscricao_ate": "2026-11-12",
+    "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
+    "campos_ausentes": "",
+    "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-camocim-ce-abre-concurso-publico-com-11-vagas",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -387,7 +331,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-mossoro-rn-abre-concurso-publico-com-salarios-de-ate-8810",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -401,7 +345,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/dpe-pb-abre-concurso-publico-com-salarios-de-ate-5197",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -415,7 +359,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-groairas-ce-reabre-inscricoes-para-concursos-publicos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -429,7 +373,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-groairas-ce-reabre-inscricoes-de-concurso-para-agentes-de-saude-e-de-endemias",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -443,7 +387,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-agua-branca-pb-republica-editais-de-concursos-publicos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -457,7 +401,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/cref16-rn-abre-concurso-publico-para-profissionais-de-nivel-superior",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -471,7 +415,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-quixada-ce-abre-processo-seletivo-com-vagas-imediatas-e-cadastro-de-reserva",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -485,7 +429,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-goiana-pe-retifica-edital-de-selecao-publica",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -498,8 +442,8 @@
     "inscricao_ate": "2026-11-18",
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
-    "fonte_url": "https://www.pciconcursos.com.br/noticias/tjpb-abre-concurso-publico-para-analistas-judiciarios",
-    "coletado_em": "2026-10-30",
+    "fonte_url": "https://www.pciconcursos.com.br/noticias/tjpb-retifica-concurso-publico-para-analistas-judiciarios",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -513,7 +457,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-ferreiros-pe-abre-concurso-publico-com-vagas-para-diversas-areas",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -527,7 +471,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-itapororoca-pb-abre-concurso-com-salarios-de-ate-10000",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -541,7 +485,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-guarabira-pb-abre-concurso-publico-com-salarios-de-ate-3354",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -555,7 +499,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-mairi-ba-abre-concurso-publico-com-vagas-na-saude-e-educacao",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -569,7 +513,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/secretaria-de-defesa-social-pe-retifica-concurso-com-570-vagas-para-bombeiros",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -583,7 +527,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/pmpe-altera-periodo-de-inscricao-para-concurso-publico-de-soldados-e-oficiais",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -597,7 +541,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-aracati-ce-abre-concursos-para-agente-comunitario-de-saude-e-interprete-de-libras",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -611,7 +555,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/camara-de-areia-pb-abre-concurso-para-auxiliar-de-servicos-gerais-e-auxiliar-administrativo",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -625,7 +569,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-serra-grande-pb-abre-concurso-publico-com-vagas-para-diversos-cargos",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -639,7 +583,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/prefeitura-de-sao-caetano-pe-abre-concurso-publico-com-salarios-de-ate-3242",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   },
@@ -653,7 +597,7 @@
     "situacao_prazo": "prazo_futuro_ou_hoje_a_confirmar",
     "campos_ausentes": "",
     "fonte_url": "https://www.pciconcursos.com.br/noticias/secretaria-de-defesa-social-e-de-administracao-pe-abrem-concurso-com-1315-vagas-para-a-policia-civil",
-    "coletado_em": "2026-10-30",
+    "coletado_em": "2026-10-31",
     "fonte": "PCI Concursos",
     "observacao_status": "Data futura ou de hoje; confirmar edital e situação efetiva das inscrições antes de anunciar como aberta."
   }
